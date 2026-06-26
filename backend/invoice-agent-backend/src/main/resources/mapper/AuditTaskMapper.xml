@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="invoice_agent_backend.mapper.AuditTaskMapper">
+
+    <resultMap id="AuditTaskResultMap" type="invoice_agent_backend.entity.AuditTask">
+        <id property="id" column="id"/>
+        <result property="taskNo" column="task_no"/>
+        <result property="userId" column="user_id"/>
+        <result property="status" column="status"/>
+        <result property="originalFilePath" column="original_file_path"/>
+        <result property="ocrRawText" column="ocr_raw_text"/>
+        <result property="finalDecision" column="final_decision"/>
+        <result property="needHumanReview" column="need_human_review"/>
+        <result property="reportPath" column="report_path"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insertAuditTask" parameterType="invoice_agent_backend.entity.AuditTask"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO audit_task (
+        task_no,
+        user_id,
+        status,
+        original_file_path,
+        ocr_raw_text,
+        final_decision,
+        need_human_review,
+        report_path
+        )
+        VALUES (
+        #{taskNo},
+        #{userId},
+        #{status},
+        #{originalFilePath},
+        #{ocrRawText},
+        #{finalDecision},
+        #{needHumanReview},
+        #{reportPath}
+        )
+    </insert>
+
+    <select id="selectAuditTaskById" parameterType="long" resultMap="AuditTaskResultMap">
+        SELECT
+        id,
+        task_no,
+        user_id,
+        status,
+        original_file_path,
+        ocr_raw_text,
+        final_decision,
+        need_human_review,
+        report_path,
+        created_at,
+        updated_at
+        FROM audit_task
+        WHERE id = #{id}
+    </select>
+
+</mapper>
