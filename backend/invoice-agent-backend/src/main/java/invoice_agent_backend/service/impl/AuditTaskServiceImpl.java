@@ -72,6 +72,21 @@ public class AuditTaskServiceImpl implements AuditTaskService {
         }
     }
 
+    @Override
+    public AuditTask getTaskById(Long id) {
+        if (id == null) {
+            throw new RuntimeException("任务ID不能为空");
+        }
+
+        AuditTask auditTask = auditTaskMapper.selectAuditTaskById(id);
+
+        if (auditTask == null) {
+            throw new RuntimeException("任务不存在");
+        }
+
+        return auditTask;
+    }
+
     private String getFileSuffix(String originalFilename) {
         if (originalFilename == null || !originalFilename.contains(".")) {
             return "";
