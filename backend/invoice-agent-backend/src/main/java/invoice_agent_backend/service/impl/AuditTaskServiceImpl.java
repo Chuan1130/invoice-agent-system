@@ -45,10 +45,11 @@ public class AuditTaskServiceImpl implements AuditTaskService {
             }
 
             File targetFile = new File(targetDir, fileName);
-            file.transferTo(targetFile);
+            file.transferTo(targetFile);  // 暂时存到upload目录里，在接入OCR之前
 
             String taskNo = "TASK-" + System.currentTimeMillis();
 
+            // 创建AuditTask对象，将文件路径存入数据库对应表，
             AuditTask auditTask = new AuditTask();
             auditTask.setTaskNo(taskNo);
             auditTask.setUserId(null);
@@ -59,6 +60,7 @@ public class AuditTaskServiceImpl implements AuditTaskService {
             auditTask.setNeedHumanReview(false);
             auditTask.setReportPath(null);
 
+            // 存入数据库
             auditTaskMapper.insertAuditTask(auditTask);
 
             return new UploadInvoiceResult(

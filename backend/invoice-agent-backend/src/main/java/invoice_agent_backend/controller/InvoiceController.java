@@ -17,6 +17,7 @@ public class InvoiceController {
         this.auditTaskService = auditTaskService;
     }
 
+    // 此文件的key必须是"file" <--- @RequestParam("file")
     @PostMapping("/upload")
     public ApiResponse<UploadInvoiceResult> uploadInvoice(@RequestParam("file") MultipartFile file) {
         UploadInvoiceResult result = auditTaskService.uploadInvoice(file);
