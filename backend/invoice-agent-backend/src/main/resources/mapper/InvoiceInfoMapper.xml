@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="invoice_agent_backend.mapper.InvoiceInfoMapper">
+
+    <resultMap id="InvoiceInfoResultMap" type="invoice_agent_backend.entity.InvoiceInfo">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="invoiceNo" column="invoice_no"/>
+        <result property="invoiceDate" column="invoice_date"/>
+        <result property="amount" column="amount"/>
+        <result property="taxAmount" column="tax_amount"/>
+        <result property="buyerName" column="buyer_name"/>
+        <result property="sellerName" column="seller_name"/>
+        <result property="invoiceType" column="invoice_type"/>
+        <result property="rawJson" column="raw_json"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insertInvoiceInfo"
+            parameterType="invoice_agent_backend.entity.InvoiceInfo"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO invoice_info (
+        task_id,
+        invoice_no,
+        invoice_date,
+        amount,
+        tax_amount,
+        buyer_name,
+        seller_name,
+        invoice_type,
+        raw_json
+        )
+        VALUES (
+        #{taskId},
+        #{invoiceNo},
+        #{invoiceDate},
+        #{amount},
+        #{taxAmount},
+        #{buyerName},
+        #{sellerName},
+        #{invoiceType},
+        #{rawJson}
+        )
+    </insert>
+
+    <select id="selectInvoiceInfoByTaskId"
+            parameterType="long"
+            resultMap="InvoiceInfoResultMap">
+        SELECT
+        id,
+        task_id,
+        invoice_no,
+        invoice_date,
+        amount,
+        tax_amount,
+        buyer_name,
+        seller_name,
+        invoice_type,
+        raw_json,
+        created_at
+        FROM invoice_info
+        WHERE task_id = #{taskId}
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+</mapper>

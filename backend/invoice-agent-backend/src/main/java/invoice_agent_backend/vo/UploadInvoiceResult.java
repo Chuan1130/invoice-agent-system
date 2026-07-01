@@ -1,11 +1,14 @@
 package invoice_agent_backend.vo;
 
+import invoice_agent_backend.entity.InvoiceInfo;
+
 public class UploadInvoiceResult {
 
     private Long taskId;
     private String taskNo;
     private String status;
     private String originalFilePath;
+    private InvoiceInfo invoiceInfo;
 
     public UploadInvoiceResult() {
     }
@@ -15,6 +18,18 @@ public class UploadInvoiceResult {
         this.taskNo = taskNo;
         this.status = status;
         this.originalFilePath = originalFilePath;
+    }
+
+    public UploadInvoiceResult(Long taskId,
+                               String taskNo,
+                               String status,
+                               String originalFilePath,
+                               InvoiceInfo invoiceInfo) {
+        this.taskId = taskId;
+        this.taskNo = taskNo;
+        this.status = status;
+        this.originalFilePath = originalFilePath;
+        this.invoiceInfo = invoiceInfo;
     }
 
     public Long getTaskId() {
@@ -47,5 +62,13 @@ public class UploadInvoiceResult {
 
     public void setOriginalFilePath(String originalFilePath) {
         this.originalFilePath = originalFilePath;
+    }
+
+    public InvoiceInfo getInvoiceInfo() {
+        return invoiceInfo;
+    }
+
+    public void setInvoiceInfo(InvoiceInfo invoiceInfo) {
+        this.invoiceInfo = invoiceInfo;
     }
 }

@@ -7,6 +7,10 @@ import invoice_agent_backend.vo.UploadInvoiceResult;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import invoice_agent_backend.entity.InvoiceInfo;
+import invoice_agent_backend.mapper.InvoiceInfoMapper;
+import invoice_agent_backend.service.OcrService;
+
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,9 +20,15 @@ import java.util.UUID;
 public class AuditTaskServiceImpl implements AuditTaskService {
 
     private final AuditTaskMapper auditTaskMapper;
+    private final InvoiceInfoMapper invoiceInfoMapper;
+    private final OcrService ocrService;
 
-    public AuditTaskServiceImpl(AuditTaskMapper auditTaskMapper) {
+    public AuditTaskServiceImpl(AuditTaskMapper auditTaskMapper,
+                                InvoiceInfoMapper invoiceInfoMapper,
+                                OcrService ocrService) {
         this.auditTaskMapper = auditTaskMapper;
+        this.invoiceInfoMapper = invoiceInfoMapper;
+        this.ocrService = ocrService;
     }
 
     @Override
@@ -63,11 +73,27 @@ public class AuditTaskServiceImpl implements AuditTaskService {
             // 存入数据库
             auditTaskMapper.insertAuditTask(auditTask);
 
+            InvoiceInfo invoiceInfo = ocrService.recognizeInvoice(
+                    auditTask.getId(),
+                    targetFile.getAbsolutePath()
+            );
+
+            invoiceInfoMapper.insertInvoiceInfo(invoiceInfo);
+
+            auditTaskMapper.updateTaskAfterOcr(
+                    auditTask.getId(),
+                    "OCR_DONE",
+                    invoiceInfo.getRawJson()
+            );
+
+            auditTask.setStatus("OCR_DONE");
+
             return new UploadInvoiceResult(
                     auditTask.getId(),
                     auditTask.getTaskNo(),
                     auditTask.getStatus(),
-                    auditTask.getOriginalFilePath()
+                    auditTask.getOriginalFilePath(),
+                    invoiceInfo
             );
         } catch (Exception e) {
             throw new RuntimeException("上传发票失败：" + e.getMessage(), e);
@@ -94,5 +120,20 @@ public class AuditTaskServiceImpl implements AuditTaskService {
             return "";
         }
         return originalFilename.substring(originalFilename.lastIndexOf("."));
+    }
+
+    @Override
+    public InvoiceInfo getInvoiceInfoByTaskId(Long taskId) {
+        if (taskId == null) {
+            throw new RuntimeException("任务ID不能为空");
+        }
+
+        InvoiceInfo invoiceInfo = invoiceInfoMapper.selectInvoiceInfoByTaskId(taskId);
+
+        if (invoiceInfo == null) {
+            throw new RuntimeException("发票信息不存在");
+        }
+
+        return invoiceInfo;
     }
 }

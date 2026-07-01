@@ -60,4 +60,13 @@
         WHERE id = #{id}
     </select>
 
+    <update id="updateTaskAfterOcr">
+        UPDATE audit_task
+        SET
+        status = #{status},
+        ocr_raw_text = #{ocrRawText},
+        updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
 </mapper>
