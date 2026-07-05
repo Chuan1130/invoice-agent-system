@@ -68,4 +68,11 @@
         LIMIT 1
     </select>
 
+    <select id="countByInvoiceNoExcludeTask" resultType="int">
+        SELECT COUNT(1)
+        FROM invoice_info
+        WHERE invoice_no = #{invoiceNo}
+        AND task_id != #{taskId}
+    </select>
+
 </mapper>

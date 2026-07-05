@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="invoice_agent_backend.mapper.AuditRuleHitMapper">
+
+    <resultMap id="AuditRuleHitResultMap" type="invoice_agent_backend.entity.AuditRuleHit">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="ruleCode" column="rule_code"/>
+        <result property="ruleName" column="rule_name"/>
+        <result property="hitResult" column="hit_result"/>
+        <result property="ruleMessage" column="rule_message"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insertAuditRuleHit"
+            parameterType="invoice_agent_backend.entity.AuditRuleHit"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO audit_rule_hit (
+        task_id,
+        rule_code,
+        rule_name,
+        hit_result,
+        rule_message
+        )
+        VALUES (
+        #{taskId},
+        #{ruleCode},
+        #{ruleName},
+        #{hitResult},
+        #{ruleMessage}
+        )
+    </insert>
+
+    <select id="selectRuleHitsByTaskId"
+            parameterType="long"
+            resultMap="AuditRuleHitResultMap">
+        SELECT
+        id,
+        task_id,
+        rule_code,
+        rule_name,
+        hit_result,
+        rule_message,
+        created_at
+        FROM audit_rule_hit
+        WHERE task_id = #{taskId}
+        ORDER BY id ASC
+    </select>
+
+</mapper>

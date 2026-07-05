@@ -69,4 +69,13 @@
         WHERE id = #{id}
     </update>
 
+    <update id="updateAuditResult">
+        UPDATE audit_task
+        SET
+        status = #{status},
+        final_decision = #{finalDecision},
+        need_human_review = #{needHumanReview},
+        updated_at = NOW()
+        WHERE id = #{id}
+    </update>
 </mapper>
