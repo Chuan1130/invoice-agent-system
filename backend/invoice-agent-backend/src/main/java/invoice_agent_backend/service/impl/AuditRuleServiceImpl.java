@@ -7,6 +7,7 @@ import invoice_agent_backend.mapper.InvoiceInfoMapper;
 import invoice_agent_backend.service.AuditRuleService;
 import invoice_agent_backend.vo.AuditResult;
 import org.springframework.stereotype.Service;
+import invoice_agent_backend.constant.AuditDecision;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -59,7 +60,10 @@ public class AuditRuleServiceImpl implements AuditRuleService {
         }
 
         boolean needHumanReview = !ruleHits.isEmpty();
-        String finalDecision = needHumanReview ? "NEED_HUMAN_REVIEW" : "APPROVED";
+        String finalDecision =
+                needHumanReview
+                        ? AuditDecision.NEED_HUMAN_REVIEW
+                        : AuditDecision.APPROVED;
 
         return new AuditResult(finalDecision, needHumanReview, ruleHits);
     }

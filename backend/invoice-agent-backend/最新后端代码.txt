@@ -1,0 +1,4091 @@
+﻿项目根目录：D:\agent_project\invoice-agent-system\backend\invoice-agent-backend
+生成时间：2026-08-05 18:25:55
+文件数量：44
+
+============================================================
+PROJECT FILE TREE
+============================================================
+.gitignore
+.mvn\wrapper\maven-wrapper.properties
+HELP.md
+mvnw
+mvnw.cmd
+pom.xml
+src\main\java\invoice_agent_backend\common\ApiResponse.java
+src\main\java\invoice_agent_backend\common\PageResult.java
+src\main\java\invoice_agent_backend\constant\AuditDecision.java
+src\main\java\invoice_agent_backend\constant\AuditTaskStatus.java
+src\main\java\invoice_agent_backend\controller\HealthController.java
+src\main\java\invoice_agent_backend\controller\InvoiceController.java
+src\main\java\invoice_agent_backend\dto\HumanReviewRequest.java
+src\main\java\invoice_agent_backend\entity\AuditRuleHit.java
+src\main\java\invoice_agent_backend\entity\AuditTask.java
+src\main\java\invoice_agent_backend\entity\HumanReviewRecord.java
+src\main\java\invoice_agent_backend\entity\InvoiceInfo.java
+src\main\java\invoice_agent_backend\exception\GlobalExceptionHandler.java
+src\main\java\invoice_agent_backend\InvoiceAgentBackendApplication.java
+src\main\java\invoice_agent_backend\mapper\AuditRuleHitMapper.java
+src\main\java\invoice_agent_backend\mapper\AuditTaskMapper.java
+src\main\java\invoice_agent_backend\mapper\HumanReviewRecordMapper.java
+src\main\java\invoice_agent_backend\mapper\InvoiceInfoMapper.java
+src\main\java\invoice_agent_backend\service\AuditReportService.java
+src\main\java\invoice_agent_backend\service\AuditRuleService.java
+src\main\java\invoice_agent_backend\service\AuditTaskService.java
+src\main\java\invoice_agent_backend\service\impl\AuditReportServiceImpl.java
+src\main\java\invoice_agent_backend\service\impl\AuditRuleServiceImpl.java
+src\main\java\invoice_agent_backend\service\impl\AuditTaskServiceImpl.java
+src\main\java\invoice_agent_backend\service\impl\MockOcrServiceImpl.java
+src\main\java\invoice_agent_backend\service\OcrService.java
+src\main\java\invoice_agent_backend\vo\AuditReportResult.java
+src\main\java\invoice_agent_backend\vo\AuditResult.java
+src\main\java\invoice_agent_backend\vo\AuditTaskDetailResult.java
+src\main\java\invoice_agent_backend\vo\UploadInvoiceResult.java
+src\main\java\invoice_agent_backend\workflow\impl\InvoiceAuditWorkflowServiceImpl.java
+src\main\java\invoice_agent_backend\workflow\InvoiceAuditWorkflowService.java
+src\main\java\invoice_agent_backend\workflow\state\AuditTaskState.java
+src\main\resources\application.properties
+src\main\resources\mapper\AuditRuleHitMapper.xml
+src\main\resources\mapper\AuditTaskMapper.xml
+src\main\resources\mapper\HumanReviewRecordMapper.xml
+src\main\resources\mapper\InvoiceInfoMapper.xml
+src\test\java\invoice_agent_backend\InvoiceAgentBackendApplicationTests.java
+
+============================================================
+FILE: .gitignore
+============================================================
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+# Uploaded files
+uploads/
+backend/invoice-agent-backend/uploads/
+
+============================================================
+FILE: .mvn\wrapper\maven-wrapper.properties
+============================================================
+wrapperVersion=3.3.4
+distributionType=only-script
+distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.16/apache-maven-3.9.16-bin.zip
+
+
+============================================================
+FILE: HELP.md
+============================================================
+# Read Me First
+The following was discovered as part of building this project:
+
+* The original package name 'invoice-agent-backend' is invalid and this project uses 'invoice_agent_backend' instead.
+
+# Getting Started
+
+### Reference Documentation
+For further reference, please consider the following sections:
+
+* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
+* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/3.5.16/maven-plugin)
+* [Create an OCI image](https://docs.spring.io/spring-boot/3.5.16/maven-plugin/build-image.html)
+* [Spring Web](https://docs.spring.io/spring-boot/3.5.16/reference/web/servlet.html)
+* [MyBatis Framework](https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/)
+* [Spring Data Redis (Access+Driver)](https://docs.spring.io/spring-boot/3.5.16/reference/data/nosql.html#data.nosql.redis)
+* [Spring Boot DevTools](https://docs.spring.io/spring-boot/3.5.16/reference/using/devtools.html)
+* [Validation](https://docs.spring.io/spring-boot/3.5.16/reference/io/validation.html)
+
+### Guides
+The following guides illustrate how to use some features concretely:
+
+* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
+* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
+* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
+* [MyBatis Quick Start](https://github.com/mybatis/spring-boot-starter/wiki/Quick-Start)
+* [Accessing data with MySQL](https://spring.io/guides/gs/accessing-data-mysql/)
+* [Messaging with Redis](https://spring.io/guides/gs/messaging-redis/)
+* [Validation](https://spring.io/guides/gs/validating-form-input/)
+
+### Maven Parent overrides
+
+Due to Maven's design, elements are inherited from the parent POM to the project POM.
+While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the parent.
+To prevent this, the project POM contains empty overrides for these elements.
+If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
+
+
+
+============================================================
+FILE: mvnw
+============================================================
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Apache Maven Wrapper startup batch script, version 3.3.4
+#
+# Optional ENV vars
+# -----------------
+#   JAVA_HOME - location of a JDK home dir, required when download maven via java source
+#   MVNW_REPOURL - repo url base for downloading maven distribution
+#   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
+#   MVNW_VERBOSE - true: enable verbose log; debug: trace the mvnw script; others: silence the output
+# ----------------------------------------------------------------------------
+
+set -euf
+[ "${MVNW_VERBOSE-}" != debug ] || set -x
+
+# OS specific support.
+native_path() { printf %s\\n "$1"; }
+case "$(uname)" in
+CYGWIN* | MINGW*)
+  [ -z "${JAVA_HOME-}" ] || JAVA_HOME="$(cygpath --unix "$JAVA_HOME")"
+  native_path() { cygpath --path --windows "$1"; }
+  ;;
+esac
+
+# set JAVACMD and JAVACCMD
+set_java_home() {
+  # For Cygwin and MinGW, ensure paths are in Unix format before anything is touched
+  if [ -n "${JAVA_HOME-}" ]; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ]; then
+      # IBM's JDK on AIX uses strange locations for the executables
+      JAVACMD="$JAVA_HOME/jre/sh/java"
+      JAVACCMD="$JAVA_HOME/jre/sh/javac"
+    else
+      JAVACMD="$JAVA_HOME/bin/java"
+      JAVACCMD="$JAVA_HOME/bin/javac"
+
+      if [ ! -x "$JAVACMD" ] || [ ! -x "$JAVACCMD" ]; then
+        echo "The JAVA_HOME environment variable is not defined correctly, so mvnw cannot run." >&2
+        echo "JAVA_HOME is set to \"$JAVA_HOME\", but \"\$JAVA_HOME/bin/java\" or \"\$JAVA_HOME/bin/javac\" does not exist." >&2
+        return 1
+      fi
+    fi
+  else
+    JAVACMD="$(
+      'set' +e
+      'unset' -f command 2>/dev/null
+      'command' -v java
+    )" || :
+    JAVACCMD="$(
+      'set' +e
+      'unset' -f command 2>/dev/null
+      'command' -v javac
+    )" || :
+
+    if [ ! -x "${JAVACMD-}" ] || [ ! -x "${JAVACCMD-}" ]; then
+      echo "The java/javac command does not exist in PATH nor is JAVA_HOME set, so mvnw cannot run." >&2
+      return 1
+    fi
+  fi
+}
+
+# hash string like Java String::hashCode
+hash_string() {
+  str="${1:-}" h=0
+  while [ -n "$str" ]; do
+    char="${str%"${str#?}"}"
+    h=$(((h * 31 + $(LC_CTYPE=C printf %d "'$char")) % 4294967296))
+    str="${str#?}"
+  done
+  printf %x\\n $h
+}
+
+verbose() { :; }
+[ "${MVNW_VERBOSE-}" != true ] || verbose() { printf %s\\n "${1-}"; }
+
+die() {
+  printf %s\\n "$1" >&2
+  exit 1
+}
+
+trim() {
+  # MWRAPPER-139:
+  #   Trims trailing and leading whitespace, carriage returns, tabs, and linefeeds.
+  #   Needed for removing poorly interpreted newline sequences when running in more
+  #   exotic environments such as mingw bash on Windows.
+  printf "%s" "${1}" | tr -d '[:space:]'
+}
+
+scriptDir="$(dirname "$0")"
+scriptName="$(basename "$0")"
+
+# parse distributionUrl and optional distributionSha256Sum, requires .mvn/wrapper/maven-wrapper.properties
+while IFS="=" read -r key value; do
+  case "${key-}" in
+  distributionUrl) distributionUrl=$(trim "${value-}") ;;
+  distributionSha256Sum) distributionSha256Sum=$(trim "${value-}") ;;
+  esac
+done <"$scriptDir/.mvn/wrapper/maven-wrapper.properties"
+[ -n "${distributionUrl-}" ] || die "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
+
+case "${distributionUrl##*/}" in
+maven-mvnd-*bin.*)
+  MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/
+  case "${PROCESSOR_ARCHITECTURE-}${PROCESSOR_ARCHITEW6432-}:$(uname -a)" in
+  *AMD64:CYGWIN* | *AMD64:MINGW*) distributionPlatform=windows-amd64 ;;
+  :Darwin*x86_64) distributionPlatform=darwin-amd64 ;;
+  :Darwin*arm64) distributionPlatform=darwin-aarch64 ;;
+  :Linux*x86_64*) distributionPlatform=linux-amd64 ;;
+  *)
+    echo "Cannot detect native platform for mvnd on $(uname)-$(uname -m), use pure java version" >&2
+    distributionPlatform=linux-amd64
+    ;;
+  esac
+  distributionUrl="${distributionUrl%-bin.*}-$distributionPlatform.zip"
+  ;;
+maven-mvnd-*) MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/ ;;
+*) MVN_CMD="mvn${scriptName#mvnw}" _MVNW_REPO_PATTERN=/org/apache/maven/ ;;
+esac
+
+# apply MVNW_REPOURL and calculate MAVEN_HOME
+# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+[ -z "${MVNW_REPOURL-}" ] || distributionUrl="$MVNW_REPOURL$_MVNW_REPO_PATTERN${distributionUrl#*"$_MVNW_REPO_PATTERN"}"
+distributionUrlName="${distributionUrl##*/}"
+distributionUrlNameMain="${distributionUrlName%.*}"
+distributionUrlNameMain="${distributionUrlNameMain%-bin}"
+MAVEN_USER_HOME="${MAVEN_USER_HOME:-${HOME}/.m2}"
+MAVEN_HOME="${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_string "$distributionUrl")"
+
+exec_maven() {
+  unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :
+  exec "$MAVEN_HOME/bin/$MVN_CMD" "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
+}
+
+if [ -d "$MAVEN_HOME" ]; then
+  verbose "found existing MAVEN_HOME at $MAVEN_HOME"
+  exec_maven "$@"
+fi
+
+case "${distributionUrl-}" in
+*?-bin.zip | *?maven-mvnd-?*-?*.zip) ;;
+*) die "distributionUrl is not valid, must match *-bin.zip or maven-mvnd-*.zip, but found '${distributionUrl-}'" ;;
+esac
+
+# prepare tmp dir
+if TMP_DOWNLOAD_DIR="$(mktemp -d)" && [ -d "$TMP_DOWNLOAD_DIR" ]; then
+  clean() { rm -rf -- "$TMP_DOWNLOAD_DIR"; }
+  trap clean HUP INT TERM EXIT
+else
+  die "cannot create temp dir"
+fi
+
+mkdir -p -- "${MAVEN_HOME%/*}"
+
+# Download and Install Apache Maven
+verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
+verbose "Downloading from: $distributionUrl"
+verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
+
+# select .zip or .tar.gz
+if ! command -v unzip >/dev/null; then
+  distributionUrl="${distributionUrl%.zip}.tar.gz"
+  distributionUrlName="${distributionUrl##*/}"
+fi
+
+# verbose opt
+__MVNW_QUIET_WGET=--quiet __MVNW_QUIET_CURL=--silent __MVNW_QUIET_UNZIP=-q __MVNW_QUIET_TAR=''
+[ "${MVNW_VERBOSE-}" != true ] || __MVNW_QUIET_WGET='' __MVNW_QUIET_CURL='' __MVNW_QUIET_UNZIP='' __MVNW_QUIET_TAR=v
+
+# normalize http auth
+case "${MVNW_PASSWORD:+has-password}" in
+'') MVNW_USERNAME='' MVNW_PASSWORD='' ;;
+has-password) [ -n "${MVNW_USERNAME-}" ] || MVNW_USERNAME='' MVNW_PASSWORD='' ;;
+esac
+
+if [ -z "${MVNW_USERNAME-}" ] && command -v wget >/dev/null; then
+  verbose "Found wget ... using wget"
+  wget ${__MVNW_QUIET_WGET:+"$__MVNW_QUIET_WGET"} "$distributionUrl" -O "$TMP_DOWNLOAD_DIR/$distributionUrlName" || die "wget: Failed to fetch $distributionUrl"
+elif [ -z "${MVNW_USERNAME-}" ] && command -v curl >/dev/null; then
+  verbose "Found curl ... using curl"
+  curl ${__MVNW_QUIET_CURL:+"$__MVNW_QUIET_CURL"} -f -L -o "$TMP_DOWNLOAD_DIR/$distributionUrlName" "$distributionUrl" || die "curl: Failed to fetch $distributionUrl"
+elif set_java_home; then
+  verbose "Falling back to use Java to download"
+  javaSource="$TMP_DOWNLOAD_DIR/Downloader.java"
+  targetZip="$TMP_DOWNLOAD_DIR/$distributionUrlName"
+  cat >"$javaSource" <<-END
+	public class Downloader extends java.net.Authenticator
+	{
+	  protected java.net.PasswordAuthentication getPasswordAuthentication()
+	  {
+	    return new java.net.PasswordAuthentication( System.getenv( "MVNW_USERNAME" ), System.getenv( "MVNW_PASSWORD" ).toCharArray() );
+	  }
+	  public static void main( String[] args ) throws Exception
+	  {
+	    setDefault( new Downloader() );
+	    java.nio.file.Files.copy( java.net.URI.create( args[0] ).toURL().openStream(), java.nio.file.Paths.get( args[1] ).toAbsolutePath().normalize() );
+	  }
+	}
+	END
+  # For Cygwin/MinGW, switch paths to Windows format before running javac and java
+  verbose " - Compiling Downloader.java ..."
+  "$(native_path "$JAVACCMD")" "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
+  verbose " - Running Downloader.java ..."
+  "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Downloader "$distributionUrl" "$(native_path "$targetZip")"
+fi
+
+# If specified, validate the SHA-256 sum of the Maven distribution zip file
+if [ -n "${distributionSha256Sum-}" ]; then
+  distributionSha256Result=false
+  if [ "$MVN_CMD" = mvnd.sh ]; then
+    echo "Checksum validation is not supported for maven-mvnd." >&2
+    echo "Please disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
+    exit 1
+  elif command -v sha256sum >/dev/null; then
+    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | sha256sum -c - >/dev/null 2>&1; then
+      distributionSha256Result=true
+    fi
+  elif command -v shasum >/dev/null; then
+    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | shasum -a 256 -c >/dev/null 2>&1; then
+      distributionSha256Result=true
+    fi
+  else
+    echo "Checksum validation was requested but neither 'sha256sum' or 'shasum' are available." >&2
+    echo "Please install either command, or disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
+    exit 1
+  fi
+  if [ $distributionSha256Result = false ]; then
+    echo "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised." >&2
+    echo "If you updated your Maven version, you need to update the specified distributionSha256Sum property." >&2
+    exit 1
+  fi
+fi
+
+# unzip and move
+if command -v unzip >/dev/null; then
+  unzip ${__MVNW_QUIET_UNZIP:+"$__MVNW_QUIET_UNZIP"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -d "$TMP_DOWNLOAD_DIR" || die "failed to unzip"
+else
+  tar xzf${__MVNW_QUIET_TAR:+"$__MVNW_QUIET_TAR"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -C "$TMP_DOWNLOAD_DIR" || die "failed to untar"
+fi
+
+# Find the actual extracted directory name (handles snapshots where filename != directory name)
+actualDistributionDir=""
+
+# First try the expected directory name (for regular distributions)
+if [ -d "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" ]; then
+  if [ -f "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain/bin/$MVN_CMD" ]; then
+    actualDistributionDir="$distributionUrlNameMain"
+  fi
+fi
+
+# If not found, search for any directory with the Maven executable (for snapshots)
+if [ -z "$actualDistributionDir" ]; then
+  # enable globbing to iterate over items
+  set +f
+  for dir in "$TMP_DOWNLOAD_DIR"/*; do
+    if [ -d "$dir" ]; then
+      if [ -f "$dir/bin/$MVN_CMD" ]; then
+        actualDistributionDir="$(basename "$dir")"
+        break
+      fi
+    fi
+  done
+  set -f
+fi
+
+if [ -z "$actualDistributionDir" ]; then
+  verbose "Contents of $TMP_DOWNLOAD_DIR:"
+  verbose "$(ls -la "$TMP_DOWNLOAD_DIR")"
+  die "Could not find Maven distribution directory in extracted archive"
+fi
+
+verbose "Found extracted Maven distribution directory: $actualDistributionDir"
+printf %s\\n "$distributionUrl" >"$TMP_DOWNLOAD_DIR/$actualDistributionDir/mvnw.url"
+mv -- "$TMP_DOWNLOAD_DIR/$actualDistributionDir" "$MAVEN_HOME" || [ -d "$MAVEN_HOME" ] || die "fail to move MAVEN_HOME"
+
+clean || :
+exec_maven "$@"
+
+
+============================================================
+FILE: mvnw.cmd
+============================================================
+<# : batch portion
+@REM ----------------------------------------------------------------------------
+@REM Licensed to the Apache Software Foundation (ASF) under one
+@REM or more contributor license agreements.  See the NOTICE file
+@REM distributed with this work for additional information
+@REM regarding copyright ownership.  The ASF licenses this file
+@REM to you under the Apache License, Version 2.0 (the
+@REM "License"); you may not use this file except in compliance
+@REM with the License.  You may obtain a copy of the License at
+@REM
+@REM    http://www.apache.org/licenses/LICENSE-2.0
+@REM
+@REM Unless required by applicable law or agreed to in writing,
+@REM software distributed under the License is distributed on an
+@REM "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+@REM KIND, either express or implied.  See the License for the
+@REM specific language governing permissions and limitations
+@REM under the License.
+@REM ----------------------------------------------------------------------------
+
+@REM ----------------------------------------------------------------------------
+@REM Apache Maven Wrapper startup batch script, version 3.3.4
+@REM
+@REM Optional ENV vars
+@REM   MVNW_REPOURL - repo url base for downloading maven distribution
+@REM   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
+@REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
+@REM ----------------------------------------------------------------------------
+
+@IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
+@SET __MVNW_CMD__=
+@SET __MVNW_ERROR__=
+@SET __MVNW_PSMODULEP_SAVE=%PSModulePath%
+@SET PSModulePath=
+@FOR /F "usebackq tokens=1* delims==" %%A IN (`powershell -noprofile "& {$scriptDir='%~dp0'; $script='%__MVNW_ARG0_NAME__%'; icm -ScriptBlock ([Scriptblock]::Create((Get-Content -Raw '%~f0'))) -NoNewScope}"`) DO @(
+  IF "%%A"=="MVN_CMD" (set __MVNW_CMD__=%%B) ELSE IF "%%B"=="" (echo %%A) ELSE (echo %%A=%%B)
+)
+@SET PSModulePath=%__MVNW_PSMODULEP_SAVE%
+@SET __MVNW_PSMODULEP_SAVE=
+@SET __MVNW_ARG0_NAME__=
+@SET MVNW_USERNAME=
+@SET MVNW_PASSWORD=
+@IF NOT "%__MVNW_CMD__%"=="" ("%__MVNW_CMD__%" %*)
+@echo Cannot start maven from wrapper >&2 && exit /b 1
+@GOTO :EOF
+: end batch / begin powershell #>
+
+$ErrorActionPreference = "Stop"
+if ($env:MVNW_VERBOSE -eq "true") {
+  $VerbosePreference = "Continue"
+}
+
+# calculate distributionUrl, requires .mvn/wrapper/maven-wrapper.properties
+$distributionUrl = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionUrl
+if (!$distributionUrl) {
+  Write-Error "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
+}
+
+switch -wildcard -casesensitive ( $($distributionUrl -replace '^.*/','') ) {
+  "maven-mvnd-*" {
+    $USE_MVND = $true
+    $distributionUrl = $distributionUrl -replace '-bin\.[^.]*$',"-windows-amd64.zip"
+    $MVN_CMD = "mvnd.cmd"
+    break
+  }
+  default {
+    $USE_MVND = $false
+    $MVN_CMD = $script -replace '^mvnw','mvn'
+    break
+  }
+}
+
+# apply MVNW_REPOURL and calculate MAVEN_HOME
+# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+if ($env:MVNW_REPOURL) {
+  $MVNW_REPO_PATTERN = if ($USE_MVND -eq $False) { "/org/apache/maven/" } else { "/maven/mvnd/" }
+  $distributionUrl = "$env:MVNW_REPOURL$MVNW_REPO_PATTERN$($distributionUrl -replace "^.*$MVNW_REPO_PATTERN",'')"
+}
+$distributionUrlName = $distributionUrl -replace '^.*/',''
+$distributionUrlNameMain = $distributionUrlName -replace '\.[^.]*$','' -replace '-bin$',''
+
+$MAVEN_M2_PATH = "$HOME/.m2"
+if ($env:MAVEN_USER_HOME) {
+  $MAVEN_M2_PATH = "$env:MAVEN_USER_HOME"
+}
+
+if (-not (Test-Path -Path $MAVEN_M2_PATH)) {
+    New-Item -Path $MAVEN_M2_PATH -ItemType Directory | Out-Null
+}
+
+$MAVEN_WRAPPER_DISTS = $null
+if ((Get-Item $MAVEN_M2_PATH).Target[0] -eq $null) {
+  $MAVEN_WRAPPER_DISTS = "$MAVEN_M2_PATH/wrapper/dists"
+} else {
+  $MAVEN_WRAPPER_DISTS = (Get-Item $MAVEN_M2_PATH).Target[0] + "/wrapper/dists"
+}
+
+$MAVEN_HOME_PARENT = "$MAVEN_WRAPPER_DISTS/$distributionUrlNameMain"
+$MAVEN_HOME_NAME = ([System.Security.Cryptography.SHA256]::Create().ComputeHash([byte[]][char[]]$distributionUrl) | ForEach-Object {$_.ToString("x2")}) -join ''
+$MAVEN_HOME = "$MAVEN_HOME_PARENT/$MAVEN_HOME_NAME"
+
+if (Test-Path -Path "$MAVEN_HOME" -PathType Container) {
+  Write-Verbose "found existing MAVEN_HOME at $MAVEN_HOME"
+  Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+  exit $?
+}
+
+if (! $distributionUrlNameMain -or ($distributionUrlName -eq $distributionUrlNameMain)) {
+  Write-Error "distributionUrl is not valid, must end with *-bin.zip, but found $distributionUrl"
+}
+
+# prepare tmp dir
+$TMP_DOWNLOAD_DIR_HOLDER = New-TemporaryFile
+$TMP_DOWNLOAD_DIR = New-Item -Itemtype Directory -Path "$TMP_DOWNLOAD_DIR_HOLDER.dir"
+$TMP_DOWNLOAD_DIR_HOLDER.Delete() | Out-Null
+trap {
+  if ($TMP_DOWNLOAD_DIR.Exists) {
+    try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
+    catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
+  }
+}
+
+New-Item -Itemtype Directory -Path "$MAVEN_HOME_PARENT" -Force | Out-Null
+
+# Download and Install Apache Maven
+Write-Verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
+Write-Verbose "Downloading from: $distributionUrl"
+Write-Verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
+
+$webclient = New-Object System.Net.WebClient
+if ($env:MVNW_USERNAME -and $env:MVNW_PASSWORD) {
+  $webclient.Credentials = New-Object System.Net.NetworkCredential($env:MVNW_USERNAME, $env:MVNW_PASSWORD)
+}
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$webclient.DownloadFile($distributionUrl, "$TMP_DOWNLOAD_DIR/$distributionUrlName") | Out-Null
+
+# If specified, validate the SHA-256 sum of the Maven distribution zip file
+$distributionSha256Sum = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionSha256Sum
+if ($distributionSha256Sum) {
+  if ($USE_MVND) {
+    Write-Error "Checksum validation is not supported for maven-mvnd. `nPlease disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties."
+  }
+  Import-Module $PSHOME\Modules\Microsoft.PowerShell.Utility -Function Get-FileHash
+  if ((Get-FileHash "$TMP_DOWNLOAD_DIR/$distributionUrlName" -Algorithm SHA256).Hash.ToLower() -ne $distributionSha256Sum) {
+    Write-Error "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised. If you updated your Maven version, you need to update the specified distributionSha256Sum property."
+  }
+}
+
+# unzip and move
+Expand-Archive "$TMP_DOWNLOAD_DIR/$distributionUrlName" -DestinationPath "$TMP_DOWNLOAD_DIR" | Out-Null
+
+# Find the actual extracted directory name (handles snapshots where filename != directory name)
+$actualDistributionDir = ""
+
+# First try the expected directory name (for regular distributions)
+$expectedPath = Join-Path "$TMP_DOWNLOAD_DIR" "$distributionUrlNameMain"
+$expectedMvnPath = Join-Path "$expectedPath" "bin/$MVN_CMD"
+if ((Test-Path -Path $expectedPath -PathType Container) -and (Test-Path -Path $expectedMvnPath -PathType Leaf)) {
+  $actualDistributionDir = $distributionUrlNameMain
+}
+
+# If not found, search for any directory with the Maven executable (for snapshots)
+if (!$actualDistributionDir) {
+  Get-ChildItem -Path "$TMP_DOWNLOAD_DIR" -Directory | ForEach-Object {
+    $testPath = Join-Path $_.FullName "bin/$MVN_CMD"
+    if (Test-Path -Path $testPath -PathType Leaf) {
+      $actualDistributionDir = $_.Name
+    }
+  }
+}
+
+if (!$actualDistributionDir) {
+  Write-Error "Could not find Maven distribution directory in extracted archive"
+}
+
+Write-Verbose "Found extracted Maven distribution directory: $actualDistributionDir"
+Rename-Item -Path "$TMP_DOWNLOAD_DIR/$actualDistributionDir" -NewName $MAVEN_HOME_NAME | Out-Null
+try {
+  Move-Item -Path "$TMP_DOWNLOAD_DIR/$MAVEN_HOME_NAME" -Destination $MAVEN_HOME_PARENT | Out-Null
+} catch {
+  if (! (Test-Path -Path "$MAVEN_HOME" -PathType Container)) {
+    Write-Error "fail to move MAVEN_HOME"
+  }
+} finally {
+  try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
+  catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
+}
+
+Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+
+
+============================================================
+FILE: pom.xml
+============================================================
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.16</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.chuan</groupId>
+	<artifactId>invoice-agent-backend</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name/>
+	<description/>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>3.0.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter-test</artifactId>
+			<version>3.0.5</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>default-compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<configuration>
+							<annotationProcessorPaths>
+								<path>
+									<groupId>org.projectlombok</groupId>
+									<artifactId>lombok</artifactId>
+								</path>
+							</annotationProcessorPaths>
+						</configuration>
+					</execution>
+					<execution>
+						<id>default-testCompile</id>
+						<phase>test-compile</phase>
+						<goals>
+							<goal>testCompile</goal>
+						</goals>
+						<configuration>
+							<annotationProcessorPaths>
+								<path>
+									<groupId>org.projectlombok</groupId>
+									<artifactId>lombok</artifactId>
+								</path>
+							</annotationProcessorPaths>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\common\ApiResponse.java
+============================================================
+package invoice_agent_backend.common;
+
+public class ApiResponse<T> {
+
+    private Integer code;
+    private String message;
+    private T data;
+
+    public ApiResponse() {
+    }
+
+    public ApiResponse(Integer code, String message, T data) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
+    }
+
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>(200, "success", data);
+    }
+
+    public static <T> ApiResponse<T> fail(String message) {
+        return new ApiResponse<>(500, message, null);
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\common\PageResult.java
+============================================================
+package invoice_agent_backend.common;
+
+import java.util.List;
+
+/*
+ ** 通用分页返回对象
+ **
+ ** 例如：
+ ** page = 1
+ ** size = 20
+ ** total = 53
+ ** records = 当前第一页的 20 条任务
+ */
+public class PageResult<T> {
+
+    private Integer page;
+    private Integer size;
+    private Long total;
+    private List<T> records;
+
+    public PageResult() {
+    }
+
+    public PageResult(Integer page,
+                      Integer size,
+                      Long total,
+                      List<T> records) {
+        this.page = page;
+        this.size = size;
+        this.total = total;
+        this.records = records;
+    }
+
+    public Integer getPage() {
+        return page;
+    }
+
+    public void setPage(Integer page) {
+        this.page = page;
+    }
+
+    public Integer getSize() {
+        return size;
+    }
+
+    public void setSize(Integer size) {
+        this.size = size;
+    }
+
+    public Long getTotal() {
+        return total;
+    }
+
+    public void setTotal(Long total) {
+        this.total = total;
+    }
+
+    public List<T> getRecords() {
+        return records;
+    }
+
+    public void setRecords(List<T> records) {
+        this.records = records;
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\constant\AuditDecision.java
+============================================================
+package invoice_agent_backend.constant;
+
+/*
+ ** 审核最终结论常量
+ */
+public final class AuditDecision {
+
+    // 规则没有发现风险，系统自动通过
+    public static final String APPROVED = "APPROVED";
+
+    // 规则发现风险，需要人工继续审核
+    public static final String NEED_HUMAN_REVIEW = "NEED_HUMAN_REVIEW";
+
+    // 人工审核后确认通过
+    public static final String APPROVED_BY_HUMAN = "APPROVED_BY_HUMAN";
+
+    // 人工审核后确认拒绝
+    public static final String REJECTED_BY_HUMAN = "REJECTED_BY_HUMAN";
+
+    private AuditDecision() {
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\constant\AuditTaskStatus.java
+============================================================
+package invoice_agent_backend.constant;
+
+/*
+ ** 审核任务状态常量
+ **
+ ** 用常量代替业务代码里到处出现的字符串，
+ ** 避免 "AUDIT_DONE"、"OCR_DONE" 拼错。
+ */
+public final class AuditTaskStatus {
+
+    public static final String UPLOADED = "UPLOADED";
+
+    public static final String OCR_DONE = "OCR_DONE";
+
+    public static final String AUDIT_DONE = "AUDIT_DONE";
+
+    /*
+     ** COMPLETED 表示整个任务已经真正结束。
+     **
+     ** 例如：
+     ** - 系统自动通过
+     ** - 或者人工已经完成最终审核
+     */
+    public static final String COMPLETED = "COMPLETED";
+
+    private AuditTaskStatus() {
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\controller\HealthController.java
+============================================================
+package invoice_agent_backend.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+/* 当访问 http://localhost:8080/health，http会发送get请求，
+** 从应用层->传输层->网络层->链路层->物理层,再反过来一步步到达后端的应用层。
+** 此时请求进入 Spring Boot 后，Spring 会根据注解找到这里。
+** 返回OK （暂时的）*/
+@RestController
+public class HealthController {
+
+    // 这个接口不查数据库，也不调用 Service。它只是测试后端程序是否真的启动成功
+    @GetMapping("/health")
+    public String health() {
+        return "ok";
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\controller\InvoiceController.java
+============================================================
+package invoice_agent_backend.controller;
+
+import invoice_agent_backend.common.ApiResponse;
+import invoice_agent_backend.common.PageResult;
+import invoice_agent_backend.dto.HumanReviewRequest;
+import invoice_agent_backend.entity.AuditRuleHit;
+import invoice_agent_backend.entity.AuditTask;
+import invoice_agent_backend.entity.InvoiceInfo;
+import invoice_agent_backend.service.AuditTaskService;
+import invoice_agent_backend.vo.AuditReportResult;
+import invoice_agent_backend.vo.AuditTaskDetailResult;
+import invoice_agent_backend.vo.UploadInvoiceResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/invoices")
+public class InvoiceController {
+
+    private final AuditTaskService auditTaskService;
+
+    public InvoiceController(
+            AuditTaskService auditTaskService) {
+
+        this.auditTaskService =
+                auditTaskService;
+    }
+
+    /*
+     ** 上传发票并启动完整审核 Workflow。
+     */
+    @PostMapping("/upload")
+    public ApiResponse<UploadInvoiceResult>
+    uploadInvoice(
+            @RequestParam("file")
+            MultipartFile file) {
+
+        UploadInvoiceResult result =
+                auditTaskService
+                        .uploadInvoice(file);
+
+        return ApiResponse.success(result);
+    }
+
+    /*
+     ** 任务列表。
+     **
+     ** 示例：
+     **
+     ** GET /api/invoices/tasks
+     **
+     ** GET /api/invoices/tasks?page=1&size=20
+     **
+     ** GET /api/invoices/tasks
+     **     ?status=AUDIT_DONE&page=1&size=20
+     */
+    @GetMapping("/tasks")
+    public ApiResponse<PageResult<AuditTask>>
+    getTaskPage(
+
+            @RequestParam(
+                    required = false)
+            String status,
+
+            @RequestParam(
+                    defaultValue = "1")
+            Integer page,
+
+            @RequestParam(
+                    defaultValue = "20")
+            Integer size) {
+
+        return ApiResponse.success(
+                auditTaskService
+                        .getTaskPage(
+                                status,
+                                page,
+                                size
+                        )
+        );
+    }
+
+    @GetMapping("/tasks/{id}")
+    public ApiResponse<AuditTask>
+    getTaskById(
+            @PathVariable Long id) {
+
+        return ApiResponse.success(
+                auditTaskService
+                        .getTaskById(id)
+        );
+    }
+
+    @GetMapping(
+            "/tasks/{id}/invoice-info")
+    public ApiResponse<InvoiceInfo>
+    getInvoiceInfoByTaskId(
+            @PathVariable Long id) {
+
+        return ApiResponse.success(
+                auditTaskService
+                        .getInvoiceInfoByTaskId(id)
+        );
+    }
+
+    @GetMapping(
+            "/tasks/{id}/rule-hits")
+    public ApiResponse<List<AuditRuleHit>>
+    getRuleHitsByTaskId(
+            @PathVariable Long id) {
+
+        return ApiResponse.success(
+                auditTaskService
+                        .getRuleHitsByTaskId(id)
+        );
+    }
+
+    @GetMapping(
+            "/tasks/{id}/report")
+    public ApiResponse<AuditReportResult>
+    getReportByTaskId(
+            @PathVariable Long id) {
+
+        return ApiResponse.success(
+                auditTaskService
+                        .getReportByTaskId(id)
+        );
+    }
+
+    /*
+     ** 一个接口查看完整任务详情。
+     */
+    @GetMapping(
+            "/tasks/{id}/detail")
+    public ApiResponse<AuditTaskDetailResult>
+    getTaskDetail(
+            @PathVariable Long id) {
+
+        return ApiResponse.success(
+                auditTaskService
+                        .getTaskDetail(id)
+        );
+    }
+
+    /*
+     ** 人工复核接口。
+     **
+     ** POST
+     ** /api/invoices/tasks/1/human-review
+     */
+    @PostMapping(
+            "/tasks/{id}/human-review")
+    public ApiResponse<AuditTaskDetailResult>
+    humanReview(
+
+            @PathVariable Long id,
+
+            @RequestBody
+            HumanReviewRequest request) {
+
+        return ApiResponse.success(
+                auditTaskService
+                        .humanReview(
+                                id,
+                                request
+                        )
+        );
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\dto\HumanReviewRequest.java
+============================================================
+package invoice_agent_backend.dto;
+
+/*
+ ** 人工审核请求
+ **
+ ** decision:
+ ** - APPROVE
+ ** - REJECT
+ **
+ ** reviewer:
+ ** - 当前先由前端直接传审核人名称
+ ** - 后面接入登录系统后，可以从登录用户中获取
+ */
+public class HumanReviewRequest {
+
+    private String decision;
+    private String reviewer;
+    private String comment;
+
+    public String getDecision() {
+        return decision;
+    }
+
+    public void setDecision(String decision) {
+        this.decision = decision;
+    }
+
+    public String getReviewer() {
+        return reviewer;
+    }
+
+    public void setReviewer(String reviewer) {
+        this.reviewer = reviewer;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\entity\AuditRuleHit.java
+============================================================
+package invoice_agent_backend.entity;
+
+import java.time.LocalDateTime;
+
+/*
+ ** AuditRuleHit 表示“一条审核规则的命中结果”。
+ **
+ ** 举例：
+ ** 用户上传一张发票，金额是 56500。
+ ** 系统规则规定：金额超过 50000 需要人工复核。
+ ** 那么系统会在 audit_rule_hit 表里插入一条记录：
+ **
+ ** task_id = 当前任务ID
+ ** rule_code = RULE_AMOUNT_LIMIT
+ ** rule_name = 金额超限校验
+ ** hit_result = HIT
+ ** rule_message = 发票金额超过 50000 元，需要人工复核
+ */
+public class AuditRuleHit {
+
+    private Long id;
+    private Long taskId;
+    private String ruleCode;
+    private String ruleName;
+    private String hitResult;
+    private String ruleMessage;
+    private LocalDateTime createdAt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getRuleCode() {
+        return ruleCode;
+    }
+
+    public void setRuleCode(String ruleCode) {
+        this.ruleCode = ruleCode;
+    }
+
+    public String getRuleName() {
+        return ruleName;
+    }
+
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
+    }
+
+    public String getHitResult() {
+        return hitResult;
+    }
+
+    public void setHitResult(String hitResult) {
+        this.hitResult = hitResult;
+    }
+
+    public String getRuleMessage() {
+        return ruleMessage;
+    }
+
+    public void setRuleMessage(String ruleMessage) {
+        this.ruleMessage = ruleMessage;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\entity\AuditTask.java
+============================================================
+package invoice_agent_backend.entity;
+
+import java.time.LocalDateTime;
+
+public class AuditTask {
+
+    private Long id;
+    private String taskNo;
+    private Long userId;
+    private String status;
+    private String originalFilePath;
+    private String ocrRawText;
+    private String finalDecision;
+    private Boolean needHumanReview;
+    private String reportPath;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTaskNo() {
+        return taskNo;
+    }
+
+    public void setTaskNo(String taskNo) {
+        this.taskNo = taskNo;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getOriginalFilePath() {
+        return originalFilePath;
+    }
+
+    public void setOriginalFilePath(String originalFilePath) {
+        this.originalFilePath = originalFilePath;
+    }
+
+    public String getOcrRawText() {
+        return ocrRawText;
+    }
+
+    public void setOcrRawText(String ocrRawText) {
+        this.ocrRawText = ocrRawText;
+    }
+
+    public String getFinalDecision() {
+        return finalDecision;
+    }
+
+    public void setFinalDecision(String finalDecision) {
+        this.finalDecision = finalDecision;
+    }
+
+    public Boolean getNeedHumanReview() {
+        return needHumanReview;
+    }
+
+    public void setNeedHumanReview(Boolean needHumanReview) {
+        this.needHumanReview = needHumanReview;
+    }
+
+    public String getReportPath() {
+        return reportPath;
+    }
+
+    public void setReportPath(String reportPath) {
+        this.reportPath = reportPath;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\entity\HumanReviewRecord.java
+============================================================
+package invoice_agent_backend.entity;
+
+import java.time.LocalDateTime;
+
+/*
+ ** 一条人工审核记录
+ **
+ ** 一个需要人工复核的任务，
+ ** 人工最终可以选择 APPROVE 或 REJECT。
+ */
+public class HumanReviewRecord {
+
+    private Long id;
+    private Long taskId;
+    private String decision;
+    private String reviewer;
+    private String reviewComment;
+    private LocalDateTime createdAt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getDecision() {
+        return decision;
+    }
+
+    public void setDecision(String decision) {
+        this.decision = decision;
+    }
+
+    public String getReviewer() {
+        return reviewer;
+    }
+
+    public void setReviewer(String reviewer) {
+        this.reviewer = reviewer;
+    }
+
+    public String getReviewComment() {
+        return reviewComment;
+    }
+
+    public void setReviewComment(String reviewComment) {
+        this.reviewComment = reviewComment;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\entity\InvoiceInfo.java
+============================================================
+package invoice_agent_backend.entity;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+public class InvoiceInfo {
+
+    private Long id;
+    private Long taskId;
+    private String invoiceNo;
+    private LocalDateTime invoiceDate;
+    private BigDecimal amount;
+    private BigDecimal taxAmount;
+    private String buyerName;
+    private String sellerName;
+    private String invoiceType;
+    private String rawJson;
+    private LocalDateTime createdAt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getInvoiceNo() {
+        return invoiceNo;
+    }
+
+    public void setInvoiceNo(String invoiceNo) {
+        this.invoiceNo = invoiceNo;
+    }
+
+    public LocalDateTime getInvoiceDate() {
+        return invoiceDate;
+    }
+
+    public void setInvoiceDate(LocalDateTime invoiceDate) {
+        this.invoiceDate = invoiceDate;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public BigDecimal getTaxAmount() {
+        return taxAmount;
+    }
+
+    public void setTaxAmount(BigDecimal taxAmount) {
+        this.taxAmount = taxAmount;
+    }
+
+    public String getBuyerName() {
+        return buyerName;
+    }
+
+    public void setBuyerName(String buyerName) {
+        this.buyerName = buyerName;
+    }
+
+    public String getSellerName() {
+        return sellerName;
+    }
+
+    public void setSellerName(String sellerName) {
+        this.sellerName = sellerName;
+    }
+
+    public String getInvoiceType() {
+        return invoiceType;
+    }
+
+    public void setInvoiceType(String invoiceType) {
+        this.invoiceType = invoiceType;
+    }
+
+    public String getRawJson() {
+        return rawJson;
+    }
+
+    public void setRawJson(String rawJson) {
+        this.rawJson = rawJson;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\exception\GlobalExceptionHandler.java
+============================================================
+package invoice_agent_backend.exception;
+
+import invoice_agent_backend.common.ApiResponse;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
+
+/*
+ ** 全局异常处理器。
+ ** 作用：
+ ** Controller / Service / Mapper 过程中如果抛出异常，
+ ** 这里会统一把异常包装成 ApiResponse 格式返回给前端。
+ **
+ ** 这样前端不需要解析 Spring Boot 默认的错误页面或复杂 JSON，
+ ** 只需要统一看 code / message / data。
+ */
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(RuntimeException.class)
+    public ApiResponse<Void> handleRuntimeException(RuntimeException e) {
+        return ApiResponse.fail(e.getMessage());
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ApiResponse<Void> handleMultipartException(MultipartException e) {
+        return ApiResponse.fail("文件上传请求格式错误，请使用 form-data，并确保文件字段 key 为 file");
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ApiResponse<Void> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+        return ApiResponse.fail("上传文件过大，最大支持 10MB");
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ApiResponse<Void> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        return ApiResponse.fail("缺少必要参数：" + e.getParameterName());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ApiResponse<Void> handleException(Exception e) {
+        return ApiResponse.fail("系统异常：" + e.getMessage());
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\InvoiceAgentBackendApplication.java
+============================================================
+package invoice_agent_backend;
+
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+
+/* @SpringBootApplication 告诉 Spring Boot：从这个包开始扫描 Controller、Service
+** 等组件。
+** @MapperScan("invoice_agent_backend.mapper") 告诉 MyBatis：去
+** invoice_agent_backend.mapper 包下面找 Mapper 接口，比如 AuditTaskMapper 和
+** InvoiceInfoMapper。否则后面 Service 想调用数据库时，会找不到 Mapper。
+**/
+@SpringBootApplication
+@MapperScan("invoice_agent_backend.mapper")
+public class InvoiceAgentBackendApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(InvoiceAgentBackendApplication.class, args);
+	}
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\mapper\AuditRuleHitMapper.java
+============================================================
+package invoice_agent_backend.mapper;
+
+import invoice_agent_backend.entity.AuditRuleHit;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+/*
+ ** 负责操作 audit_rule_hit 表。
+ **
+ ** insertAuditRuleHit:
+ ** 保存一条规则命中记录。
+ **
+ ** selectRuleHitsByTaskId:
+ ** 根据任务ID查询这个任务命中过哪些规则。
+ */
+@Mapper
+public interface AuditRuleHitMapper {
+
+    int insertAuditRuleHit(AuditRuleHit auditRuleHit);
+
+    List<AuditRuleHit> selectRuleHitsByTaskId(Long taskId);
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\mapper\AuditTaskMapper.java
+============================================================
+package invoice_agent_backend.mapper;
+
+import invoice_agent_backend.entity.AuditTask;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+@Mapper
+public interface AuditTaskMapper {
+
+    int insertAuditTask(AuditTask auditTask);
+
+    AuditTask selectAuditTaskById(Long id);
+
+    int updateTaskAfterOcr(
+            @Param("id") Long id,
+            @Param("status") String status,
+            @Param("ocrRawText") String ocrRawText
+    );
+
+    int updateAuditResult(
+            @Param("id") Long id,
+            @Param("status") String status,
+            @Param("finalDecision") String finalDecision,
+            @Param("needHumanReview") Boolean needHumanReview
+    );
+
+    int updateReportPath(
+            @Param("id") Long id,
+            @Param("reportPath") String reportPath
+    );
+
+    /*
+     ** 分页查询任务。
+     **
+     ** status 可以为空。
+     ** 如果为空，就查询所有任务。
+     */
+    List<AuditTask> selectAuditTaskPage(
+            @Param("status") String status,
+            @Param("offset") Integer offset,
+            @Param("size") Integer size
+    );
+
+    long countAuditTasks(
+            @Param("status") String status
+    );
+
+    /*
+     ** 人工审核完成以后，
+     ** 更新 audit_task 的最终状态。
+     */
+    int updateHumanReviewResult(
+            @Param("id") Long id,
+            @Param("status") String status,
+            @Param("finalDecision") String finalDecision,
+            @Param("needHumanReview") Boolean needHumanReview
+    );
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\mapper\HumanReviewRecordMapper.java
+============================================================
+package invoice_agent_backend.mapper;
+
+import invoice_agent_backend.entity.HumanReviewRecord;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+@Mapper
+public interface HumanReviewRecordMapper {
+
+    int insertHumanReviewRecord(HumanReviewRecord record);
+
+    List<HumanReviewRecord> selectByTaskId(Long taskId);
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\mapper\InvoiceInfoMapper.java
+============================================================
+package invoice_agent_backend.mapper;
+
+import invoice_agent_backend.entity.InvoiceInfo;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+@Mapper
+public interface InvoiceInfoMapper {
+
+    int insertInvoiceInfo(InvoiceInfo invoiceInfo);
+
+    InvoiceInfo selectInvoiceInfoByTaskId(Long taskId);
+
+    /*
+     ** 用于重复发票检测。
+     **
+     ** 逻辑：
+     ** 查 invoice_info 表里是否已经存在相同 invoice_no。
+     ** 但要排除当前 taskId，因为当前上传这张发票本身也会占一条记录。
+     */
+    int countByInvoiceNoExcludeTask(@Param("invoiceNo") String invoiceNo,
+                                    @Param("taskId") Long taskId);
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\service\AuditReportService.java
+============================================================
+package invoice_agent_backend.service;
+
+import invoice_agent_backend.entity.AuditTask;
+import invoice_agent_backend.entity.InvoiceInfo;
+import invoice_agent_backend.vo.AuditReportResult;
+import invoice_agent_backend.vo.AuditResult;
+
+/*
+ ** 审核报告服务接口。
+ **
+ ** 输入：
+ ** - auditTask：当前审核任务
+ ** - invoiceInfo：OCR 识别出来的发票信息
+ ** - auditResult：规则审核后的结果
+ **
+ ** 输出：
+ ** - AuditReportResult 审核报告结果
+ */
+public interface AuditReportService {
+
+    AuditReportResult generateReport(AuditTask auditTask,
+                                     InvoiceInfo invoiceInfo,
+                                     AuditResult auditResult);
+
+    String readReportContent(String reportPath);
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\service\AuditRuleService.java
+============================================================
+package invoice_agent_backend.service;
+
+import invoice_agent_backend.entity.InvoiceInfo;
+import invoice_agent_backend.vo.AuditResult;
+
+/*
+ ** 审核规则服务接口。
+ **
+ ** 输入：
+ ** - OCR 识别出来的 InvoiceInfo
+ **
+ ** 输出：
+ ** - AuditResult 审核结果
+ */
+public interface AuditRuleService {
+
+    AuditResult checkRules(InvoiceInfo invoiceInfo);
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\service\AuditTaskService.java
+============================================================
+package invoice_agent_backend.service;
+
+import invoice_agent_backend.common.PageResult;
+import invoice_agent_backend.dto.HumanReviewRequest;
+import invoice_agent_backend.entity.AuditRuleHit;
+import invoice_agent_backend.entity.AuditTask;
+import invoice_agent_backend.entity.InvoiceInfo;
+import invoice_agent_backend.vo.AuditReportResult;
+import invoice_agent_backend.vo.AuditTaskDetailResult;
+import invoice_agent_backend.vo.UploadInvoiceResult;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
+public interface AuditTaskService {
+
+    UploadInvoiceResult uploadInvoice(MultipartFile file);
+
+    AuditTask getTaskById(Long id);
+
+    InvoiceInfo getInvoiceInfoByTaskId(Long taskId);
+
+    List<AuditRuleHit> getRuleHitsByTaskId(Long taskId);
+
+    AuditReportResult getReportByTaskId(Long taskId);
+
+    /*
+     ** 分页查看所有审核任务
+     */
+    PageResult<AuditTask> getTaskPage(
+            String status,
+            Integer page,
+            Integer size
+    );
+
+    /*
+     ** 一次查询整个任务详情
+     */
+    AuditTaskDetailResult getTaskDetail(
+            Long taskId
+    );
+
+    /*
+     ** 人工最终审核
+     */
+    AuditTaskDetailResult humanReview(
+            Long taskId,
+            HumanReviewRequest request
+    );
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\service\impl\AuditReportServiceImpl.java
+============================================================
+package invoice_agent_backend.service.impl;
+
+import invoice_agent_backend.entity.AuditRuleHit;
+import invoice_agent_backend.entity.AuditTask;
+import invoice_agent_backend.entity.InvoiceInfo;
+import invoice_agent_backend.service.AuditReportService;
+import invoice_agent_backend.vo.AuditReportResult;
+import invoice_agent_backend.vo.AuditResult;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+/*
+ ** 审核报告生成服务。
+ **
+ ** 当前这个类可以先理解成 Report Agent 的最初版本。
+ **
+ ** 它不负责 OCR，也不负责审核规则判断。
+ ** 它只负责把前面几个步骤的结果整理成一份人能看懂的审核报告。
+ **
+ ** 当前先生成 txt 文件：
+ ** - 简单
+ ** - 稳定
+ ** - 方便调试
+ **
+ ** 后面如果要升级成 PDF，只需要替换这里的文件生成逻辑。
+ */
+@Service
+public class AuditReportServiceImpl implements AuditReportService {
+
+    @Override
+    public AuditReportResult generateReport(AuditTask auditTask,
+                                            InvoiceInfo invoiceInfo,
+                                            AuditResult auditResult) {
+        if (auditTask == null || auditTask.getId() == null) {
+            throw new RuntimeException("审核任务不能为空");
+        }
+
+        if (invoiceInfo == null) {
+            throw new RuntimeException("发票信息不能为空");
+        }
+
+        if (auditResult == null) {
+            throw new RuntimeException("审核结果不能为空");
+        }
+
+        try {
+            /*
+             ** 报告文件也按日期分目录保存。
+             **
+             ** 例如：
+             ** uploads/reports/20260708/AUDIT_REPORT_1.txt
+             **
+             ** 这样做的好处是：
+             ** - 不会把所有报告都堆在一个文件夹里
+             ** - 后面排查问题时，可以按日期快速定位
+             */
+            String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+            Path reportDir = Path.of(
+                    System.getProperty("user.dir"),
+                    "uploads",
+                    "reports",
+                    datePath
+            );
+
+            Files.createDirectories(reportDir);
+
+            String reportFileName = "AUDIT_REPORT_" + auditTask.getId() + ".txt";
+            Path reportFilePath = reportDir.resolve(reportFileName);
+
+            String reportContent = buildReportContent(auditTask, invoiceInfo, auditResult);
+
+            /*
+             ** 真正把报告内容写入 txt 文件。
+             ** 这里使用 UTF-8，避免中文报告内容乱码。
+             */
+            Files.writeString(reportFilePath, reportContent, StandardCharsets.UTF_8);
+
+            return new AuditReportResult(
+                    auditTask.getId(),
+                    auditTask.getTaskNo(),
+                    auditResult.getFinalDecision(),
+                    auditResult.getNeedHumanReview(),
+                    reportFilePath.toAbsolutePath().toString(),
+                    reportContent
+            );
+        } catch (IOException e) {
+            throw new RuntimeException("生成审核报告失败：" + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public String readReportContent(String reportPath) {
+        if (isBlank(reportPath)) {
+            throw new RuntimeException("报告路径不能为空");
+        }
+
+        try {
+            Path path = Path.of(reportPath);
+
+            if (!Files.exists(path)) {
+                throw new RuntimeException("审核报告文件不存在");
+            }
+
+            return Files.readString(path, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException("读取审核报告失败：" + e.getMessage(), e);
+        }
+    }
+
+    /*
+     ** 生成报告正文。
+     **
+     ** 这里的内容现在先写得直白一点。
+     ** 后面接入 LLM Agent 后，可以把这些结构化数据交给大模型，
+     ** 让它生成更自然的审核意见。
+     */
+    private String buildReportContent(AuditTask auditTask,
+                                      InvoiceInfo invoiceInfo,
+                                      AuditResult auditResult) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("智能发票报销审核报告").append("\n");
+        builder.append("================================").append("\n\n");
+
+        builder.append("一、任务信息").append("\n");
+        builder.append("任务ID：").append(valueOf(auditTask.getId())).append("\n");
+        builder.append("任务编号：").append(valueOf(auditTask.getTaskNo())).append("\n");
+        builder.append("任务状态：")
+                .append(valueOf(auditTask.getStatus()))
+                .append("\n");
+        builder.append("是否需要人工复核：")
+                .append(Boolean.TRUE.equals(auditResult.getNeedHumanReview()) ? "是" : "否")
+                .append("\n");
+        builder.append("最终审核结论：").append(valueOf(auditResult.getFinalDecision())).append("\n\n");
+
+        builder.append("二、发票识别信息").append("\n");
+        builder.append("发票号码：").append(valueOf(invoiceInfo.getInvoiceNo())).append("\n");
+        builder.append("发票日期：").append(valueOf(invoiceInfo.getInvoiceDate())).append("\n");
+        builder.append("购买方名称：").append(valueOf(invoiceInfo.getBuyerName())).append("\n");
+        builder.append("销售方名称：").append(valueOf(invoiceInfo.getSellerName())).append("\n");
+        builder.append("发票类型：").append(valueOf(invoiceInfo.getInvoiceType())).append("\n");
+        builder.append("发票金额：").append(moneyOf(invoiceInfo.getAmount())).append("\n");
+        builder.append("税额：").append(moneyOf(invoiceInfo.getTaxAmount())).append("\n\n");
+
+        builder.append("三、规则审核结果").append("\n");
+
+        List<AuditRuleHit> ruleHits = auditResult.getRuleHits();
+
+        if (ruleHits == null || ruleHits.isEmpty()) {
+            builder.append("未命中风险规则，系统自动通过。").append("\n\n");
+        } else {
+            builder.append("本次审核命中 ").append(ruleHits.size()).append(" 条规则：").append("\n");
+
+            for (int i = 0; i < ruleHits.size(); i++) {
+                AuditRuleHit ruleHit = ruleHits.get(i);
+
+                builder.append(i + 1).append(". ")
+                        .append(valueOf(ruleHit.getRuleName()))
+                        .append("（")
+                        .append(valueOf(ruleHit.getRuleCode()))
+                        .append("）")
+                        .append("\n");
+
+                builder.append("   命中结果：").append(valueOf(ruleHit.getHitResult())).append("\n");
+                builder.append("   审核说明：").append(valueOf(ruleHit.getRuleMessage())).append("\n");
+            }
+
+            builder.append("\n");
+        }
+
+        builder.append("四、系统建议").append("\n");
+
+        String finalDecision =
+                auditResult.getFinalDecision();
+
+        if ("REJECTED_BY_HUMAN"
+                .equals(finalDecision)) {
+
+            builder.append(
+                    "该发票已经完成人工复核，人工审核结论为拒绝。"
+            ).append("\n");
+
+        } else if ("APPROVED_BY_HUMAN"
+                .equals(finalDecision)) {
+
+            builder.append(
+                    "该发票已经完成人工复核，人工审核结论为通过。"
+            ).append("\n");
+
+        } else if (Boolean.TRUE.equals(
+                auditResult.getNeedHumanReview())) {
+
+            builder.append(
+                    "该发票存在需要关注的风险点，建议进入人工复核流程。"
+            ).append("\n");
+
+        } else {
+
+            builder.append(
+                    "该发票暂未发现明显风险，可以进入自动通过流程。"
+            ).append("\n");
+        }
+
+        return builder.toString();
+    }
+
+    private String valueOf(Object value) {
+        return value == null ? "无" : String.valueOf(value);
+    }
+
+    private String moneyOf(BigDecimal value) {
+        return value == null ? "无" : value.toPlainString();
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\service\impl\AuditRuleServiceImpl.java
+============================================================
+package invoice_agent_backend.service.impl;
+
+import invoice_agent_backend.entity.AuditRuleHit;
+import invoice_agent_backend.entity.InvoiceInfo;
+import invoice_agent_backend.mapper.AuditRuleHitMapper;
+import invoice_agent_backend.mapper.InvoiceInfoMapper;
+import invoice_agent_backend.service.AuditRuleService;
+import invoice_agent_backend.vo.AuditResult;
+import org.springframework.stereotype.Service;
+import invoice_agent_backend.constant.AuditDecision;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+/*
+ ** 基础审核规则服务。
+ **
+ ** 当前先做三个简单规则：
+ **
+ ** 1. RULE_REQUIRED_FIELD
+ **    必要字段校验：发票号、购买方、销售方不能为空。
+ **
+ ** 2. RULE_AMOUNT_LIMIT
+ **    金额超限校验：金额超过 50000 元，需要人工复核。
+ **
+ ** 3. RULE_DUPLICATE_INVOICE
+ **    重复发票校验：同一个发票号已经存在，疑似重复报销。
+ **
+ ** 判断逻辑：
+ ** - 没命中任何规则：APPROVED
+ ** - 命中至少一条规则：NEED_HUMAN_REVIEW
+ */
+@Service
+public class AuditRuleServiceImpl implements AuditRuleService {
+
+    private final AuditRuleHitMapper auditRuleHitMapper;
+    private final InvoiceInfoMapper invoiceInfoMapper;
+
+    public AuditRuleServiceImpl(AuditRuleHitMapper auditRuleHitMapper,
+                                InvoiceInfoMapper invoiceInfoMapper) {
+        this.auditRuleHitMapper = auditRuleHitMapper;
+        this.invoiceInfoMapper = invoiceInfoMapper;
+    }
+
+    @Override
+    public AuditResult checkRules(InvoiceInfo invoiceInfo) {
+        if (invoiceInfo == null || invoiceInfo.getTaskId() == null) {
+            throw new RuntimeException("发票信息不能为空");
+        }
+
+        List<AuditRuleHit> ruleHits = new ArrayList<>();
+
+        checkRequiredFields(invoiceInfo, ruleHits);
+        checkAmountLimit(invoiceInfo, ruleHits);
+        checkDuplicateInvoice(invoiceInfo, ruleHits);
+
+        for (AuditRuleHit ruleHit : ruleHits) {
+            auditRuleHitMapper.insertAuditRuleHit(ruleHit);
+        }
+
+        boolean needHumanReview = !ruleHits.isEmpty();
+        String finalDecision =
+                needHumanReview
+                        ? AuditDecision.NEED_HUMAN_REVIEW
+                        : AuditDecision.APPROVED;
+
+        return new AuditResult(finalDecision, needHumanReview, ruleHits);
+    }
+
+    /*
+     ** 规则一：必要字段校验。
+     ** 如果发票号、购买方、销售方为空，就需要人工复核。
+     */
+    private void checkRequiredFields(InvoiceInfo invoiceInfo, List<AuditRuleHit> ruleHits) {
+        if (isBlank(invoiceInfo.getInvoiceNo())
+                || isBlank(invoiceInfo.getBuyerName())
+                || isBlank(invoiceInfo.getSellerName())) {
+            ruleHits.add(buildRuleHit(
+                    invoiceInfo.getTaskId(),
+                    "RULE_REQUIRED_FIELD",
+                    "必要字段校验",
+                    "HIT",
+                    "发票号、购买方或销售方存在空值，需要人工复核"
+            ));
+        }
+    }
+
+    /*
+     ** 规则二：金额超限校验。
+     ** 当前先写死阈值 50000。
+     ** 之后可以改成从数据库规则表或配置文件读取。
+     */
+    private void checkAmountLimit(InvoiceInfo invoiceInfo, List<AuditRuleHit> ruleHits) {
+        BigDecimal amount = invoiceInfo.getAmount();
+
+        if (amount != null && amount.compareTo(new BigDecimal("50000.00")) > 0) {
+            ruleHits.add(buildRuleHit(
+                    invoiceInfo.getTaskId(),
+                    "RULE_AMOUNT_LIMIT",
+                    "金额超限校验",
+                    "HIT",
+                    "发票金额超过 50000 元，需要人工复核"
+            ));
+        }
+    }
+
+    /*
+     ** 规则三：重复发票校验。
+     ** 如果 invoice_info 表中已经存在相同发票号，并且不是当前任务本身，
+     ** 就说明这张发票可能被重复报销。
+     */
+    private void checkDuplicateInvoice(InvoiceInfo invoiceInfo, List<AuditRuleHit> ruleHits) {
+        if (isBlank(invoiceInfo.getInvoiceNo())) {
+            return;
+        }
+
+        int duplicateCount = invoiceInfoMapper.countByInvoiceNoExcludeTask(
+                invoiceInfo.getInvoiceNo(),
+                invoiceInfo.getTaskId()
+        );
+
+        if (duplicateCount > 0) {
+            ruleHits.add(buildRuleHit(
+                    invoiceInfo.getTaskId(),
+                    "RULE_DUPLICATE_INVOICE",
+                    "重复发票校验",
+                    "HIT",
+                    "该发票号码已存在，疑似重复报销"
+            ));
+        }
+    }
+
+    private AuditRuleHit buildRuleHit(Long taskId,
+                                      String ruleCode,
+                                      String ruleName,
+                                      String hitResult,
+                                      String ruleMessage) {
+        AuditRuleHit ruleHit = new AuditRuleHit();
+        ruleHit.setTaskId(taskId);
+        ruleHit.setRuleCode(ruleCode);
+        ruleHit.setRuleName(ruleName);
+        ruleHit.setHitResult(hitResult);
+        ruleHit.setRuleMessage(ruleMessage);
+        return ruleHit;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\service\impl\AuditTaskServiceImpl.java
+============================================================
+package invoice_agent_backend.service.impl;
+
+import invoice_agent_backend.common.PageResult;
+import invoice_agent_backend.constant.AuditDecision;
+import invoice_agent_backend.constant.AuditTaskStatus;
+import invoice_agent_backend.dto.HumanReviewRequest;
+import invoice_agent_backend.entity.AuditRuleHit;
+import invoice_agent_backend.entity.AuditTask;
+import invoice_agent_backend.entity.HumanReviewRecord;
+import invoice_agent_backend.entity.InvoiceInfo;
+import invoice_agent_backend.mapper.AuditRuleHitMapper;
+import invoice_agent_backend.mapper.AuditTaskMapper;
+import invoice_agent_backend.mapper.HumanReviewRecordMapper;
+import invoice_agent_backend.mapper.InvoiceInfoMapper;
+import invoice_agent_backend.service.AuditReportService;
+import invoice_agent_backend.service.AuditTaskService;
+import invoice_agent_backend.vo.AuditReportResult;
+import invoice_agent_backend.vo.AuditResult;
+import invoice_agent_backend.vo.AuditTaskDetailResult;
+import invoice_agent_backend.vo.UploadInvoiceResult;
+import invoice_agent_backend.workflow.InvoiceAuditWorkflowService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
+/*
+ ** AuditTaskService 现在主要负责：
+ **
+ ** 1. 调用 Workflow 执行完整审核
+ ** 2. 查询任务
+ ** 3. 查询任务详情
+ ** 4. 人工复核
+ **
+ ** 真正的上传 → OCR → 规则 → 报告，
+ ** 已经交给 InvoiceAuditWorkflowService。
+ */
+@Service
+public class AuditTaskServiceImpl
+        implements AuditTaskService {
+
+    private final InvoiceAuditWorkflowService workflowService;
+
+    private final AuditTaskMapper auditTaskMapper;
+
+    private final InvoiceInfoMapper invoiceInfoMapper;
+
+    private final AuditRuleHitMapper auditRuleHitMapper;
+
+    private final HumanReviewRecordMapper humanReviewRecordMapper;
+
+    private final AuditReportService auditReportService;
+
+    public AuditTaskServiceImpl(
+            InvoiceAuditWorkflowService workflowService,
+            AuditTaskMapper auditTaskMapper,
+            InvoiceInfoMapper invoiceInfoMapper,
+            AuditRuleHitMapper auditRuleHitMapper,
+            HumanReviewRecordMapper humanReviewRecordMapper,
+            AuditReportService auditReportService) {
+
+        this.workflowService = workflowService;
+        this.auditTaskMapper = auditTaskMapper;
+        this.invoiceInfoMapper = invoiceInfoMapper;
+        this.auditRuleHitMapper = auditRuleHitMapper;
+        this.humanReviewRecordMapper = humanReviewRecordMapper;
+        this.auditReportService = auditReportService;
+    }
+
+    /*
+     ** 上传接口现在只负责启动 Workflow。
+     */
+    @Override
+    public UploadInvoiceResult uploadInvoice(
+            MultipartFile file) {
+
+        return workflowService.execute(file);
+    }
+
+    @Override
+    public AuditTask getTaskById(Long id) {
+
+        if (id == null) {
+            throw new RuntimeException(
+                    "任务ID不能为空"
+            );
+        }
+
+        AuditTask auditTask =
+                auditTaskMapper
+                        .selectAuditTaskById(id);
+
+        if (auditTask == null) {
+            throw new RuntimeException(
+                    "任务不存在"
+            );
+        }
+
+        return auditTask;
+    }
+
+    @Override
+    public InvoiceInfo getInvoiceInfoByTaskId(
+            Long taskId) {
+
+        if (taskId == null) {
+            throw new RuntimeException(
+                    "任务ID不能为空"
+            );
+        }
+
+        InvoiceInfo invoiceInfo =
+                invoiceInfoMapper
+                        .selectInvoiceInfoByTaskId(taskId);
+
+        if (invoiceInfo == null) {
+            throw new RuntimeException(
+                    "发票信息不存在"
+            );
+        }
+
+        return invoiceInfo;
+    }
+
+    @Override
+    public List<AuditRuleHit>
+    getRuleHitsByTaskId(Long taskId) {
+
+        if (taskId == null) {
+            throw new RuntimeException(
+                    "任务ID不能为空"
+            );
+        }
+
+        return auditRuleHitMapper
+                .selectRuleHitsByTaskId(taskId);
+    }
+
+    /*
+     ** 查询之前已经生成好的报告。
+     **
+     ** 这里删除了原来那个：
+     **
+     ** InvoiceInfo invoiceInfo =
+     **     getInvoiceInfoByTaskId(taskId);
+     **
+     ** 因为查出来以后根本没有使用。
+     */
+    @Override
+    public AuditReportResult getReportByTaskId(
+            Long taskId) {
+
+        AuditTask auditTask =
+                getTaskById(taskId);
+
+        if (auditTask.getReportPath() == null
+                || auditTask.getReportPath()
+                .trim()
+                .isEmpty()) {
+
+            throw new RuntimeException(
+                    "该任务还没有生成审核报告"
+            );
+        }
+
+        String reportContent =
+                auditReportService
+                        .readReportContent(
+                                auditTask.getReportPath()
+                        );
+
+        return new AuditReportResult(
+                auditTask.getId(),
+                auditTask.getTaskNo(),
+                auditTask.getFinalDecision(),
+                auditTask.getNeedHumanReview(),
+                auditTask.getReportPath(),
+                reportContent
+        );
+    }
+
+    /*
+     ** 任务列表分页查询。
+     **
+     ** page 默认 1
+     ** size 默认 20
+     ** size 最大 100
+     */
+    @Override
+    public PageResult<AuditTask> getTaskPage(
+            String status,
+            Integer page,
+            Integer size) {
+
+        int safePage =
+                page == null || page < 1
+                        ? 1
+                        : page;
+
+        int safeSize =
+                size == null || size < 1
+                        ? 20
+                        : Math.min(size, 100);
+
+        int offset =
+                (safePage - 1) * safeSize;
+
+        String safeStatus =
+                status == null
+                        ? null
+                        : status.trim();
+
+        List<AuditTask> records =
+                auditTaskMapper
+                        .selectAuditTaskPage(
+                                safeStatus,
+                                offset,
+                                safeSize
+                        );
+
+        long total =
+                auditTaskMapper
+                        .countAuditTasks(
+                                safeStatus
+                        );
+
+        return new PageResult<>(
+                safePage,
+                safeSize,
+                total,
+                records
+        );
+    }
+
+    /*
+     ** 聚合任务详情。
+     **
+     ** 前端不再需要分别请求：
+     ** task
+     ** invoice-info
+     ** rule-hits
+     ** report
+     ** human-review
+     */
+    @Override
+    public AuditTaskDetailResult getTaskDetail(
+            Long taskId) {
+
+        AuditTask auditTask =
+                getTaskById(taskId);
+
+        InvoiceInfo invoiceInfo =
+                invoiceInfoMapper
+                        .selectInvoiceInfoByTaskId(taskId);
+
+        List<AuditRuleHit> ruleHits =
+                auditRuleHitMapper
+                        .selectRuleHitsByTaskId(taskId);
+
+        List<HumanReviewRecord> humanReviews =
+                humanReviewRecordMapper
+                        .selectByTaskId(taskId);
+
+        AuditReportResult auditReport = null;
+
+        if (auditTask.getReportPath() != null
+                && !auditTask.getReportPath()
+                .trim()
+                .isEmpty()) {
+
+            String reportContent =
+                    auditReportService
+                            .readReportContent(
+                                    auditTask.getReportPath()
+                            );
+
+            auditReport =
+                    new AuditReportResult(
+                            auditTask.getId(),
+                            auditTask.getTaskNo(),
+                            auditTask.getFinalDecision(),
+                            auditTask.getNeedHumanReview(),
+                            auditTask.getReportPath(),
+                            reportContent
+                    );
+        }
+
+        return new AuditTaskDetailResult(
+                auditTask,
+                invoiceInfo,
+                ruleHits,
+                auditReport,
+                humanReviews
+        );
+    }
+
+    /*
+     ** Human-in-the-loop
+     **
+     ** 系统发现风险：
+     **
+     ** NEED_HUMAN_REVIEW
+     **
+     **        ↓
+     **
+     ** 人工审核
+     **
+     ** APPROVE / REJECT
+     **
+     **        ↓
+     **
+     ** APPROVED_BY_HUMAN
+     ** 或
+     ** REJECTED_BY_HUMAN
+     */
+    @Override
+    @Transactional
+    public AuditTaskDetailResult humanReview(
+            Long taskId,
+            HumanReviewRequest request) {
+
+        if (request == null) {
+            throw new RuntimeException(
+                    "人工审核参数不能为空"
+            );
+        }
+
+        if (request.getDecision() == null
+                || request.getDecision()
+                .trim()
+                .isEmpty()) {
+
+            throw new RuntimeException(
+                    "人工审核 decision 不能为空"
+            );
+        }
+
+        AuditTask auditTask =
+                getTaskById(taskId);
+
+        /*
+         ** 只有确实需要人工复核的任务，
+         ** 才能进入人工审核。
+         */
+        if (!Boolean.TRUE.equals(
+                auditTask.getNeedHumanReview())) {
+
+            throw new RuntimeException(
+                    "该任务当前不需要人工复核"
+            );
+        }
+
+        String decision =
+                request.getDecision()
+                        .trim()
+                        .toUpperCase();
+
+        String finalDecision;
+
+        if ("APPROVE".equals(decision)) {
+
+            finalDecision =
+                    AuditDecision
+                            .APPROVED_BY_HUMAN;
+
+        } else if ("REJECT".equals(decision)) {
+
+            finalDecision =
+                    AuditDecision
+                            .REJECTED_BY_HUMAN;
+
+        } else {
+
+            throw new RuntimeException(
+                    "decision 只支持 APPROVE 或 REJECT"
+            );
+        }
+
+        /*
+         ** 先保存人工审核记录。
+         */
+        HumanReviewRecord record =
+                new HumanReviewRecord();
+
+        record.setTaskId(taskId);
+
+        record.setDecision(decision);
+
+        record.setReviewer(
+                request.getReviewer()
+        );
+
+        record.setReviewComment(
+                request.getComment()
+        );
+
+        humanReviewRecordMapper
+                .insertHumanReviewRecord(record);
+
+        /*
+         ** 更新任务的最终审核状态。
+         */
+        auditTaskMapper
+                .updateHumanReviewResult(
+                        taskId,
+                        AuditTaskStatus.COMPLETED,
+                        finalDecision,
+                        false
+                );
+
+        auditTask.setStatus(
+                AuditTaskStatus.COMPLETED
+        );
+
+        auditTask.setFinalDecision(
+                finalDecision
+        );
+
+        auditTask.setNeedHumanReview(false);
+
+        /*
+         ** 人工审核以后，
+         ** 原来的报告已经不是最终报告。
+         **
+         ** 因此重新生成报告。
+         */
+        InvoiceInfo invoiceInfo =
+                getInvoiceInfoByTaskId(taskId);
+
+        List<AuditRuleHit> ruleHits =
+                getRuleHitsByTaskId(taskId);
+
+        AuditResult finalAuditResult =
+                new AuditResult(
+                        finalDecision,
+                        false,
+                        ruleHits
+                );
+
+        AuditReportResult newReport =
+                auditReportService
+                        .generateReport(
+                                auditTask,
+                                invoiceInfo,
+                                finalAuditResult
+                        );
+
+        auditTaskMapper.updateReportPath(
+                taskId,
+                newReport.getReportPath()
+        );
+
+        auditTask.setReportPath(
+                newReport.getReportPath()
+        );
+
+        return getTaskDetail(taskId);
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\service\impl\MockOcrServiceImpl.java
+============================================================
+package invoice_agent_backend.service.impl;
+
+import invoice_agent_backend.entity.InvoiceInfo;
+import invoice_agent_backend.service.OcrService;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+
+/*这个类现在是假的 OCR。
+它不真正识别图片，只是固定返回一组测试发票字段。*/
+@Service
+public class MockOcrServiceImpl implements OcrService {
+
+    @Override
+    public InvoiceInfo recognizeInvoice(Long taskId, String filePath) {
+        InvoiceInfo invoiceInfo = new InvoiceInfo();
+
+        invoiceInfo.setTaskId(taskId);
+        invoiceInfo.setInvoiceNo("87654321");
+        invoiceInfo.setInvoiceDate(LocalDateTime.of(2025, 5, 20, 0, 0));
+        invoiceInfo.setAmount(new BigDecimal("56500.00"));
+        invoiceInfo.setTaxAmount(new BigDecimal("3390.00"));
+        invoiceInfo.setBuyerName("杭州智联科技有限公司");
+        invoiceInfo.setSellerName("上海云创信息技术有限公司");
+        invoiceInfo.setInvoiceType("增值税电子普通发票");
+
+        String rawJson = """
+                {
+                  "mock": true,
+                  "filePath": "%s",
+                  "invoiceNo": "87654321",
+                  "invoiceDate": "2025-05-20",
+                  "amount": 56500.00,
+                  "taxAmount": 3390.00,
+                  "buyerName": "杭州智联科技有限公司",
+                  "sellerName": "上海云创信息技术有限公司",
+                  "invoiceType": "增值税电子普通发票"
+                }
+                """.formatted(filePath.replace("\\", "\\\\"));
+
+        invoiceInfo.setRawJson(rawJson);
+
+        return invoiceInfo;
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\service\OcrService.java
+============================================================
+package invoice_agent_backend.service;
+
+import invoice_agent_backend.entity.InvoiceInfo;
+
+public interface OcrService {
+
+    InvoiceInfo recognizeInvoice(Long taskId, String filePath);
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\vo\AuditReportResult.java
+============================================================
+package invoice_agent_backend.vo;
+
+/*
+ ** AuditReportResult 是返回给前端的审核报告结果对象。
+ **
+ ** 作用：
+ ** - 告诉前端这份报告属于哪个任务
+ ** - 告诉前端最终审核结论是什么
+ ** - 告诉前端报告文件保存在哪里
+ ** - 同时也可以直接把报告内容返回给前端展示
+ */
+public class AuditReportResult {
+
+    private Long taskId;
+    private String taskNo;
+    private String finalDecision;
+    private Boolean needHumanReview;
+    private String reportPath;
+    private String reportContent;
+
+    public AuditReportResult() {
+    }
+
+    public AuditReportResult(Long taskId,
+                             String taskNo,
+                             String finalDecision,
+                             Boolean needHumanReview,
+                             String reportPath,
+                             String reportContent) {
+        this.taskId = taskId;
+        this.taskNo = taskNo;
+        this.finalDecision = finalDecision;
+        this.needHumanReview = needHumanReview;
+        this.reportPath = reportPath;
+        this.reportContent = reportContent;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getTaskNo() {
+        return taskNo;
+    }
+
+    public void setTaskNo(String taskNo) {
+        this.taskNo = taskNo;
+    }
+
+    public String getFinalDecision() {
+        return finalDecision;
+    }
+
+    public void setFinalDecision(String finalDecision) {
+        this.finalDecision = finalDecision;
+    }
+
+    public Boolean getNeedHumanReview() {
+        return needHumanReview;
+    }
+
+    public void setNeedHumanReview(Boolean needHumanReview) {
+        this.needHumanReview = needHumanReview;
+    }
+
+    public String getReportPath() {
+        return reportPath;
+    }
+
+    public void setReportPath(String reportPath) {
+        this.reportPath = reportPath;
+    }
+
+    public String getReportContent() {
+        return reportContent;
+    }
+
+    public void setReportContent(String reportContent) {
+        this.reportContent = reportContent;
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\vo\AuditResult.java
+============================================================
+package invoice_agent_backend.vo;
+
+import invoice_agent_backend.entity.AuditRuleHit;
+
+import java.util.List;
+
+/*
+ ** AuditResult 是返回给前端的审核结果对象。
+ **
+ ** finalDecision:
+ ** - APPROVED：系统自动通过
+ ** - NEED_HUMAN_REVIEW：需要人工复核
+ **
+ ** needHumanReview:
+ ** - true：需要人工看
+ ** - false：系统可以自动通过
+ **
+ ** ruleHits:
+ ** - 保存具体命中了哪些规则
+ */
+public class AuditResult {
+
+    private String finalDecision;
+    private Boolean needHumanReview;
+    private List<AuditRuleHit> ruleHits;
+
+    public AuditResult() {
+    }
+
+    public AuditResult(String finalDecision, Boolean needHumanReview, List<AuditRuleHit> ruleHits) {
+        this.finalDecision = finalDecision;
+        this.needHumanReview = needHumanReview;
+        this.ruleHits = ruleHits;
+    }
+
+    public String getFinalDecision() {
+        return finalDecision;
+    }
+
+    public void setFinalDecision(String finalDecision) {
+        this.finalDecision = finalDecision;
+    }
+
+    public Boolean getNeedHumanReview() {
+        return needHumanReview;
+    }
+
+    public void setNeedHumanReview(Boolean needHumanReview) {
+        this.needHumanReview = needHumanReview;
+    }
+
+    public List<AuditRuleHit> getRuleHits() {
+        return ruleHits;
+    }
+
+    public void setRuleHits(List<AuditRuleHit> ruleHits) {
+        this.ruleHits = ruleHits;
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\vo\AuditTaskDetailResult.java
+============================================================
+package invoice_agent_backend.vo;
+
+import invoice_agent_backend.entity.AuditRuleHit;
+import invoice_agent_backend.entity.AuditTask;
+import invoice_agent_backend.entity.HumanReviewRecord;
+import invoice_agent_backend.entity.InvoiceInfo;
+
+import java.util.List;
+
+/*
+ ** 某个审核任务的完整详情。
+ **
+ ** 前端进入“任务详情页”时，
+ ** 一个接口就可以把整条审核链全部拿回来。
+ */
+public class AuditTaskDetailResult {
+
+    private AuditTask auditTask;
+
+    private InvoiceInfo invoiceInfo;
+
+    private List<AuditRuleHit> ruleHits;
+
+    private AuditReportResult auditReport;
+
+    private List<HumanReviewRecord> humanReviews;
+
+    public AuditTaskDetailResult() {
+    }
+
+    public AuditTaskDetailResult(
+            AuditTask auditTask,
+            InvoiceInfo invoiceInfo,
+            List<AuditRuleHit> ruleHits,
+            AuditReportResult auditReport,
+            List<HumanReviewRecord> humanReviews) {
+
+        this.auditTask = auditTask;
+        this.invoiceInfo = invoiceInfo;
+        this.ruleHits = ruleHits;
+        this.auditReport = auditReport;
+        this.humanReviews = humanReviews;
+    }
+
+    public AuditTask getAuditTask() {
+        return auditTask;
+    }
+
+    public void setAuditTask(AuditTask auditTask) {
+        this.auditTask = auditTask;
+    }
+
+    public InvoiceInfo getInvoiceInfo() {
+        return invoiceInfo;
+    }
+
+    public void setInvoiceInfo(InvoiceInfo invoiceInfo) {
+        this.invoiceInfo = invoiceInfo;
+    }
+
+    public List<AuditRuleHit> getRuleHits() {
+        return ruleHits;
+    }
+
+    public void setRuleHits(List<AuditRuleHit> ruleHits) {
+        this.ruleHits = ruleHits;
+    }
+
+    public AuditReportResult getAuditReport() {
+        return auditReport;
+    }
+
+    public void setAuditReport(AuditReportResult auditReport) {
+        this.auditReport = auditReport;
+    }
+
+    public List<HumanReviewRecord> getHumanReviews() {
+        return humanReviews;
+    }
+
+    public void setHumanReviews(
+            List<HumanReviewRecord> humanReviews) {
+        this.humanReviews = humanReviews;
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\vo\UploadInvoiceResult.java
+============================================================
+package invoice_agent_backend.vo;
+
+import invoice_agent_backend.entity.InvoiceInfo;
+
+/*
+ ** UploadInvoiceResult 是上传接口返回给前端的 VO，也就是 View Object。
+ **
+ ** 之前返回：
+ ** taskId / taskNo / status / originalFilePath / invoiceInfo / auditResult
+ **
+ ** 现在继续增加：
+ ** auditReport
+ **
+ ** 这样前端上传成功后，可以直接看到：
+ ** - 发票识别信息
+ ** - 审核结论
+ ** - 命中了哪些规则
+ ** - 系统生成的审核报告
+ */
+public class UploadInvoiceResult {
+
+    private Long taskId;
+    private String taskNo;
+    private String status;
+    private String originalFilePath;
+    private InvoiceInfo invoiceInfo;
+    private AuditResult auditResult;
+    private AuditReportResult auditReport;
+
+    public UploadInvoiceResult() {
+    }
+
+    public UploadInvoiceResult(Long taskId, String taskNo, String status, String originalFilePath) {
+        this.taskId = taskId;
+        this.taskNo = taskNo;
+        this.status = status;
+        this.originalFilePath = originalFilePath;
+    }
+
+    public UploadInvoiceResult(Long taskId,
+                               String taskNo,
+                               String status,
+                               String originalFilePath,
+                               InvoiceInfo invoiceInfo) {
+        this.taskId = taskId;
+        this.taskNo = taskNo;
+        this.status = status;
+        this.originalFilePath = originalFilePath;
+        this.invoiceInfo = invoiceInfo;
+    }
+
+    public UploadInvoiceResult(Long taskId,
+                               String taskNo,
+                               String status,
+                               String originalFilePath,
+                               InvoiceInfo invoiceInfo,
+                               AuditResult auditResult) {
+        this.taskId = taskId;
+        this.taskNo = taskNo;
+        this.status = status;
+        this.originalFilePath = originalFilePath;
+        this.invoiceInfo = invoiceInfo;
+        this.auditResult = auditResult;
+    }
+
+    public UploadInvoiceResult(Long taskId,
+                               String taskNo,
+                               String status,
+                               String originalFilePath,
+                               InvoiceInfo invoiceInfo,
+                               AuditResult auditResult,
+                               AuditReportResult auditReport) {
+        this.taskId = taskId;
+        this.taskNo = taskNo;
+        this.status = status;
+        this.originalFilePath = originalFilePath;
+        this.invoiceInfo = invoiceInfo;
+        this.auditResult = auditResult;
+        this.auditReport = auditReport;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getTaskNo() {
+        return taskNo;
+    }
+
+    public void setTaskNo(String taskNo) {
+        this.taskNo = taskNo;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getOriginalFilePath() {
+        return originalFilePath;
+    }
+
+    public void setOriginalFilePath(String originalFilePath) {
+        this.originalFilePath = originalFilePath;
+    }
+
+    public InvoiceInfo getInvoiceInfo() {
+        return invoiceInfo;
+    }
+
+    public void setInvoiceInfo(InvoiceInfo invoiceInfo) {
+        this.invoiceInfo = invoiceInfo;
+    }
+
+    public AuditResult getAuditResult() {
+        return auditResult;
+    }
+
+    public void setAuditResult(AuditResult auditResult) {
+        this.auditResult = auditResult;
+    }
+
+    public AuditReportResult getAuditReport() {
+        return auditReport;
+    }
+
+    public void setAuditReport(AuditReportResult auditReport) {
+        this.auditReport = auditReport;
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\workflow\impl\InvoiceAuditWorkflowServiceImpl.java
+============================================================
+package invoice_agent_backend.workflow.impl;
+
+import invoice_agent_backend.constant.AuditTaskStatus;
+import invoice_agent_backend.entity.AuditTask;
+import invoice_agent_backend.entity.InvoiceInfo;
+import invoice_agent_backend.mapper.AuditTaskMapper;
+import invoice_agent_backend.mapper.InvoiceInfoMapper;
+import invoice_agent_backend.service.AuditReportService;
+import invoice_agent_backend.service.AuditRuleService;
+import invoice_agent_backend.service.OcrService;
+import invoice_agent_backend.vo.AuditReportResult;
+import invoice_agent_backend.vo.AuditResult;
+import invoice_agent_backend.vo.UploadInvoiceResult;
+import invoice_agent_backend.workflow.InvoiceAuditWorkflowService;
+import invoice_agent_backend.workflow.state.AuditTaskState;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
+
+/*
+ ** 发票审核 Workflow。
+ **
+ ** 以前这些逻辑全部堆在 AuditTaskServiceImpl.uploadInvoice()。
+ **
+ ** 现在把整个流程拆成多个明确节点：
+ **
+ ** validateUpload
+ **      ↓
+ ** saveInvoiceFile
+ **      ↓
+ ** createAuditTask
+ **      ↓
+ ** executeOcr
+ **      ↓
+ ** executeAuditRules
+ **      ↓
+ ** generateAuditReport
+ **      ↓
+ ** buildResult
+ **
+ ** 后面接入 Agent Graph 时，
+ ** 这些方法可以进一步转换成 Graph Node。
+ */
+@Service
+public class InvoiceAuditWorkflowServiceImpl
+        implements InvoiceAuditWorkflowService {
+
+    private final AuditTaskMapper auditTaskMapper;
+
+    private final InvoiceInfoMapper invoiceInfoMapper;
+
+    private final OcrService ocrService;
+
+    private final AuditRuleService auditRuleService;
+
+    private final AuditReportService auditReportService;
+
+    public InvoiceAuditWorkflowServiceImpl(
+            AuditTaskMapper auditTaskMapper,
+            InvoiceInfoMapper invoiceInfoMapper,
+            OcrService ocrService,
+            AuditRuleService auditRuleService,
+            AuditReportService auditReportService) {
+
+        this.auditTaskMapper = auditTaskMapper;
+        this.invoiceInfoMapper = invoiceInfoMapper;
+        this.ocrService = ocrService;
+        this.auditRuleService = auditRuleService;
+        this.auditReportService = auditReportService;
+    }
+
+    @Override
+    @Transactional
+    public UploadInvoiceResult execute(MultipartFile file) {
+
+        validateUpload(file);
+
+        AuditTaskState state = new AuditTaskState();
+
+        try {
+
+            /*
+             ** Node 1：保存上传文件
+             */
+            saveInvoiceFile(file, state);
+
+            /*
+             ** Node 2：创建审核任务
+             */
+            createAuditTask(state);
+
+            /*
+             ** Node 3：OCR
+             */
+            executeOcr(state);
+
+            /*
+             ** Node 4：规则审核
+             */
+            executeAuditRules(state);
+
+            /*
+             ** Node 5：生成报告
+             */
+            generateAuditReport(state);
+
+            /*
+             ** Node 6：整理接口返回结果
+             */
+            return buildResult(state);
+
+        } catch (Exception e) {
+
+            /*
+             ** 数据库操作由 @Transactional 控制。
+             **
+             ** 但是注意：
+             ** MySQL 可以自动回滚，
+             ** 本地 uploads 文件无法跟随数据库事务自动回滚。
+             **
+             ** 后面可以增加文件补偿机制。
+             */
+            throw new RuntimeException(
+                    "发票审核流程执行失败：" + e.getMessage(),
+                    e
+            );
+        }
+    }
+
+    /*
+     ** 检查上传文件
+     */
+    private void validateUpload(MultipartFile file) {
+
+        if (file == null || file.isEmpty()) {
+            throw new RuntimeException("上传文件不能为空");
+        }
+    }
+
+    /*
+     ** Node 1：
+     ** 保存原始发票文件
+     */
+    private void saveInvoiceFile(
+            MultipartFile file,
+            AuditTaskState state) throws Exception {
+
+        String originalFilename = file.getOriginalFilename();
+
+        String suffix = getFileSuffix(originalFilename);
+
+        String datePath = LocalDate.now()
+                .format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        String fileName = UUID.randomUUID() + suffix;
+
+        String baseDir =
+                System.getProperty("user.dir")
+                        + File.separator
+                        + "uploads"
+                        + File.separator
+                        + "invoices";
+
+        File targetDir = new File(baseDir, datePath);
+
+        if (!targetDir.exists()) {
+
+            boolean created = targetDir.mkdirs();
+
+            if (!created) {
+                throw new RuntimeException("创建上传目录失败");
+            }
+        }
+
+        File targetFile = new File(targetDir, fileName);
+
+        file.transferTo(targetFile);
+
+        state.setTargetFile(targetFile);
+
+        state.completeStep("FILE_SAVED");
+    }
+
+    /*
+     ** Node 2：
+     ** 创建 audit_task
+     */
+    private void createAuditTask(AuditTaskState state) {
+
+        String taskNo =
+                "TASK-" + System.currentTimeMillis();
+
+        AuditTask auditTask = new AuditTask();
+
+        auditTask.setTaskNo(taskNo);
+
+        auditTask.setUserId(null);
+
+        auditTask.setStatus(
+                AuditTaskStatus.UPLOADED
+        );
+
+        auditTask.setOriginalFilePath(
+                state.getTargetFile()
+                        .getAbsolutePath()
+        );
+
+        auditTask.setOcrRawText(null);
+
+        auditTask.setFinalDecision(null);
+
+        auditTask.setNeedHumanReview(false);
+
+        auditTask.setReportPath(null);
+
+        auditTaskMapper.insertAuditTask(auditTask);
+
+        state.setAuditTask(auditTask);
+
+        state.completeStep("TASK_CREATED");
+    }
+
+    /*
+     ** Node 3：
+     ** OCR → invoice_info
+     */
+    private void executeOcr(AuditTaskState state) {
+
+        AuditTask auditTask =
+                state.getAuditTask();
+
+        InvoiceInfo invoiceInfo =
+                ocrService.recognizeInvoice(
+                        auditTask.getId(),
+                        state.getTargetFile()
+                                .getAbsolutePath()
+                );
+
+        if (invoiceInfo == null) {
+            throw new RuntimeException(
+                    "OCR 未返回发票信息"
+            );
+        }
+
+        invoiceInfoMapper
+                .insertInvoiceInfo(invoiceInfo);
+
+        auditTaskMapper.updateTaskAfterOcr(
+                auditTask.getId(),
+                AuditTaskStatus.OCR_DONE,
+                invoiceInfo.getRawJson()
+        );
+
+        auditTask.setStatus(
+                AuditTaskStatus.OCR_DONE
+        );
+
+        auditTask.setOcrRawText(
+                invoiceInfo.getRawJson()
+        );
+
+        state.setInvoiceInfo(invoiceInfo);
+
+        state.completeStep("OCR_DONE");
+    }
+
+    /*
+     ** Node 4：
+     ** 执行审核规则
+     */
+    private void executeAuditRules(
+            AuditTaskState state) {
+
+        AuditTask auditTask =
+                state.getAuditTask();
+
+        AuditResult auditResult =
+                auditRuleService.checkRules(
+                        state.getInvoiceInfo()
+                );
+
+        if (auditResult == null) {
+            throw new RuntimeException(
+                    "审核规则没有返回结果"
+            );
+        }
+
+        auditTaskMapper.updateAuditResult(
+                auditTask.getId(),
+                AuditTaskStatus.AUDIT_DONE,
+                auditResult.getFinalDecision(),
+                auditResult.getNeedHumanReview()
+        );
+
+        auditTask.setStatus(
+                AuditTaskStatus.AUDIT_DONE
+        );
+
+        auditTask.setFinalDecision(
+                auditResult.getFinalDecision()
+        );
+
+        auditTask.setNeedHumanReview(
+                auditResult.getNeedHumanReview()
+        );
+
+        state.setAuditResult(auditResult);
+
+        state.completeStep("AUDIT_DONE");
+    }
+
+    /*
+     ** Node 5：
+     ** 生成审核报告
+     */
+    private void generateAuditReport(
+            AuditTaskState state) {
+
+        AuditReportResult auditReport =
+                auditReportService.generateReport(
+                        state.getAuditTask(),
+                        state.getInvoiceInfo(),
+                        state.getAuditResult()
+                );
+
+        auditTaskMapper.updateReportPath(
+                state.getAuditTask().getId(),
+                auditReport.getReportPath()
+        );
+
+        state.getAuditTask()
+                .setReportPath(
+                        auditReport.getReportPath()
+                );
+
+        state.setAuditReport(auditReport);
+
+        state.completeStep("REPORT_GENERATED");
+    }
+
+    /*
+     ** Node 6：
+     ** 返回前端 VO
+     */
+    private UploadInvoiceResult buildResult(
+            AuditTaskState state) {
+
+        AuditTask auditTask =
+                state.getAuditTask();
+
+        return new UploadInvoiceResult(
+                auditTask.getId(),
+                auditTask.getTaskNo(),
+                auditTask.getStatus(),
+                auditTask.getOriginalFilePath(),
+                state.getInvoiceInfo(),
+                state.getAuditResult(),
+                state.getAuditReport()
+        );
+    }
+
+    private String getFileSuffix(
+            String originalFilename) {
+
+        if (originalFilename == null
+                || !originalFilename.contains(".")) {
+            return "";
+        }
+
+        return originalFilename.substring(
+                originalFilename.lastIndexOf(".")
+        );
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\workflow\InvoiceAuditWorkflowService.java
+============================================================
+package invoice_agent_backend.workflow;
+
+import invoice_agent_backend.vo.UploadInvoiceResult;
+import org.springframework.web.multipart.MultipartFile;
+
+/*
+ ** 发票完整审核工作流
+ **
+ ** Controller 不需要知道 OCR、规则、报告如何执行。
+ ** AuditTaskService 也不需要再承担整个流程。
+ */
+public interface InvoiceAuditWorkflowService {
+
+    UploadInvoiceResult execute(MultipartFile file);
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\workflow\state\AuditTaskState.java
+============================================================
+package invoice_agent_backend.workflow.state;
+
+import invoice_agent_backend.entity.AuditTask;
+import invoice_agent_backend.entity.InvoiceInfo;
+import invoice_agent_backend.vo.AuditReportResult;
+import invoice_agent_backend.vo.AuditResult;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+/*
+ ** 整个发票审核 Workflow 的状态对象。
+ **
+ ** 可以把它理解成：
+ **
+ ** 一张发票从上传开始，在不同处理节点之间传递的“档案袋”。
+ **
+ ** 后面升级 Spring AI Alibaba Graph 时，
+ ** 这个类就可以继续演化成真正的 Graph State。
+ */
+public class AuditTaskState {
+
+    private File targetFile;
+
+    private AuditTask auditTask;
+
+    private InvoiceInfo invoiceInfo;
+
+    private AuditResult auditResult;
+
+    private AuditReportResult auditReport;
+
+    private final List<String> completedSteps = new ArrayList<>();
+
+    public void completeStep(String step) {
+        completedSteps.add(step);
+    }
+
+    public File getTargetFile() {
+        return targetFile;
+    }
+
+    public void setTargetFile(File targetFile) {
+        this.targetFile = targetFile;
+    }
+
+    public AuditTask getAuditTask() {
+        return auditTask;
+    }
+
+    public void setAuditTask(AuditTask auditTask) {
+        this.auditTask = auditTask;
+    }
+
+    public InvoiceInfo getInvoiceInfo() {
+        return invoiceInfo;
+    }
+
+    public void setInvoiceInfo(InvoiceInfo invoiceInfo) {
+        this.invoiceInfo = invoiceInfo;
+    }
+
+    public AuditResult getAuditResult() {
+        return auditResult;
+    }
+
+    public void setAuditResult(AuditResult auditResult) {
+        this.auditResult = auditResult;
+    }
+
+    public AuditReportResult getAuditReport() {
+        return auditReport;
+    }
+
+    public void setAuditReport(AuditReportResult auditReport) {
+        this.auditReport = auditReport;
+    }
+
+    public List<String> getCompletedSteps() {
+        return completedSteps;
+    }
+}
+
+============================================================
+FILE: src\main\resources\application.properties
+============================================================
+spring.application.name=invoice-agent-backend
+
+server.port=8080
+
+# MySQL
+spring.datasource.url=jdbc:mysql://localhost:3306/invoice_agent?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+spring.datasource.username=root
+spring.datasource.password=123456
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# Redis
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
+
+# MyBatis
+mybatis.mapper-locations=classpath:mapper/*.xml
+mybatis.type-aliases-package=invoice_agent_backend.entity
+
+# Upload
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+
+============================================================
+FILE: src\main\resources\mapper\AuditRuleHitMapper.xml
+============================================================
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="invoice_agent_backend.mapper.AuditRuleHitMapper">
+
+    <resultMap id="AuditRuleHitResultMap" type="invoice_agent_backend.entity.AuditRuleHit">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="ruleCode" column="rule_code"/>
+        <result property="ruleName" column="rule_name"/>
+        <result property="hitResult" column="hit_result"/>
+        <result property="ruleMessage" column="rule_message"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insertAuditRuleHit"
+            parameterType="invoice_agent_backend.entity.AuditRuleHit"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO audit_rule_hit (
+        task_id,
+        rule_code,
+        rule_name,
+        hit_result,
+        rule_message
+        )
+        VALUES (
+        #{taskId},
+        #{ruleCode},
+        #{ruleName},
+        #{hitResult},
+        #{ruleMessage}
+        )
+    </insert>
+
+    <select id="selectRuleHitsByTaskId"
+            parameterType="long"
+            resultMap="AuditRuleHitResultMap">
+        SELECT
+        id,
+        task_id,
+        rule_code,
+        rule_name,
+        hit_result,
+        rule_message,
+        created_at
+        FROM audit_rule_hit
+        WHERE task_id = #{taskId}
+        ORDER BY id ASC
+    </select>
+
+</mapper>
+
+============================================================
+FILE: src\main\resources\mapper\AuditTaskMapper.xml
+============================================================
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="invoice_agent_backend.mapper.AuditTaskMapper">
+
+    <resultMap id="AuditTaskResultMap" type="invoice_agent_backend.entity.AuditTask">
+        <id property="id" column="id"/>
+        <result property="taskNo" column="task_no"/>
+        <result property="userId" column="user_id"/>
+        <result property="status" column="status"/>
+        <result property="originalFilePath" column="original_file_path"/>
+        <result property="ocrRawText" column="ocr_raw_text"/>
+        <result property="finalDecision" column="final_decision"/>
+        <result property="needHumanReview" column="need_human_review"/>
+        <result property="reportPath" column="report_path"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insertAuditTask" parameterType="invoice_agent_backend.entity.AuditTask"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO audit_task (
+        task_no,
+        user_id,
+        status,
+        original_file_path,
+        ocr_raw_text,
+        final_decision,
+        need_human_review,
+        report_path
+        )
+        VALUES (
+        #{taskNo},
+        #{userId},
+        #{status},
+        #{originalFilePath},
+        #{ocrRawText},
+        #{finalDecision},
+        #{needHumanReview},
+        #{reportPath}
+        )
+    </insert>
+
+    <select id="selectAuditTaskById" parameterType="long" resultMap="AuditTaskResultMap">
+        SELECT
+        id,
+        task_no,
+        user_id,
+        status,
+        original_file_path,
+        ocr_raw_text,
+        final_decision,
+        need_human_review,
+        report_path,
+        created_at,
+        updated_at
+        FROM audit_task
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateTaskAfterOcr">
+        UPDATE audit_task
+        SET
+        status = #{status},
+        ocr_raw_text = #{ocrRawText},
+        updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateAuditResult">
+        UPDATE audit_task
+        SET
+        status = #{status},
+        final_decision = #{finalDecision},
+        need_human_review = #{needHumanReview},
+        updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateReportPath">
+        UPDATE audit_task
+        SET
+        report_path = #{reportPath},
+        updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!--
+    任务列表分页查询
+
+    status 为空：
+    查询所有任务
+
+    status 不为空：
+    只查询对应状态
+-->
+    <select id="selectAuditTaskPage"
+            resultMap="AuditTaskResultMap">
+
+        SELECT
+        id,
+        task_no,
+        user_id,
+        status,
+        original_file_path,
+        ocr_raw_text,
+        final_decision,
+        need_human_review,
+        report_path,
+        created_at,
+        updated_at
+        FROM audit_task
+
+        <where>
+            <if test="status != null and status != ''">
+                status = #{status}
+            </if>
+        </where>
+
+        ORDER BY id DESC
+
+        LIMIT #{offset}, #{size}
+
+    </select>
+
+
+    <!-- 查询任务总数 -->
+    <select id="countAuditTasks"
+            resultType="long">
+
+        SELECT COUNT(1)
+        FROM audit_task
+
+        <where>
+            <if test="status != null and status != ''">
+                status = #{status}
+            </if>
+        </where>
+
+    </select>
+
+
+    <!--
+        人工审核完成后，
+        写入最终审核结果。
+    -->
+    <update id="updateHumanReviewResult">
+
+        UPDATE audit_task
+
+        SET
+        status = #{status},
+        final_decision = #{finalDecision},
+        need_human_review = #{needHumanReview},
+        updated_at = NOW()
+
+        WHERE id = #{id}
+
+    </update>
+
+</mapper>
+
+============================================================
+FILE: src\main\resources\mapper\HumanReviewRecordMapper.xml
+============================================================
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="invoice_agent_backend.mapper.HumanReviewRecordMapper">
+
+    <resultMap id="HumanReviewRecordResultMap"
+               type="invoice_agent_backend.entity.HumanReviewRecord">
+
+        <id property="id" column="id"/>
+
+        <result property="taskId" column="task_id"/>
+        <result property="decision" column="decision"/>
+        <result property="reviewer" column="reviewer"/>
+        <result property="reviewComment" column="review_comment"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insertHumanReviewRecord"
+            parameterType="invoice_agent_backend.entity.HumanReviewRecord"
+            useGeneratedKeys="true"
+            keyProperty="id">
+
+        INSERT INTO human_review_record (
+        task_id,
+        decision,
+        reviewer,
+        review_comment
+        )
+        VALUES (
+        #{taskId},
+        #{decision},
+        #{reviewer},
+        #{reviewComment}
+        )
+
+    </insert>
+
+    <select id="selectByTaskId"
+            parameterType="long"
+            resultMap="HumanReviewRecordResultMap">
+
+        SELECT
+        id,
+        task_id,
+        decision,
+        reviewer,
+        review_comment,
+        created_at
+        FROM human_review_record
+        WHERE task_id = #{taskId}
+        ORDER BY id ASC
+
+    </select>
+
+</mapper>
+
+============================================================
+FILE: src\main\resources\mapper\InvoiceInfoMapper.xml
+============================================================
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="invoice_agent_backend.mapper.InvoiceInfoMapper">
+
+    <resultMap id="InvoiceInfoResultMap" type="invoice_agent_backend.entity.InvoiceInfo">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="invoiceNo" column="invoice_no"/>
+        <result property="invoiceDate" column="invoice_date"/>
+        <result property="amount" column="amount"/>
+        <result property="taxAmount" column="tax_amount"/>
+        <result property="buyerName" column="buyer_name"/>
+        <result property="sellerName" column="seller_name"/>
+        <result property="invoiceType" column="invoice_type"/>
+        <result property="rawJson" column="raw_json"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insertInvoiceInfo"
+            parameterType="invoice_agent_backend.entity.InvoiceInfo"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO invoice_info (
+        task_id,
+        invoice_no,
+        invoice_date,
+        amount,
+        tax_amount,
+        buyer_name,
+        seller_name,
+        invoice_type,
+        raw_json
+        )
+        VALUES (
+        #{taskId},
+        #{invoiceNo},
+        #{invoiceDate},
+        #{amount},
+        #{taxAmount},
+        #{buyerName},
+        #{sellerName},
+        #{invoiceType},
+        #{rawJson}
+        )
+    </insert>
+
+    <select id="selectInvoiceInfoByTaskId"
+            parameterType="long"
+            resultMap="InvoiceInfoResultMap">
+        SELECT
+        id,
+        task_id,
+        invoice_no,
+        invoice_date,
+        amount,
+        tax_amount,
+        buyer_name,
+        seller_name,
+        invoice_type,
+        raw_json,
+        created_at
+        FROM invoice_info
+        WHERE task_id = #{taskId}
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <select id="countByInvoiceNoExcludeTask" resultType="int">
+        SELECT COUNT(1)
+        FROM invoice_info
+        WHERE invoice_no = #{invoiceNo}
+        AND task_id != #{taskId}
+    </select>
+
+</mapper>
+
+============================================================
+FILE: src\test\java\invoice_agent_backend\InvoiceAgentBackendApplicationTests.java
+============================================================
+package invoice_agent_backend;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class InvoiceAgentBackendApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
+

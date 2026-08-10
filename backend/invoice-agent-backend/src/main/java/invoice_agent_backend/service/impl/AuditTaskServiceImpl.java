@@ -1,227 +1,460 @@
 package invoice_agent_backend.service.impl;
 
+import invoice_agent_backend.common.PageResult;
+import invoice_agent_backend.constant.AuditDecision;
+import invoice_agent_backend.constant.AuditTaskStatus;
+import invoice_agent_backend.dto.HumanReviewRequest;
 import invoice_agent_backend.entity.AuditRuleHit;
 import invoice_agent_backend.entity.AuditTask;
+import invoice_agent_backend.entity.HumanReviewRecord;
 import invoice_agent_backend.entity.InvoiceInfo;
 import invoice_agent_backend.mapper.AuditRuleHitMapper;
 import invoice_agent_backend.mapper.AuditTaskMapper;
+import invoice_agent_backend.mapper.HumanReviewRecordMapper;
 import invoice_agent_backend.mapper.InvoiceInfoMapper;
-import invoice_agent_backend.service.AuditRuleService;
+import invoice_agent_backend.service.AuditReportService;
 import invoice_agent_backend.service.AuditTaskService;
-import invoice_agent_backend.service.OcrService;
+import invoice_agent_backend.vo.AuditReportResult;
 import invoice_agent_backend.vo.AuditResult;
+import invoice_agent_backend.vo.AuditTaskDetailResult;
 import invoice_agent_backend.vo.UploadInvoiceResult;
+import invoice_agent_backend.workflow.InvoiceAuditWorkflowService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 
-
-// @Service 表示 Spring 会把它注册成业务组件
-// Controller 需要 AuditTaskService 时，Spring 就会把这个实现类注入进去。
+/*
+ ** AuditTaskService 现在主要负责：
+ **
+ ** 1. 调用 Workflow 执行完整审核
+ ** 2. 查询任务
+ ** 3. 查询任务详情
+ ** 4. 人工复核
+ **
+ ** 真正的上传 → OCR → 规则 → 报告，
+ ** 已经交给 InvoiceAuditWorkflowService。
+ */
 @Service
-public class AuditTaskServiceImpl implements AuditTaskService {
+public class AuditTaskServiceImpl
+        implements AuditTaskService {
 
-    private final AuditTaskMapper auditTaskMapper;          // 负责操作 audit_task 表
-    private final InvoiceInfoMapper invoiceInfoMapper;      // 负责操作 invoice_info 表
-    private final AuditRuleHitMapper auditRuleHitMapper;    // 负责操作 audit_rule_hit 表
-    private final OcrService ocrService;                    // 负责 OCR 识别；现在实际实现是假 OCR
-    private final AuditRuleService auditRuleService;        // 负责审核规则校验
+    private final InvoiceAuditWorkflowService workflowService;
 
-    public AuditTaskServiceImpl(AuditTaskMapper auditTaskMapper,
-                                InvoiceInfoMapper invoiceInfoMapper,
-                                AuditRuleHitMapper auditRuleHitMapper,
-                                OcrService ocrService,
-                                AuditRuleService auditRuleService) {
+    private final AuditTaskMapper auditTaskMapper;
+
+    private final InvoiceInfoMapper invoiceInfoMapper;
+
+    private final AuditRuleHitMapper auditRuleHitMapper;
+
+    private final HumanReviewRecordMapper humanReviewRecordMapper;
+
+    private final AuditReportService auditReportService;
+
+    public AuditTaskServiceImpl(
+            InvoiceAuditWorkflowService workflowService,
+            AuditTaskMapper auditTaskMapper,
+            InvoiceInfoMapper invoiceInfoMapper,
+            AuditRuleHitMapper auditRuleHitMapper,
+            HumanReviewRecordMapper humanReviewRecordMapper,
+            AuditReportService auditReportService) {
+
+        this.workflowService = workflowService;
         this.auditTaskMapper = auditTaskMapper;
         this.invoiceInfoMapper = invoiceInfoMapper;
         this.auditRuleHitMapper = auditRuleHitMapper;
-        this.ocrService = ocrService;
-        this.auditRuleService = auditRuleService;
+        this.humanReviewRecordMapper = humanReviewRecordMapper;
+        this.auditReportService = auditReportService;
     }
 
+    /*
+     ** 上传接口现在只负责启动 Workflow。
+     */
     @Override
-    @Transactional
-    public UploadInvoiceResult uploadInvoice(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            throw new RuntimeException("上传文件不能为空");
-        }
+    public UploadInvoiceResult uploadInvoice(
+            MultipartFile file) {
 
-        try {
-            /*
-             ** 比如用户上传的是：invoice_sample.png 那么：
-             ** originalFilename = invoice_sample.png；suffix = .png
-             */
-            String originalFilename = file.getOriginalFilename();
-            String suffix = getFileSuffix(originalFilename);
-
-            // 生成日期目录，再生成 UUID 文件名，因为如果每个人都上传 invoice.png，文件名会冲突。UUID 可以避免覆盖。
-            String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            String fileName = UUID.randomUUID() + suffix;
-
-            String baseDir = System.getProperty("user.dir")
-                    + File.separator + "uploads"
-                    + File.separator + "invoices";
-
-            // 如果今天的发票文件夹还不存在，就创建一个。
-            File targetDir = new File(baseDir, datePath);
-            if (!targetDir.exists()) {
-                boolean created = targetDir.mkdirs();
-                if (!created) {
-                    throw new RuntimeException("创建上传目录失败");
-                }
-            }
-
-            /*
-             ** 数据库不适合直接存大图片。现在的设计是：
-             ** 图片本体：存在 uploads 文件夹
-             ** 图片路径：存在 MySQL 的 audit_task.original_file_path 字段
-             */
-            File targetFile = new File(targetDir, fileName);
-            file.transferTo(targetFile);  // 暂时把图片存到 upload 目录里，在接入真实 OCR 之前。
-
-            // 给这次上传创建一个任务编号，之后可以追踪这张发票处理到哪一步。
-            String taskNo = "TASK-" + System.currentTimeMillis();
-
-            /*
-             ** 创建 AuditTask 对象，将“文件路径”存入数据库对应表。
-             ** 这些字段对应数据库里的 audit_task 表。
-             ** 业务上它表示“一次发票审核任务”。
-             */
-            AuditTask auditTask = new AuditTask();
-            auditTask.setTaskNo(taskNo);
-            auditTask.setUserId(null);
-            auditTask.setStatus("UPLOADED");
-            auditTask.setOriginalFilePath(targetFile.getAbsolutePath());
-            auditTask.setOcrRawText(null);
-            auditTask.setFinalDecision(null);
-            auditTask.setNeedHumanReview(false);
-            auditTask.setReportPath(null);
-
-            // 存入 audit_task 表。插入成功后，MySQL 自动生成的 id 会回填到 auditTask.id。
-            auditTaskMapper.insertAuditTask(auditTask);
-
-            // 调用 OCR 服务去根据 id 和图片路径处理图片，然后返回并储存进 invoiceInfo 对象。
-            // 当前用的是 MockOcrServiceImpl，不是真实 OCR。
-            InvoiceInfo invoiceInfo = ocrService.recognizeInvoice(
-                    auditTask.getId(),
-                    targetFile.getAbsolutePath()
-            );
-
-            // 识别出的发票信息落库，保存到 invoice_info 表。
-            invoiceInfoMapper.insertInvoiceInfo(invoiceInfo);
-
-            // OCR 完成后，先更新任务状态为 OCR_DONE，并保存 OCR 原始 JSON。
-            auditTaskMapper.updateTaskAfterOcr(
-                    auditTask.getId(),
-                    "OCR_DONE",
-                    invoiceInfo.getRawJson()
-            );
-
-            /*
-             ** 新增流程：执行审核规则。
-             **
-             ** 当前规则包括：
-             ** 1. 必要字段不能为空
-             ** 2. 金额超过 50000 需要人工复核
-             ** 3. 发票号重复需要人工复核
-             **
-             ** checkRules 会：
-             ** - 判断是否命中规则
-             ** - 把命中的规则保存到 audit_rule_hit 表
-             ** - 返回最终审核结果 AuditResult
-             */
-            AuditResult auditResult = auditRuleService.checkRules(invoiceInfo);
-
-            /*
-             ** 审核完成后，把最终结论更新回 audit_task 表。
-             **
-             ** status = AUDIT_DONE
-             ** final_decision = APPROVED / NEED_HUMAN_REVIEW
-             ** need_human_review = true / false
-             */
-            auditTaskMapper.updateAuditResult(
-                    auditTask.getId(),
-                    "AUDIT_DONE",
-                    auditResult.getFinalDecision(),
-                    auditResult.getNeedHumanReview()
-            );
-
-            auditTask.setStatus("AUDIT_DONE");
-            auditTask.setFinalDecision(auditResult.getFinalDecision());
-            auditTask.setNeedHumanReview(auditResult.getNeedHumanReview());
-
-            /*
-             ** 这个对象是专门返回给前端的 VO，也就是 View Object。
-             ** 最终前端拿到的是 JSON 格式的结果：
-             ** - taskId
-             ** - taskNo
-             ** - status
-             ** - originalFilePath
-             ** - invoiceInfo
-             ** - auditResult
-             */
-            return new UploadInvoiceResult(
-                    auditTask.getId(),
-                    auditTask.getTaskNo(),
-                    auditTask.getStatus(),
-                    auditTask.getOriginalFilePath(),
-                    invoiceInfo,
-                    auditResult
-            );
-        } catch (Exception e) {
-            throw new RuntimeException("上传发票失败：" + e.getMessage(), e);
-        }
+        return workflowService.execute(file);
     }
 
     @Override
     public AuditTask getTaskById(Long id) {
+
         if (id == null) {
-            throw new RuntimeException("任务ID不能为空");
+            throw new RuntimeException(
+                    "任务ID不能为空"
+            );
         }
 
-        AuditTask auditTask = auditTaskMapper.selectAuditTaskById(id);
+        AuditTask auditTask =
+                auditTaskMapper
+                        .selectAuditTaskById(id);
 
         if (auditTask == null) {
-            throw new RuntimeException("任务不存在");
+            throw new RuntimeException(
+                    "任务不存在"
+            );
         }
 
         return auditTask;
     }
 
     @Override
-    public InvoiceInfo getInvoiceInfoByTaskId(Long taskId) {
+    public InvoiceInfo getInvoiceInfoByTaskId(
+            Long taskId) {
+
         if (taskId == null) {
-            throw new RuntimeException("任务ID不能为空");
+            throw new RuntimeException(
+                    "任务ID不能为空"
+            );
         }
 
-        InvoiceInfo invoiceInfo = invoiceInfoMapper.selectInvoiceInfoByTaskId(taskId);
+        InvoiceInfo invoiceInfo =
+                invoiceInfoMapper
+                        .selectInvoiceInfoByTaskId(taskId);
 
         if (invoiceInfo == null) {
-            throw new RuntimeException("发票信息不存在");
+            throw new RuntimeException(
+                    "发票信息不存在"
+            );
         }
 
         return invoiceInfo;
     }
 
     @Override
-    public List<AuditRuleHit> getRuleHitsByTaskId(Long taskId) {
+    public List<AuditRuleHit>
+    getRuleHitsByTaskId(Long taskId) {
+
         if (taskId == null) {
-            throw new RuntimeException("任务ID不能为空");
+            throw new RuntimeException(
+                    "任务ID不能为空"
+            );
         }
 
-        return auditRuleHitMapper.selectRuleHitsByTaskId(taskId);
+        return auditRuleHitMapper
+                .selectRuleHitsByTaskId(taskId);
     }
 
-    private String getFileSuffix(String originalFilename) {
-        if (originalFilename == null || !originalFilename.contains(".")) {
-            return "";
+    /*
+     ** 查询之前已经生成好的报告。
+     **
+     ** 这里删除了原来那个：
+     **
+     ** InvoiceInfo invoiceInfo =
+     **     getInvoiceInfoByTaskId(taskId);
+     **
+     ** 因为查出来以后根本没有使用。
+     */
+    @Override
+    public AuditReportResult getReportByTaskId(
+            Long taskId) {
+
+        AuditTask auditTask =
+                getTaskById(taskId);
+
+        if (auditTask.getReportPath() == null
+                || auditTask.getReportPath()
+                .trim()
+                .isEmpty()) {
+
+            throw new RuntimeException(
+                    "该任务还没有生成审核报告"
+            );
         }
-        return originalFilename.substring(originalFilename.lastIndexOf("."));
+
+        String reportContent =
+                auditReportService
+                        .readReportContent(
+                                auditTask.getReportPath()
+                        );
+
+        return new AuditReportResult(
+                auditTask.getId(),
+                auditTask.getTaskNo(),
+                auditTask.getFinalDecision(),
+                auditTask.getNeedHumanReview(),
+                auditTask.getReportPath(),
+                reportContent
+        );
+    }
+
+    /*
+     ** 任务列表分页查询。
+     **
+     ** page 默认 1
+     ** size 默认 20
+     ** size 最大 100
+     */
+    @Override
+    public PageResult<AuditTask> getTaskPage(
+            String status,
+            Integer page,
+            Integer size) {
+
+        int safePage =
+                page == null || page < 1
+                        ? 1
+                        : page;
+
+        int safeSize =
+                size == null || size < 1
+                        ? 20
+                        : Math.min(size, 100);
+
+        int offset =
+                (safePage - 1) * safeSize;
+
+        String safeStatus =
+                status == null
+                        ? null
+                        : status.trim();
+
+        List<AuditTask> records =
+                auditTaskMapper
+                        .selectAuditTaskPage(
+                                safeStatus,
+                                offset,
+                                safeSize
+                        );
+
+        long total =
+                auditTaskMapper
+                        .countAuditTasks(
+                                safeStatus
+                        );
+
+        return new PageResult<>(
+                safePage,
+                safeSize,
+                total,
+                records
+        );
+    }
+
+    /*
+     ** 聚合任务详情。
+     **
+     ** 前端不再需要分别请求：
+     ** task
+     ** invoice-info
+     ** rule-hits
+     ** report
+     ** human-review
+     */
+    @Override
+    public AuditTaskDetailResult getTaskDetail(
+            Long taskId) {
+
+        AuditTask auditTask =
+                getTaskById(taskId);
+
+        InvoiceInfo invoiceInfo =
+                invoiceInfoMapper
+                        .selectInvoiceInfoByTaskId(taskId);
+
+        List<AuditRuleHit> ruleHits =
+                auditRuleHitMapper
+                        .selectRuleHitsByTaskId(taskId);
+
+        List<HumanReviewRecord> humanReviews =
+                humanReviewRecordMapper
+                        .selectByTaskId(taskId);
+
+        AuditReportResult auditReport = null;
+
+        if (auditTask.getReportPath() != null
+                && !auditTask.getReportPath()
+                .trim()
+                .isEmpty()) {
+
+            String reportContent =
+                    auditReportService
+                            .readReportContent(
+                                    auditTask.getReportPath()
+                            );
+
+            auditReport =
+                    new AuditReportResult(
+                            auditTask.getId(),
+                            auditTask.getTaskNo(),
+                            auditTask.getFinalDecision(),
+                            auditTask.getNeedHumanReview(),
+                            auditTask.getReportPath(),
+                            reportContent
+                    );
+        }
+
+        return new AuditTaskDetailResult(
+                auditTask,
+                invoiceInfo,
+                ruleHits,
+                auditReport,
+                humanReviews
+        );
+    }
+
+    /*
+     ** Human-in-the-loop
+     **
+     ** 系统发现风险：
+     **
+     ** NEED_HUMAN_REVIEW
+     **
+     **        ↓
+     **
+     ** 人工审核
+     **
+     ** APPROVE / REJECT
+     **
+     **        ↓
+     **
+     ** APPROVED_BY_HUMAN
+     ** 或
+     ** REJECTED_BY_HUMAN
+     */
+    @Override
+    @Transactional
+    public AuditTaskDetailResult humanReview(
+            Long taskId,
+            HumanReviewRequest request) {
+
+        if (request == null) {
+            throw new RuntimeException(
+                    "人工审核参数不能为空"
+            );
+        }
+
+        if (request.getDecision() == null
+                || request.getDecision()
+                .trim()
+                .isEmpty()) {
+
+            throw new RuntimeException(
+                    "人工审核 decision 不能为空"
+            );
+        }
+
+        AuditTask auditTask =
+                getTaskById(taskId);
+
+        /*
+         ** 只有确实需要人工复核的任务，
+         ** 才能进入人工审核。
+         */
+        if (!Boolean.TRUE.equals(
+                auditTask.getNeedHumanReview())) {
+
+            throw new RuntimeException(
+                    "该任务当前不需要人工复核"
+            );
+        }
+
+        String decision =
+                request.getDecision()
+                        .trim()
+                        .toUpperCase();
+
+        String finalDecision;
+
+        if ("APPROVE".equals(decision)) {
+
+            finalDecision =
+                    AuditDecision
+                            .APPROVED_BY_HUMAN;
+
+        } else if ("REJECT".equals(decision)) {
+
+            finalDecision =
+                    AuditDecision
+                            .REJECTED_BY_HUMAN;
+
+        } else {
+
+            throw new RuntimeException(
+                    "decision 只支持 APPROVE 或 REJECT"
+            );
+        }
+
+        /*
+         ** 先保存人工审核记录。
+         */
+        HumanReviewRecord record =
+                new HumanReviewRecord();
+
+        record.setTaskId(taskId);
+
+        record.setDecision(decision);
+
+        record.setReviewer(
+                request.getReviewer()
+        );
+
+        record.setReviewComment(
+                request.getComment()
+        );
+
+        humanReviewRecordMapper
+                .insertHumanReviewRecord(record);
+
+        /*
+         ** 更新任务的最终审核状态。
+         */
+        auditTaskMapper
+                .updateHumanReviewResult(
+                        taskId,
+                        AuditTaskStatus.COMPLETED,
+                        finalDecision,
+                        false
+                );
+
+        auditTask.setStatus(
+                AuditTaskStatus.COMPLETED
+        );
+
+        auditTask.setFinalDecision(
+                finalDecision
+        );
+
+        auditTask.setNeedHumanReview(false);
+
+        /*
+         ** 人工审核以后，
+         ** 原来的报告已经不是最终报告。
+         **
+         ** 因此重新生成报告。
+         */
+        InvoiceInfo invoiceInfo =
+                getInvoiceInfoByTaskId(taskId);
+
+        List<AuditRuleHit> ruleHits =
+                getRuleHitsByTaskId(taskId);
+
+        AuditResult finalAuditResult =
+                new AuditResult(
+                        finalDecision,
+                        false,
+                        ruleHits
+                );
+
+        AuditReportResult newReport =
+                auditReportService
+                        .generateReport(
+                                auditTask,
+                                invoiceInfo,
+                                finalAuditResult
+                        );
+
+        auditTaskMapper.updateReportPath(
+                taskId,
+                newReport.getReportPath()
+        );
+
+        auditTask.setReportPath(
+                newReport.getReportPath()
+        );
+
+        return getTaskDetail(taskId);
     }
 }
