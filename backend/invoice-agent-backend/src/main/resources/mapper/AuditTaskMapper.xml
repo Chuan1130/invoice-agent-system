@@ -60,23 +60,62 @@
         WHERE id = #{id}
     </select>
 
-    <update id="updateTaskAfterOcr">
+    <!--
+    通用任务状态更新。
+
+    除了根据任务 ID 更新，
+    还要求数据库中的状态必须与 currentStatus 相同。
+
+    例如：
+    UPLOADED -> OCR_PROCESSING
+
+    如果数据库中的状态已经不是 UPLOADED，
+    SQL 更新行数就会是 0。
+-->
+    <update id="updateTaskStatus">
+
         UPDATE audit_task
+
         SET
-        status = #{status},
-        ocr_raw_text = #{ocrRawText},
+        status = #{targetStatus},
         updated_at = NOW()
+
         WHERE id = #{id}
+        AND status = #{currentStatus}
+
     </update>
 
-    <update id="updateAuditResult">
+    <!--
+        OCR 成功后保存 OCR 原始内容。
+        状态由 Lifecycle Service 单独更新。
+    -->
+    <update id="updateTaskAfterOcr">
+
         UPDATE audit_task
+
         SET
-        status = #{status},
+        ocr_raw_text = #{ocrRawText},
+        updated_at = NOW()
+
+        WHERE id = #{id}
+
+    </update>
+
+    <!--
+        保存自动审核结论。
+        状态由 Lifecycle Service 单独更新。
+    -->
+    <update id="updateAuditResult">
+
+        UPDATE audit_task
+
+        SET
         final_decision = #{finalDecision},
         need_human_review = #{needHumanReview},
         updated_at = NOW()
+
         WHERE id = #{id}
+
     </update>
 
     <update id="updateReportPath">
@@ -143,15 +182,15 @@
 
 
     <!--
-        人工审核完成后，
-        写入最终审核结果。
+        保存人工审核的最终结论。
+        AUDIT_DONE -> COMPLETED
+        由 Lifecycle Service 单独完成。
     -->
     <update id="updateHumanReviewResult">
 
         UPDATE audit_task
 
         SET
-        status = #{status},
         final_decision = #{finalDecision},
         need_human_review = #{needHumanReview},
         updated_at = NOW()

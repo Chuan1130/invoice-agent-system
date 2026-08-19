@@ -1,5 +1,5 @@
 package invoice_agent_backend.service.impl;
-
+import invoice_agent_backend.service.AuditTaskLifecycleService;
 import invoice_agent_backend.common.PageResult;
 import invoice_agent_backend.constant.AuditDecision;
 import invoice_agent_backend.constant.AuditTaskStatus;
@@ -52,13 +52,16 @@ public class AuditTaskServiceImpl
 
     private final AuditReportService auditReportService;
 
+    private final AuditTaskLifecycleService auditTaskLifecycleService;
+
     public AuditTaskServiceImpl(
             InvoiceAuditWorkflowService workflowService,
             AuditTaskMapper auditTaskMapper,
             InvoiceInfoMapper invoiceInfoMapper,
             AuditRuleHitMapper auditRuleHitMapper,
             HumanReviewRecordMapper humanReviewRecordMapper,
-            AuditReportService auditReportService) {
+            AuditReportService auditReportService,
+            AuditTaskLifecycleService auditTaskLifecycleService) {
 
         this.workflowService = workflowService;
         this.auditTaskMapper = auditTaskMapper;
@@ -66,6 +69,7 @@ public class AuditTaskServiceImpl
         this.auditRuleHitMapper = auditRuleHitMapper;
         this.humanReviewRecordMapper = humanReviewRecordMapper;
         this.auditReportService = auditReportService;
+        this.auditTaskLifecycleService = auditTaskLifecycleService;
     }
 
     /*
@@ -340,11 +344,32 @@ public class AuditTaskServiceImpl
                 getTaskById(taskId);
 
         /*
-         ** 只有确实需要人工复核的任务，
-         ** 才能进入人工审核。
+         ** 第一层检查：
+         **
+         ** 只有 AUDIT_DONE 状态，
+         ** 才能进行人工审核。
+         */
+        if (!AuditTaskStatus.AUDIT_DONE
+                .equals(
+                        auditTask.getStatus()
+                )) {
+
+            throw new RuntimeException(
+                    "只有 AUDIT_DONE 状态的任务"
+                            + "才能进行人工审核，"
+                            + "当前状态："
+                            + auditTask.getStatus()
+            );
+        }
+
+        /*
+         ** 第二层检查：
+         **
+         ** 任务必须明确需要人工复核。
          */
         if (!Boolean.TRUE.equals(
-                auditTask.getNeedHumanReview())) {
+                auditTask
+                        .getNeedHumanReview())) {
 
             throw new RuntimeException(
                     "该任务当前不需要人工复核"
@@ -378,14 +403,38 @@ public class AuditTaskServiceImpl
         }
 
         /*
-         ** 先保存人工审核记录。
+         ** 先通过状态机完成：
+         **
+         ** AUDIT_DONE -> COMPLETED
+         **
+         ** transitionStatus 会加入当前人工审核事务。
+         **
+         ** 如果后面的人工记录或报告生成失败，
+         ** 整个事务会回滚，状态仍然是 AUDIT_DONE。
+         */
+        auditTaskLifecycleService
+                .transitionStatus(
+                        taskId,
+                        AuditTaskStatus.COMPLETED
+                );
+
+        auditTask.setStatus(
+                AuditTaskStatus.COMPLETED
+        );
+
+        /*
+         ** 保存人工审核记录。
          */
         HumanReviewRecord record =
                 new HumanReviewRecord();
 
-        record.setTaskId(taskId);
+        record.setTaskId(
+                taskId
+        );
 
-        record.setDecision(decision);
+        record.setDecision(
+                decision
+        );
 
         record.setReviewer(
                 request.getReviewer()
@@ -395,41 +444,62 @@ public class AuditTaskServiceImpl
                 request.getComment()
         );
 
-        humanReviewRecordMapper
-                .insertHumanReviewRecord(record);
+        int reviewRows =
+                humanReviewRecordMapper
+                        .insertHumanReviewRecord(
+                                record
+                        );
+
+        if (reviewRows != 1) {
+            throw new RuntimeException(
+                    "保存人工审核记录失败"
+            );
+        }
 
         /*
-         ** 更新任务的最终审核状态。
+         ** 保存人工审核最终结论。
+         **
+         ** 这里只更新：
+         **
+         ** final_decision
+         ** need_human_review
+         **
+         ** 不再直接修改 status。
          */
-        auditTaskMapper
-                .updateHumanReviewResult(
-                        taskId,
-                        AuditTaskStatus.COMPLETED,
-                        finalDecision,
-                        false
-                );
+        int taskRows =
+                auditTaskMapper
+                        .updateHumanReviewResult(
+                                taskId,
+                                finalDecision,
+                                false
+                        );
 
-        auditTask.setStatus(
-                AuditTaskStatus.COMPLETED
-        );
+        if (taskRows != 1) {
+            throw new RuntimeException(
+                    "保存人工审核结果失败"
+            );
+        }
 
         auditTask.setFinalDecision(
                 finalDecision
         );
 
-        auditTask.setNeedHumanReview(false);
+        auditTask.setNeedHumanReview(
+                false
+        );
 
         /*
-         ** 人工审核以后，
-         ** 原来的报告已经不是最终报告。
-         **
-         ** 因此重新生成报告。
+         ** 使用人工最终结论重新生成报告。
          */
         InvoiceInfo invoiceInfo =
-                getInvoiceInfoByTaskId(taskId);
+                getInvoiceInfoByTaskId(
+                        taskId
+                );
 
         List<AuditRuleHit> ruleHits =
-                getRuleHitsByTaskId(taskId);
+                getRuleHitsByTaskId(
+                        taskId
+                );
 
         AuditResult finalAuditResult =
                 new AuditResult(
@@ -446,15 +516,37 @@ public class AuditTaskServiceImpl
                                 finalAuditResult
                         );
 
-        auditTaskMapper.updateReportPath(
-                taskId,
-                newReport.getReportPath()
-        );
+        if (newReport == null
+                || newReport.getReportPath() == null
+                || newReport.getReportPath()
+                .trim()
+                .isEmpty()) {
+
+            throw new RuntimeException(
+                    "人工审核报告生成失败"
+            );
+        }
+
+        int reportRows =
+                auditTaskMapper
+                        .updateReportPath(
+                                taskId,
+                                newReport
+                                        .getReportPath()
+                        );
+
+        if (reportRows != 1) {
+            throw new RuntimeException(
+                    "保存人工审核报告路径失败"
+            );
+        }
 
         auditTask.setReportPath(
                 newReport.getReportPath()
         );
 
-        return getTaskDetail(taskId);
+        return getTaskDetail(
+                taskId
+        );
     }
 }

@@ -1,16 +1,18 @@
-﻿项目根目录：D:\agent_project\invoice-agent-system\backend\invoice-agent-backend
-生成时间：2026-08-05 18:25:55
-文件数量：44
+﻿PROJECT ROOT: D:\agent_project\invoice-agent-system\backend\invoice-agent-backend
+GENERATED AT: 2026-08-19 15:47:26
+TOTAL FILES: 52
 
 ============================================================
 PROJECT FILE TREE
 ============================================================
+.gitattributes
 .gitignore
 .mvn\wrapper\maven-wrapper.properties
 HELP.md
 mvnw
 mvnw.cmd
 pom.xml
+README.md
 src\main\java\invoice_agent_backend\common\ApiResponse.java
 src\main\java\invoice_agent_backend\common\PageResult.java
 src\main\java\invoice_agent_backend\constant\AuditDecision.java
@@ -30,19 +32,25 @@ src\main\java\invoice_agent_backend\mapper\HumanReviewRecordMapper.java
 src\main\java\invoice_agent_backend\mapper\InvoiceInfoMapper.java
 src\main\java\invoice_agent_backend\service\AuditReportService.java
 src\main\java\invoice_agent_backend\service\AuditRuleService.java
+src\main\java\invoice_agent_backend\service\AuditTaskLifecycleService.java
 src\main\java\invoice_agent_backend\service\AuditTaskService.java
 src\main\java\invoice_agent_backend\service\impl\AuditReportServiceImpl.java
 src\main\java\invoice_agent_backend\service\impl\AuditRuleServiceImpl.java
+src\main\java\invoice_agent_backend\service\impl\AuditTaskLifecycleServiceImpl.java
 src\main\java\invoice_agent_backend\service\impl\AuditTaskServiceImpl.java
+src\main\java\invoice_agent_backend\service\impl\BaiduOcrServiceImpl.java
 src\main\java\invoice_agent_backend\service\impl\MockOcrServiceImpl.java
 src\main\java\invoice_agent_backend\service\OcrService.java
 src\main\java\invoice_agent_backend\vo\AuditReportResult.java
 src\main\java\invoice_agent_backend\vo\AuditResult.java
 src\main\java\invoice_agent_backend\vo\AuditTaskDetailResult.java
 src\main\java\invoice_agent_backend\vo\UploadInvoiceResult.java
+src\main\java\invoice_agent_backend\workflow\impl\InvoiceAuditWorkflowCoreServiceImpl.java
 src\main\java\invoice_agent_backend\workflow\impl\InvoiceAuditWorkflowServiceImpl.java
+src\main\java\invoice_agent_backend\workflow\InvoiceAuditWorkflowCoreService.java
 src\main\java\invoice_agent_backend\workflow\InvoiceAuditWorkflowService.java
 src\main\java\invoice_agent_backend\workflow\state\AuditTaskState.java
+src\main\java\invoice_agent_backend\workflow\state\AuditTaskStateMachine.java
 src\main\resources\application.properties
 src\main\resources\mapper\AuditRuleHitMapper.xml
 src\main\resources\mapper\AuditTaskMapper.xml
@@ -51,8 +59,21 @@ src\main\resources\mapper\InvoiceInfoMapper.xml
 src\test\java\invoice_agent_backend\InvoiceAgentBackendApplicationTests.java
 
 ============================================================
+SOURCE CODE AND CONFIGURATION
+============================================================
+
+============================================================
+FILE: .gitattributes
+============================================================
+
+/mvnw text eol=lf
+*.cmd text eol=crlf
+
+
+============================================================
 FILE: .gitignore
 ============================================================
+
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
@@ -94,6 +115,7 @@ backend/invoice-agent-backend/uploads/
 ============================================================
 FILE: .mvn\wrapper\maven-wrapper.properties
 ============================================================
+
 wrapperVersion=3.3.4
 distributionType=only-script
 distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.16/apache-maven-3.9.16-bin.zip
@@ -102,6 +124,7 @@ distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-mav
 ============================================================
 FILE: HELP.md
 ============================================================
+
 # Read Me First
 The following was discovered as part of building this project:
 
@@ -144,6 +167,7 @@ If you manually switch to a different parent and actually want the inheritance, 
 ============================================================
 FILE: mvnw
 ============================================================
+
 #!/bin/sh
 # ----------------------------------------------------------------------------
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -444,6 +468,7 @@ exec_maven "$@"
 ============================================================
 FILE: mvnw.cmd
 ============================================================
+
 <# : batch portion
 @REM ----------------------------------------------------------------------------
 @REM Licensed to the Apache Software Foundation (ASF) under one
@@ -638,6 +663,7 @@ Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
 ============================================================
 FILE: pom.xml
 ============================================================
+
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -774,8 +800,140 @@ FILE: pom.xml
 
 
 ============================================================
+FILE: README.md
+============================================================
+
+# Intelligent Invoice Audit Multi-Agent System
+
+An intelligent invoice reimbursement audit backend built with Spring Boot, MyBatis and MySQL.
+
+The current version implements the core invoice audit workflow and provides the business foundation for future Supervisor Agent and Multi-Agent Graph integration.
+
+## Current Workflow
+
+Invoice Upload
+→ Create Audit Task
+→ OCR Recognition
+→ Audit Rules
+→ Generate Audit Report
+→ Human Review if Required
+→ Final Decision
+
+## Implemented Features
+
+* Invoice file upload
+* Audit task creation and status tracking
+* Mock OCR service
+* Structured invoice information storage
+* Required field validation
+* Invoice amount limit checking
+* Duplicate invoice detection
+* Audit rule hit records
+* Automatic audit decision
+* TXT audit report generation
+* Audit task pagination and filtering
+* Full audit task detail query
+* Human-in-the-loop review
+* Manual approve / reject
+* Final report regeneration after human review
+* Unified API response
+* Global exception handling
+* Workflow-based audit orchestration
+
+## Current Audit Rules
+
+1. Required Field Check
+
+    * Invoice number
+    * Buyer name
+    * Seller name
+
+2. Amount Limit Check
+
+    * Amount greater than 50,000 requires human review
+
+3. Duplicate Invoice Check
+
+    * Detects duplicate invoice numbers in historical records
+
+## Technology Stack
+
+* Java 17
+* Spring Boot 3.5
+* Spring MVC
+* MyBatis
+* MySQL
+* Maven
+* Redis dependency prepared for future use
+
+## Main API
+
+```text
+GET  /health
+
+POST /api/invoices/upload
+
+GET  /api/invoices/tasks
+GET  /api/invoices/tasks/{id}
+GET  /api/invoices/tasks/{id}/invoice-info
+GET  /api/invoices/tasks/{id}/rule-hits
+GET  /api/invoices/tasks/{id}/report
+GET  /api/invoices/tasks/{id}/detail
+
+POST /api/invoices/tasks/{id}/human-review
+```
+
+## Task Status
+
+```text
+UPLOADED
+   ↓
+OCR_DONE
+   ↓
+AUDIT_DONE
+   ↓
+Human Review if required
+   ↓
+COMPLETED
+```
+
+## Audit Decision
+
+```text
+APPROVED
+
+NEED_HUMAN_REVIEW
+
+APPROVED_BY_HUMAN
+
+REJECTED_BY_HUMAN
+```
+
+## Current Limitations
+
+* OCR currently uses MockOcrServiceImpl
+* Real OCR provider has not yet been integrated
+* LLM and Tool Calling have not yet been integrated
+* Supervisor Agent has not yet been implemented
+* Multi-Agent Graph has not yet been implemented
+* Redis is configured but not yet used by business logic
+* Frontend integration is still pending
+
+## Next Steps
+
+1. Complete full API regression testing
+2. Improve workflow error handling and task status management
+3. Integrate real OCR
+4. Encapsulate existing business services as Agent Tools
+5. Implement Supervisor Agent
+6. Upgrade workflow to Multi-Agent Graph
+7. Integrate frontend and audit workflow visualization
+
+
+============================================================
 FILE: src\main\java\invoice_agent_backend\common\ApiResponse.java
 ============================================================
+
 package invoice_agent_backend.common;
 
 public class ApiResponse<T> {
@@ -829,6 +987,7 @@ public class ApiResponse<T> {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\common\PageResult.java
 ============================================================
+
 package invoice_agent_backend.common;
 
 import java.util.List;
@@ -898,6 +1057,7 @@ public class PageResult<T> {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\constant\AuditDecision.java
 ============================================================
+
 package invoice_agent_backend.constant;
 
 /*
@@ -924,30 +1084,51 @@ public final class AuditDecision {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\constant\AuditTaskStatus.java
 ============================================================
+
 package invoice_agent_backend.constant;
 
 /*
- ** 审核任务状态常量
+ ** 审核任务状态常量。
  **
- ** 用常量代替业务代码里到处出现的字符串，
- ** 避免 "AUDIT_DONE"、"OCR_DONE" 拼错。
+ ** 状态含义：
+ **
+ ** UPLOADED
+ ** 文件已经保存，任务已经创建。
+ **
+ ** OCR_PROCESSING
+ ** 正在调用 OCR。
+ **
+ ** OCR_DONE
+ ** OCR 成功，并且 InvoiceInfo 已经保存。
+ **
+ ** AUDIT_DONE
+ ** 自动审核完成，但正在等待人工复核。
+ **
+ ** COMPLETED
+ ** 整个任务已经结束。
+ **
+ ** FAILED
+ ** OCR、规则审核或报告生成过程中发生异常。
  */
 public final class AuditTaskStatus {
 
-    public static final String UPLOADED = "UPLOADED";
+    public static final String UPLOADED =
+            "UPLOADED";
 
-    public static final String OCR_DONE = "OCR_DONE";
+    public static final String OCR_PROCESSING =
+            "OCR_PROCESSING";
 
-    public static final String AUDIT_DONE = "AUDIT_DONE";
+    public static final String OCR_DONE =
+            "OCR_DONE";
 
-    /*
-     ** COMPLETED 表示整个任务已经真正结束。
-     **
-     ** 例如：
-     ** - 系统自动通过
-     ** - 或者人工已经完成最终审核
-     */
-    public static final String COMPLETED = "COMPLETED";
+    public static final String AUDIT_DONE =
+            "AUDIT_DONE";
+
+    public static final String COMPLETED =
+            "COMPLETED";
+
+    public static final String FAILED =
+            "FAILED";
 
     private AuditTaskStatus() {
     }
@@ -956,6 +1137,7 @@ public final class AuditTaskStatus {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\controller\HealthController.java
 ============================================================
+
 package invoice_agent_backend.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -979,6 +1161,7 @@ public class HealthController {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\controller\InvoiceController.java
 ============================================================
+
 package invoice_agent_backend.controller;
 
 import invoice_agent_backend.common.ApiResponse;
@@ -1154,6 +1337,7 @@ public class InvoiceController {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\dto\HumanReviewRequest.java
 ============================================================
+
 package invoice_agent_backend.dto;
 
 /*
@@ -1201,6 +1385,7 @@ public class HumanReviewRequest {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\entity\AuditRuleHit.java
 ============================================================
+
 package invoice_agent_backend.entity;
 
 import java.time.LocalDateTime;
@@ -1289,6 +1474,7 @@ public class AuditRuleHit {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\entity\AuditTask.java
 ============================================================
+
 package invoice_agent_backend.entity;
 
 import java.time.LocalDateTime;
@@ -1399,6 +1585,7 @@ public class AuditTask {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\entity\HumanReviewRecord.java
 ============================================================
+
 package invoice_agent_backend.entity;
 
 import java.time.LocalDateTime;
@@ -1470,6 +1657,7 @@ public class HumanReviewRecord {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\entity\InvoiceInfo.java
 ============================================================
+
 package invoice_agent_backend.entity;
 
 import java.math.BigDecimal;
@@ -1581,6 +1769,7 @@ public class InvoiceInfo {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\exception\GlobalExceptionHandler.java
 ============================================================
+
 package invoice_agent_backend.exception;
 
 import invoice_agent_backend.common.ApiResponse;
@@ -1631,6 +1820,7 @@ public class GlobalExceptionHandler {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\InvoiceAgentBackendApplication.java
 ============================================================
+
 package invoice_agent_backend;
 
 import org.mybatis.spring.annotation.MapperScan;
@@ -1656,6 +1846,7 @@ public class InvoiceAgentBackendApplication {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\mapper\AuditRuleHitMapper.java
 ============================================================
+
 package invoice_agent_backend.mapper;
 
 import invoice_agent_backend.entity.AuditRuleHit;
@@ -1683,6 +1874,7 @@ public interface AuditRuleHitMapper {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\mapper\AuditTaskMapper.java
 ============================================================
+
 package invoice_agent_backend.mapper;
 
 import invoice_agent_backend.entity.AuditTask;
@@ -1698,15 +1890,35 @@ public interface AuditTaskMapper {
 
     AuditTask selectAuditTaskById(Long id);
 
+    /*
+     ** 通用任务状态更新。
+     **
+     ** 只有数据库中的状态仍然等于 currentStatus 时，
+     ** 才能更新成 targetStatus。
+     */
+    int updateTaskStatus(
+            @Param("id") Long id,
+            @Param("currentStatus") String currentStatus,
+            @Param("targetStatus") String targetStatus
+    );
+
+    /*
+     ** OCR 完成后只更新 OCR 原文。
+     **
+     ** 状态更新统一交给 Lifecycle Service。
+     */
     int updateTaskAfterOcr(
             @Param("id") Long id,
-            @Param("status") String status,
             @Param("ocrRawText") String ocrRawText
     );
 
+    /*
+     ** 规则审核完成后只更新审核结论。
+     **
+     ** 状态更新统一交给 Lifecycle Service。
+     */
     int updateAuditResult(
             @Param("id") Long id,
-            @Param("status") String status,
             @Param("finalDecision") String finalDecision,
             @Param("needHumanReview") Boolean needHumanReview
     );
@@ -1716,12 +1928,6 @@ public interface AuditTaskMapper {
             @Param("reportPath") String reportPath
     );
 
-    /*
-     ** 分页查询任务。
-     **
-     ** status 可以为空。
-     ** 如果为空，就查询所有任务。
-     */
     List<AuditTask> selectAuditTaskPage(
             @Param("status") String status,
             @Param("offset") Integer offset,
@@ -1733,12 +1939,13 @@ public interface AuditTaskMapper {
     );
 
     /*
-     ** 人工审核完成以后，
-     ** 更新 audit_task 的最终状态。
+     ** 人工审核完成后只更新最终审核结论。
+     **
+     ** AUDIT_DONE -> COMPLETED
+     ** 由 Lifecycle Service 完成。
      */
     int updateHumanReviewResult(
             @Param("id") Long id,
-            @Param("status") String status,
             @Param("finalDecision") String finalDecision,
             @Param("needHumanReview") Boolean needHumanReview
     );
@@ -1747,6 +1954,7 @@ public interface AuditTaskMapper {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\mapper\HumanReviewRecordMapper.java
 ============================================================
+
 package invoice_agent_backend.mapper;
 
 import invoice_agent_backend.entity.HumanReviewRecord;
@@ -1765,6 +1973,7 @@ public interface HumanReviewRecordMapper {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\mapper\InvoiceInfoMapper.java
 ============================================================
+
 package invoice_agent_backend.mapper;
 
 import invoice_agent_backend.entity.InvoiceInfo;
@@ -1792,6 +2001,7 @@ public interface InvoiceInfoMapper {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\service\AuditReportService.java
 ============================================================
+
 package invoice_agent_backend.service;
 
 import invoice_agent_backend.entity.AuditTask;
@@ -1822,6 +2032,7 @@ public interface AuditReportService {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\service\AuditRuleService.java
 ============================================================
+
 package invoice_agent_backend.service;
 
 import invoice_agent_backend.entity.InvoiceInfo;
@@ -1842,8 +2053,60 @@ public interface AuditRuleService {
 }
 
 ============================================================
+FILE: src\main\java\invoice_agent_backend\service\AuditTaskLifecycleService.java
+============================================================
+
+package invoice_agent_backend.service;
+
+import invoice_agent_backend.entity.AuditTask;
+
+/*
+ ** 审核任务生命周期服务。
+ **
+ ** 主要负责：
+ **
+ ** 1. 使用独立事务创建审核任务
+ ** 2. 使用独立事务记录 OCR_PROCESSING
+ ** 3. 使用独立事务记录 FAILED
+ ** 4. 在主业务事务中执行普通状态转换
+ */
+public interface AuditTaskLifecycleService {
+
+    /*
+     ** 创建任务并立即提交。
+     **
+     ** 返回的 AuditTask 已经包含数据库生成的 id。
+     */
+    AuditTask createTask(String originalFilePath);
+
+    /*
+     ** 开始 OCR 前调用。
+     **
+     ** UPLOADED -> OCR_PROCESSING
+     */
+    void markOcrProcessing(Long taskId);
+
+    /*
+     ** Workflow 发生异常后调用。
+     **
+     ** 当前非终态 -> FAILED
+     */
+    void markFailed(Long taskId);
+
+    /*
+     ** 在 OCR、规则审核和人工审核的主事务中，
+     ** 执行普通状态转换。
+     */
+    void transitionStatus(
+            Long taskId,
+            String targetStatus
+    );
+}
+
+============================================================
 FILE: src\main\java\invoice_agent_backend\service\AuditTaskService.java
 ============================================================
+
 package invoice_agent_backend.service;
 
 import invoice_agent_backend.common.PageResult;
@@ -1898,6 +2161,7 @@ public interface AuditTaskService {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\service\impl\AuditReportServiceImpl.java
 ============================================================
+
 package invoice_agent_backend.service.impl;
 
 import invoice_agent_backend.entity.AuditRuleHit;
@@ -2129,6 +2393,7 @@ public class AuditReportServiceImpl implements AuditReportService {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\service\impl\AuditRuleServiceImpl.java
 ============================================================
+
 package invoice_agent_backend.service.impl;
 
 import invoice_agent_backend.entity.AuditRuleHit;
@@ -2282,10 +2547,269 @@ public class AuditRuleServiceImpl implements AuditRuleService {
 }
 
 ============================================================
-FILE: src\main\java\invoice_agent_backend\service\impl\AuditTaskServiceImpl.java
+FILE: src\main\java\invoice_agent_backend\service\impl\AuditTaskLifecycleServiceImpl.java
 ============================================================
+
 package invoice_agent_backend.service.impl;
 
+import invoice_agent_backend.constant.AuditTaskStatus;
+import invoice_agent_backend.entity.AuditTask;
+import invoice_agent_backend.mapper.AuditTaskMapper;
+import invoice_agent_backend.service.AuditTaskLifecycleService;
+import invoice_agent_backend.workflow.state.AuditTaskStateMachine;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+/*
+ ** 审核任务生命周期服务实现。
+ **
+ ** 这里最重要的是事务边界：
+ **
+ ** createTask：
+ ** REQUIRES_NEW
+ ** 任务创建以后立即提交。
+ **
+ ** markOcrProcessing：
+ ** REQUIRES_NEW
+ ** 调用 OCR 前立即提交 OCR_PROCESSING。
+ **
+ ** markFailed：
+ ** REQUIRES_NEW
+ ** 即使主 Workflow 已经回滚，
+ ** FAILED 仍然可以单独保存。
+ **
+ ** transitionStatus：
+ ** 使用默认 REQUIRED。
+ ** 如果外层已经有主事务，就加入主事务。
+ */
+@Service
+public class AuditTaskLifecycleServiceImpl
+        implements AuditTaskLifecycleService {
+
+    private final AuditTaskMapper auditTaskMapper;
+
+    private final AuditTaskStateMachine
+            auditTaskStateMachine;
+
+    public AuditTaskLifecycleServiceImpl(
+            AuditTaskMapper auditTaskMapper,
+            AuditTaskStateMachine auditTaskStateMachine) {
+
+        this.auditTaskMapper =
+                auditTaskMapper;
+
+        this.auditTaskStateMachine =
+                auditTaskStateMachine;
+    }
+
+    /*
+     ** 独立事务一：
+     ** 创建 audit_task。
+     **
+     ** 即使后续 OCR 失败，
+     ** 这条任务也不会被主事务一起回滚。
+     */
+    @Override
+    @Transactional(
+            propagation = Propagation.REQUIRES_NEW
+    )
+    public AuditTask createTask(
+            String originalFilePath) {
+
+        if (originalFilePath == null
+                || originalFilePath
+                .trim()
+                .isEmpty()) {
+
+            throw new RuntimeException(
+                    "原始发票文件路径不能为空"
+            );
+        }
+
+        String taskNo =
+                "TASK-" + System.currentTimeMillis();
+
+        AuditTask auditTask =
+                new AuditTask();
+
+        auditTask.setTaskNo(taskNo);
+
+        auditTask.setUserId(null);
+
+        auditTask.setStatus(
+                AuditTaskStatus.UPLOADED
+        );
+
+        auditTask.setOriginalFilePath(
+                originalFilePath
+        );
+
+        auditTask.setOcrRawText(null);
+
+        auditTask.setFinalDecision(null);
+
+        auditTask.setNeedHumanReview(false);
+
+        auditTask.setReportPath(null);
+
+        int affectedRows =
+                auditTaskMapper
+                        .insertAuditTask(auditTask);
+
+        if (affectedRows != 1) {
+            throw new RuntimeException(
+                    "创建审核任务失败"
+            );
+        }
+
+        if (auditTask.getId() == null) {
+            throw new RuntimeException(
+                    "创建审核任务后没有获得任务ID"
+            );
+        }
+
+        return auditTask;
+    }
+
+    /*
+     ** 独立事务二：
+     **
+     ** UPLOADED -> OCR_PROCESSING
+     **
+     ** 该事务会在真正调用百度 OCR 前提交。
+     */
+    @Override
+    @Transactional(
+            propagation = Propagation.REQUIRES_NEW
+    )
+    public void markOcrProcessing(
+            Long taskId) {
+
+        transitionStatusInternal(
+                taskId,
+                AuditTaskStatus.OCR_PROCESSING
+        );
+    }
+
+    /*
+     ** 独立事务三：
+     **
+     ** Workflow 失败后记录 FAILED。
+     **
+     ** 即使 Core Workflow 的主事务已经回滚，
+     ** 这里仍然会开启一个新事务。
+     */
+    @Override
+    @Transactional(
+            propagation = Propagation.REQUIRES_NEW
+    )
+    public void markFailed(
+            Long taskId) {
+
+        transitionStatusInternal(
+                taskId,
+                AuditTaskStatus.FAILED
+        );
+    }
+
+    /*
+     ** 普通状态转换。
+     **
+     ** 默认 Propagation.REQUIRED：
+     **
+     ** 如果调用者已经有事务，
+     ** 就加入调用者的事务。
+     **
+     ** 后面 Core Workflow 会通过这个方法完成：
+     **
+     ** OCR_PROCESSING -> OCR_DONE
+     ** OCR_DONE -> AUDIT_DONE
+     ** OCR_DONE -> COMPLETED
+     */
+    @Override
+    @Transactional
+    public void transitionStatus(
+            Long taskId,
+            String targetStatus) {
+
+        transitionStatusInternal(
+                taskId,
+                targetStatus
+        );
+    }
+
+    /*
+     ** 真正执行状态转换的内部方法。
+     **
+     ** 步骤：
+     **
+     ** 1. 查询任务
+     ** 2. 取得数据库当前状态
+     ** 3. 通过状态机检查
+     ** 4. 使用带旧状态条件的 SQL 更新
+     ** 5. 检查更新行数
+     */
+    private void transitionStatusInternal(
+            Long taskId,
+            String targetStatus) {
+
+        if (taskId == null) {
+            throw new RuntimeException(
+                    "任务ID不能为空"
+            );
+        }
+
+        AuditTask auditTask =
+                auditTaskMapper
+                        .selectAuditTaskById(taskId);
+
+        if (auditTask == null) {
+            throw new RuntimeException(
+                    "审核任务不存在，taskId："
+                            + taskId
+            );
+        }
+
+        String currentStatus =
+                auditTask.getStatus();
+
+        auditTaskStateMachine
+                .validateTransition(
+                        currentStatus,
+                        targetStatus
+                );
+
+        int affectedRows =
+                auditTaskMapper
+                        .updateTaskStatus(
+                                taskId,
+                                currentStatus,
+                                targetStatus
+                        );
+
+        /*
+         ** 如果更新行数不是 1，
+         ** 说明查询以后状态可能又被其他请求修改了。
+         */
+        if (affectedRows != 1) {
+            throw new RuntimeException(
+                    "任务状态更新失败，"
+                            + "可能发生了并发状态修改："
+                            + currentStatus
+                            + " -> "
+                            + targetStatus
+            );
+        }
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\service\impl\AuditTaskServiceImpl.java
+============================================================
+
+package invoice_agent_backend.service.impl;
+import invoice_agent_backend.service.AuditTaskLifecycleService;
 import invoice_agent_backend.common.PageResult;
 import invoice_agent_backend.constant.AuditDecision;
 import invoice_agent_backend.constant.AuditTaskStatus;
@@ -2338,13 +2862,16 @@ public class AuditTaskServiceImpl
 
     private final AuditReportService auditReportService;
 
+    private final AuditTaskLifecycleService auditTaskLifecycleService;
+
     public AuditTaskServiceImpl(
             InvoiceAuditWorkflowService workflowService,
             AuditTaskMapper auditTaskMapper,
             InvoiceInfoMapper invoiceInfoMapper,
             AuditRuleHitMapper auditRuleHitMapper,
             HumanReviewRecordMapper humanReviewRecordMapper,
-            AuditReportService auditReportService) {
+            AuditReportService auditReportService,
+            AuditTaskLifecycleService auditTaskLifecycleService) {
 
         this.workflowService = workflowService;
         this.auditTaskMapper = auditTaskMapper;
@@ -2352,6 +2879,7 @@ public class AuditTaskServiceImpl
         this.auditRuleHitMapper = auditRuleHitMapper;
         this.humanReviewRecordMapper = humanReviewRecordMapper;
         this.auditReportService = auditReportService;
+        this.auditTaskLifecycleService = auditTaskLifecycleService;
     }
 
     /*
@@ -2626,11 +3154,32 @@ public class AuditTaskServiceImpl
                 getTaskById(taskId);
 
         /*
-         ** 只有确实需要人工复核的任务，
-         ** 才能进入人工审核。
+         ** 第一层检查：
+         **
+         ** 只有 AUDIT_DONE 状态，
+         ** 才能进行人工审核。
+         */
+        if (!AuditTaskStatus.AUDIT_DONE
+                .equals(
+                        auditTask.getStatus()
+                )) {
+
+            throw new RuntimeException(
+                    "只有 AUDIT_DONE 状态的任务"
+                            + "才能进行人工审核，"
+                            + "当前状态："
+                            + auditTask.getStatus()
+            );
+        }
+
+        /*
+         ** 第二层检查：
+         **
+         ** 任务必须明确需要人工复核。
          */
         if (!Boolean.TRUE.equals(
-                auditTask.getNeedHumanReview())) {
+                auditTask
+                        .getNeedHumanReview())) {
 
             throw new RuntimeException(
                     "该任务当前不需要人工复核"
@@ -2664,14 +3213,38 @@ public class AuditTaskServiceImpl
         }
 
         /*
-         ** 先保存人工审核记录。
+         ** 先通过状态机完成：
+         **
+         ** AUDIT_DONE -> COMPLETED
+         **
+         ** transitionStatus 会加入当前人工审核事务。
+         **
+         ** 如果后面的人工记录或报告生成失败，
+         ** 整个事务会回滚，状态仍然是 AUDIT_DONE。
+         */
+        auditTaskLifecycleService
+                .transitionStatus(
+                        taskId,
+                        AuditTaskStatus.COMPLETED
+                );
+
+        auditTask.setStatus(
+                AuditTaskStatus.COMPLETED
+        );
+
+        /*
+         ** 保存人工审核记录。
          */
         HumanReviewRecord record =
                 new HumanReviewRecord();
 
-        record.setTaskId(taskId);
+        record.setTaskId(
+                taskId
+        );
 
-        record.setDecision(decision);
+        record.setDecision(
+                decision
+        );
 
         record.setReviewer(
                 request.getReviewer()
@@ -2681,41 +3254,62 @@ public class AuditTaskServiceImpl
                 request.getComment()
         );
 
-        humanReviewRecordMapper
-                .insertHumanReviewRecord(record);
+        int reviewRows =
+                humanReviewRecordMapper
+                        .insertHumanReviewRecord(
+                                record
+                        );
+
+        if (reviewRows != 1) {
+            throw new RuntimeException(
+                    "保存人工审核记录失败"
+            );
+        }
 
         /*
-         ** 更新任务的最终审核状态。
+         ** 保存人工审核最终结论。
+         **
+         ** 这里只更新：
+         **
+         ** final_decision
+         ** need_human_review
+         **
+         ** 不再直接修改 status。
          */
-        auditTaskMapper
-                .updateHumanReviewResult(
-                        taskId,
-                        AuditTaskStatus.COMPLETED,
-                        finalDecision,
-                        false
-                );
+        int taskRows =
+                auditTaskMapper
+                        .updateHumanReviewResult(
+                                taskId,
+                                finalDecision,
+                                false
+                        );
 
-        auditTask.setStatus(
-                AuditTaskStatus.COMPLETED
-        );
+        if (taskRows != 1) {
+            throw new RuntimeException(
+                    "保存人工审核结果失败"
+            );
+        }
 
         auditTask.setFinalDecision(
                 finalDecision
         );
 
-        auditTask.setNeedHumanReview(false);
+        auditTask.setNeedHumanReview(
+                false
+        );
 
         /*
-         ** 人工审核以后，
-         ** 原来的报告已经不是最终报告。
-         **
-         ** 因此重新生成报告。
+         ** 使用人工最终结论重新生成报告。
          */
         InvoiceInfo invoiceInfo =
-                getInvoiceInfoByTaskId(taskId);
+                getInvoiceInfoByTaskId(
+                        taskId
+                );
 
         List<AuditRuleHit> ruleHits =
-                getRuleHitsByTaskId(taskId);
+                getRuleHitsByTaskId(
+                        taskId
+                );
 
         AuditResult finalAuditResult =
                 new AuditResult(
@@ -2732,49 +3326,681 @@ public class AuditTaskServiceImpl
                                 finalAuditResult
                         );
 
-        auditTaskMapper.updateReportPath(
-                taskId,
-                newReport.getReportPath()
-        );
+        if (newReport == null
+                || newReport.getReportPath() == null
+                || newReport.getReportPath()
+                .trim()
+                .isEmpty()) {
+
+            throw new RuntimeException(
+                    "人工审核报告生成失败"
+            );
+        }
+
+        int reportRows =
+                auditTaskMapper
+                        .updateReportPath(
+                                taskId,
+                                newReport
+                                        .getReportPath()
+                        );
+
+        if (reportRows != 1) {
+            throw new RuntimeException(
+                    "保存人工审核报告路径失败"
+            );
+        }
 
         auditTask.setReportPath(
                 newReport.getReportPath()
         );
 
-        return getTaskDetail(taskId);
+        return getTaskDetail(
+                taskId
+        );
+    }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\service\impl\BaiduOcrServiceImpl.java
+============================================================
+
+package invoice_agent_backend.service.impl;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import invoice_agent_backend.entity.InvoiceInfo;
+import invoice_agent_backend.service.OcrService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClient;
+
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Base64;
+
+/*
+ * Baidu real invoice OCR implementation.
+ *
+ * Enabled only when:
+ *
+ * ocr.provider=baidu
+ *
+ * Workflow only depends on OcrService, so the rest
+ * of the audit workflow does not need to know
+ * whether OCR comes from Mock or Baidu.
+ */
+@Service
+@ConditionalOnProperty(
+        name = "ocr.provider",
+        havingValue = "baidu"
+)
+public class BaiduOcrServiceImpl
+        implements OcrService {
+
+    private static final String TOKEN_URL =
+            "https://aip.baidubce.com/oauth/2.0/token";
+
+    private static final String VAT_INVOICE_URL =
+            "https://aip.baidubce.com/rest/2.0/ocr/v1/vat_invoice";
+
+    private final String apiKey;
+
+    private final String secretKey;
+
+    private final ObjectMapper objectMapper;
+
+    private final RestClient restClient;
+
+    public BaiduOcrServiceImpl(
+            @Value("${ocr.baidu.api-key}")
+            String apiKey,
+
+            @Value("${ocr.baidu.secret-key}")
+            String secretKey,
+
+            ObjectMapper objectMapper) {
+
+        this.apiKey = apiKey;
+        this.secretKey = secretKey;
+        this.objectMapper = objectMapper;
+
+        this.restClient =
+                RestClient.create();
+    }
+
+    @Override
+    public InvoiceInfo recognizeInvoice(
+            Long taskId,
+            String filePath) {
+
+        if (taskId == null) {
+            throw new RuntimeException(
+                    "OCR taskId cannot be null"
+            );
+        }
+
+        if (filePath == null
+                || filePath.trim().isEmpty()) {
+
+            throw new RuntimeException(
+                    "OCR filePath cannot be empty"
+            );
+        }
+
+        validateConfiguration();
+
+        try {
+
+            /*
+             * Step 1:
+             * Read uploaded invoice file.
+             */
+            byte[] fileBytes =
+                    Files.readAllBytes(
+                            Path.of(filePath)
+                    );
+
+            /*
+             * Step 2:
+             * Convert image into Base64.
+             */
+            String base64Image =
+                    Base64.getEncoder()
+                            .encodeToString(
+                                    fileBytes
+                            );
+
+            /*
+             * Step 3:
+             * Obtain Baidu access token.
+             */
+            String accessToken =
+                    getAccessToken();
+
+            /*
+             * Step 4:
+             * Call Baidu VAT invoice OCR.
+             */
+            String rawResponse =
+                    callVatInvoiceApi(
+                            accessToken,
+                            base64Image
+                    );
+
+            /*
+             * Step 5:
+             * Convert Baidu response
+             * into our own InvoiceInfo.
+             */
+            return convertToInvoiceInfo(
+                    taskId,
+                    rawResponse
+            );
+
+        } catch (RuntimeException e) {
+
+            throw e;
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Baidu OCR failed: "
+                            + e.getMessage(),
+                    e
+            );
+        }
+    }
+
+    /*
+     * Check whether API credentials exist.
+     */
+    private void validateConfiguration() {
+
+        if (isBlank(apiKey)
+                || isBlank(secretKey)) {
+
+            throw new RuntimeException(
+                    "Baidu OCR API Key or Secret Key is not configured"
+            );
+        }
+    }
+
+    /*
+     * Obtain access_token using
+     * API Key + Secret Key.
+     */
+    private String getAccessToken()
+            throws Exception {
+
+        String response =
+                restClient
+                        .get()
+                        .uri(uriBuilder ->
+                                uriBuilder
+                                        .scheme("https")
+                                        .host("aip.baidubce.com")
+                                        .path("/oauth/2.0/token")
+                                        .queryParam(
+                                                "grant_type",
+                                                "client_credentials"
+                                        )
+                                        .queryParam(
+                                                "client_id",
+                                                apiKey
+                                        )
+                                        .queryParam(
+                                                "client_secret",
+                                                secretKey
+                                        )
+                                        .build()
+                        )
+                        .retrieve()
+                        .body(String.class);
+
+        if (isBlank(response)) {
+            throw new RuntimeException(
+                    "Baidu access token response is empty"
+            );
+        }
+
+        JsonNode root =
+                objectMapper.readTree(
+                        response
+                );
+
+        if (root.has("error")) {
+
+            throw new RuntimeException(
+                    "Failed to obtain Baidu access token: "
+                            + root.path(
+                            "error_description"
+                    ).asText()
+            );
+        }
+
+        String accessToken =
+                root.path(
+                        "access_token"
+                ).asText();
+
+        if (isBlank(accessToken)) {
+
+            throw new RuntimeException(
+                    "Baidu access token is missing"
+            );
+        }
+
+        return accessToken;
+    }
+
+    /*
+     * Call VAT invoice OCR API.
+     */
+    private String callVatInvoiceApi(
+            String accessToken,
+            String base64Image) {
+
+        MultiValueMap<String, String>
+                form =
+                new LinkedMultiValueMap<>();
+
+        form.add(
+                "image",
+                base64Image
+        );
+
+        /*
+         * normal:
+         * normal VAT invoice,
+         * electronic invoice,
+         * special VAT invoice.
+         */
+        form.add(
+                "type",
+                "normal"
+        );
+
+        String response =
+                restClient
+                        .post()
+                        .uri(uriBuilder ->
+                                uriBuilder
+                                        .scheme("https")
+                                        .host("aip.baidubce.com")
+                                        .path(
+                                                "/rest/2.0/ocr/v1/vat_invoice"
+                                        )
+                                        .queryParam(
+                                                "access_token",
+                                                accessToken
+                                        )
+                                        .build()
+                        )
+                        .contentType(
+                                MediaType
+                                        .APPLICATION_FORM_URLENCODED
+                        )
+                        .body(form)
+                        .retrieve()
+                        .body(String.class);
+
+        if (isBlank(response)) {
+
+            throw new RuntimeException(
+                    "Baidu OCR response is empty"
+            );
+        }
+
+        return response;
+    }
+
+    /*
+     * Adapter:
+     *
+     * Baidu response
+     *      ↓
+     * InvoiceInfo
+     *
+     * The rest of the application
+     * never depends on Baidu field names.
+     */
+    private InvoiceInfo convertToInvoiceInfo(
+            Long taskId,
+            String rawResponse)
+            throws Exception {
+
+        JsonNode root =
+                objectMapper.readTree(
+                        rawResponse
+                );
+
+        /*
+         * Baidu returns error_code
+         * when OCR fails.
+         */
+        if (root.has("error_code")) {
+
+            throw new RuntimeException(
+                    "Baidu OCR API error: "
+                            + root.path(
+                            "error_code"
+                    ).asText()
+                            + " - "
+                            + root.path(
+                            "error_msg"
+                    ).asText()
+            );
+        }
+
+        JsonNode words =
+                root.path(
+                        "words_result"
+                );
+
+        if (words.isMissingNode()
+                || words.isNull()
+                || !words.isObject()) {
+
+            throw new RuntimeException(
+                    "Baidu OCR returned no invoice information"
+            );
+        }
+
+        InvoiceInfo invoiceInfo =
+                new InvoiceInfo();
+
+        invoiceInfo.setTaskId(
+                taskId
+        );
+
+        /*
+         * Baidu:
+         * InvoiceNum
+         *
+         * Our system:
+         * invoiceNo
+         */
+        invoiceInfo.setInvoiceNo(
+                text(
+                        words,
+                        "InvoiceNum"
+                )
+        );
+
+        /*
+         * InvoiceDate
+         * e.g. 2025年08月18日
+         */
+        invoiceInfo.setInvoiceDate(
+                parseInvoiceDate(
+                        text(
+                                words,
+                                "InvoiceDate"
+                        )
+                )
+        );
+
+        /*
+         * AmountInFiguers =
+         * total amount including tax.
+         *
+         * This is closer to the amount
+         * actually reimbursed.
+         */
+        invoiceInfo.setAmount(
+                decimal(
+                        text(
+                                words,
+                                "AmountInFiguers"
+                        )
+                )
+        );
+
+        /*
+         * TotalTax =
+         * total tax amount.
+         */
+        invoiceInfo.setTaxAmount(
+                decimal(
+                        text(
+                                words,
+                                "TotalTax"
+                        )
+                )
+        );
+
+        invoiceInfo.setBuyerName(
+                text(
+                        words,
+                        "PurchaserName"
+                )
+        );
+
+        invoiceInfo.setSellerName(
+                text(
+                        words,
+                        "SellerName"
+                )
+        );
+
+        invoiceInfo.setInvoiceType(
+                text(
+                        words,
+                        "InvoiceType"
+                )
+        );
+
+        /*
+         * Keep complete vendor response.
+         *
+         * Useful for:
+         * - debugging
+         * - auditing
+         * - future field extraction
+         */
+        invoiceInfo.setRawJson(
+                rawResponse
+        );
+
+        return invoiceInfo;
+    }
+
+    private String text(
+            JsonNode node,
+            String fieldName) {
+
+        JsonNode value =
+                node.get(fieldName);
+
+        if (value == null
+                || value.isNull()) {
+
+            return null;
+        }
+
+        String result =
+                value.asText();
+
+        return isBlank(result)
+                ? null
+                : result.trim();
+    }
+
+    private BigDecimal decimal(
+            String value) {
+
+        if (isBlank(value)) {
+            return null;
+        }
+
+        try {
+
+            String normalized =
+                    value
+                            .replace(",", "")
+                            .replace("￥", "")
+                            .replace("¥", "")
+                            .trim();
+
+            return new BigDecimal(
+                    normalized
+            );
+
+        } catch (NumberFormatException e) {
+
+            throw new RuntimeException(
+                    "Invalid OCR amount: "
+                            + value
+            );
+        }
+    }
+
+    private LocalDateTime parseInvoiceDate(
+            String value) {
+
+        if (isBlank(value)) {
+            return null;
+        }
+
+        String normalized =
+                value.trim();
+
+        DateTimeFormatter[]
+                formatters = {
+
+                DateTimeFormatter.ofPattern(
+                        "yyyy年MM月dd日"
+                ),
+
+                DateTimeFormatter.ofPattern(
+                        "yyyy-MM-dd"
+                ),
+
+                DateTimeFormatter.ofPattern(
+                        "yyyy/MM/dd"
+                )
+        };
+
+        for (DateTimeFormatter formatter
+                : formatters) {
+
+            try {
+
+                LocalDate date =
+                        LocalDate.parse(
+                                normalized,
+                                formatter
+                        );
+
+                return date.atStartOfDay();
+
+            } catch (Exception ignored) {
+            }
+        }
+
+        throw new RuntimeException(
+                "Unsupported invoice date format: "
+                        + value
+        );
+    }
+
+    private boolean isBlank(
+            String value) {
+
+        return value == null
+                || value.trim().isEmpty();
     }
 }
 
 ============================================================
 FILE: src\main\java\invoice_agent_backend\service\impl\MockOcrServiceImpl.java
 ============================================================
+
 package invoice_agent_backend.service.impl;
 
 import invoice_agent_backend.entity.InvoiceInfo;
 import invoice_agent_backend.service.OcrService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-
-/*这个类现在是假的 OCR。
-它不真正识别图片，只是固定返回一组测试发票字段。*/
+/*
+ * Mock OCR.
+ *
+ * Only enabled when:
+ *
+ * ocr.provider=mock
+ *
+ * It does not actually recognize the uploaded invoice.
+ * It returns fixed data for workflow testing.
+ */
 @Service
-public class MockOcrServiceImpl implements OcrService {
+@ConditionalOnProperty(
+        name = "ocr.provider",
+        havingValue = "mock",    // mock模式才用这个类
+        matchIfMissing = true
+)
+public class MockOcrServiceImpl
+        implements OcrService {
 
     @Override
-    public InvoiceInfo recognizeInvoice(Long taskId, String filePath) {
-        InvoiceInfo invoiceInfo = new InvoiceInfo();
+    public InvoiceInfo recognizeInvoice(
+            Long taskId,
+            String filePath) {
+
+        InvoiceInfo invoiceInfo =
+                new InvoiceInfo();
 
         invoiceInfo.setTaskId(taskId);
-        invoiceInfo.setInvoiceNo("87654321");
-        invoiceInfo.setInvoiceDate(LocalDateTime.of(2025, 5, 20, 0, 0));
-        invoiceInfo.setAmount(new BigDecimal("56500.00"));
-        invoiceInfo.setTaxAmount(new BigDecimal("3390.00"));
-        invoiceInfo.setBuyerName("杭州智联科技有限公司");
-        invoiceInfo.setSellerName("上海云创信息技术有限公司");
-        invoiceInfo.setInvoiceType("增值税电子普通发票");
+
+        invoiceInfo.setInvoiceNo(
+                "87654321"
+        );
+
+        invoiceInfo.setInvoiceDate(
+                LocalDateTime.of(
+                        2025,
+                        5,
+                        20,
+                        0,
+                        0
+                )
+        );
+
+        invoiceInfo.setAmount(
+                new BigDecimal(
+                        "56500.00"
+                )
+        );
+
+        invoiceInfo.setTaxAmount(
+                new BigDecimal(
+                        "3390.00"
+                )
+        );
+
+        invoiceInfo.setBuyerName(
+                "杭州智联科技有限公司"
+        );
+
+        invoiceInfo.setSellerName(
+                "上海云创信息技术有限公司"
+        );
+
+        invoiceInfo.setInvoiceType(
+                "增值税电子普通发票"
+        );
 
         String rawJson = """
                 {
@@ -2788,7 +4014,12 @@ public class MockOcrServiceImpl implements OcrService {
                   "sellerName": "上海云创信息技术有限公司",
                   "invoiceType": "增值税电子普通发票"
                 }
-                """.formatted(filePath.replace("\\", "\\\\"));
+                """.formatted(
+                filePath.replace(
+                        "\\",
+                        "\\\\"
+                )
+        );
 
         invoiceInfo.setRawJson(rawJson);
 
@@ -2799,6 +4030,7 @@ public class MockOcrServiceImpl implements OcrService {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\service\OcrService.java
 ============================================================
+
 package invoice_agent_backend.service;
 
 import invoice_agent_backend.entity.InvoiceInfo;
@@ -2811,6 +4043,7 @@ public interface OcrService {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\vo\AuditReportResult.java
 ============================================================
+
 package invoice_agent_backend.vo;
 
 /*
@@ -2900,6 +4133,7 @@ public class AuditReportResult {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\vo\AuditResult.java
 ============================================================
+
 package invoice_agent_backend.vo;
 
 import invoice_agent_backend.entity.AuditRuleHit;
@@ -2963,6 +4197,7 @@ public class AuditResult {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\vo\AuditTaskDetailResult.java
 ============================================================
+
 package invoice_agent_backend.vo;
 
 import invoice_agent_backend.entity.AuditRuleHit;
@@ -3052,6 +4287,7 @@ public class AuditTaskDetailResult {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\vo\UploadInvoiceResult.java
 ============================================================
+
 package invoice_agent_backend.vo;
 
 import invoice_agent_backend.entity.InvoiceInfo;
@@ -3191,8 +4427,9 @@ public class UploadInvoiceResult {
 }
 
 ============================================================
-FILE: src\main\java\invoice_agent_backend\workflow\impl\InvoiceAuditWorkflowServiceImpl.java
+FILE: src\main\java\invoice_agent_backend\workflow\impl\InvoiceAuditWorkflowCoreServiceImpl.java
 ============================================================
+
 package invoice_agent_backend.workflow.impl;
 
 import invoice_agent_backend.constant.AuditTaskStatus;
@@ -3202,48 +4439,30 @@ import invoice_agent_backend.mapper.AuditTaskMapper;
 import invoice_agent_backend.mapper.InvoiceInfoMapper;
 import invoice_agent_backend.service.AuditReportService;
 import invoice_agent_backend.service.AuditRuleService;
+import invoice_agent_backend.service.AuditTaskLifecycleService;
 import invoice_agent_backend.service.OcrService;
 import invoice_agent_backend.vo.AuditReportResult;
 import invoice_agent_backend.vo.AuditResult;
 import invoice_agent_backend.vo.UploadInvoiceResult;
-import invoice_agent_backend.workflow.InvoiceAuditWorkflowService;
+import invoice_agent_backend.workflow.InvoiceAuditWorkflowCoreService;
 import invoice_agent_backend.workflow.state.AuditTaskState;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 
 /*
- ** 发票审核 Workflow。
+ ** 发票审核核心 Workflow。
  **
- ** 以前这些逻辑全部堆在 AuditTaskServiceImpl.uploadInvoice()。
+ ** 这个类中的 execute 使用主事务。
  **
- ** 现在把整个流程拆成多个明确节点：
+ ** 如果 OCR、规则审核、数据库保存或报告生成失败，
+ ** 这里的数据库操作全部回滚。
  **
- ** validateUpload
- **      ↓
- ** saveInvoiceFile
- **      ↓
- ** createAuditTask
- **      ↓
- ** executeOcr
- **      ↓
- ** executeAuditRules
- **      ↓
- ** generateAuditReport
- **      ↓
- ** buildResult
- **
- ** 后面接入 Agent Graph 时，
- ** 这些方法可以进一步转换成 Graph Node。
+ ** 外层 Orchestrator 捕获异常以后，
+ ** 再通过 REQUIRES_NEW 把任务更新为 FAILED。
  */
 @Service
-public class InvoiceAuditWorkflowServiceImpl
-        implements InvoiceAuditWorkflowService {
+public class InvoiceAuditWorkflowCoreServiceImpl
+        implements InvoiceAuditWorkflowCoreService {
 
     private final AuditTaskMapper auditTaskMapper;
 
@@ -3255,176 +4474,111 @@ public class InvoiceAuditWorkflowServiceImpl
 
     private final AuditReportService auditReportService;
 
-    public InvoiceAuditWorkflowServiceImpl(
+    private final AuditTaskLifecycleService
+            auditTaskLifecycleService;
+
+    public InvoiceAuditWorkflowCoreServiceImpl(
             AuditTaskMapper auditTaskMapper,
             InvoiceInfoMapper invoiceInfoMapper,
             OcrService ocrService,
             AuditRuleService auditRuleService,
-            AuditReportService auditReportService) {
+            AuditReportService auditReportService,
+            AuditTaskLifecycleService auditTaskLifecycleService) {
 
-        this.auditTaskMapper = auditTaskMapper;
-        this.invoiceInfoMapper = invoiceInfoMapper;
-        this.ocrService = ocrService;
-        this.auditRuleService = auditRuleService;
-        this.auditReportService = auditReportService;
+        this.auditTaskMapper =
+                auditTaskMapper;
+
+        this.invoiceInfoMapper =
+                invoiceInfoMapper;
+
+        this.ocrService =
+                ocrService;
+
+        this.auditRuleService =
+                auditRuleService;
+
+        this.auditReportService =
+                auditReportService;
+
+        this.auditTaskLifecycleService =
+                auditTaskLifecycleService;
     }
 
+    /*
+     ** Core 主事务。
+     **
+     ** 注意：
+     ** 创建任务和 OCR_PROCESSING 不在这个事务中。
+     **
+     ** 它们已经由外层通过 REQUIRES_NEW 提前提交。
+     */
     @Override
     @Transactional
-    public UploadInvoiceResult execute(MultipartFile file) {
+    public UploadInvoiceResult execute(
+            AuditTaskState state) {
 
-        validateUpload(file);
+        validateState(state);
 
-        AuditTaskState state = new AuditTaskState();
+        /*
+         ** Node 1：
+         ** OCR 识别并保存 InvoiceInfo。
+         */
+        executeOcr(state);
 
-        try {
+        /*
+         ** Node 2：
+         ** 执行审核规则并决定任务状态。
+         */
+        executeAuditRules(state);
 
-            /*
-             ** Node 1：保存上传文件
-             */
-            saveInvoiceFile(file, state);
+        /*
+         ** Node 3：
+         ** 生成审核报告。
+         */
+        generateAuditReport(state);
 
-            /*
-             ** Node 2：创建审核任务
-             */
-            createAuditTask(state);
+        /*
+         ** Node 4：
+         ** 构造上传接口返回结果。
+         */
+        return buildResult(state);
+    }
 
-            /*
-             ** Node 3：OCR
-             */
-            executeOcr(state);
+    /*
+     ** 检查外层传进来的 Workflow State。
+     */
+    private void validateState(
+            AuditTaskState state) {
 
-            /*
-             ** Node 4：规则审核
-             */
-            executeAuditRules(state);
-
-            /*
-             ** Node 5：生成报告
-             */
-            generateAuditReport(state);
-
-            /*
-             ** Node 6：整理接口返回结果
-             */
-            return buildResult(state);
-
-        } catch (Exception e) {
-
-            /*
-             ** 数据库操作由 @Transactional 控制。
-             **
-             ** 但是注意：
-             ** MySQL 可以自动回滚，
-             ** 本地 uploads 文件无法跟随数据库事务自动回滚。
-             **
-             ** 后面可以增加文件补偿机制。
-             */
+        if (state == null) {
             throw new RuntimeException(
-                    "发票审核流程执行失败：" + e.getMessage(),
-                    e
+                    "Workflow State 不能为空"
+            );
+        }
+
+        if (state.getAuditTask() == null
+                || state.getAuditTask()
+                .getId() == null) {
+
+            throw new RuntimeException(
+                    "Workflow 中的审核任务不能为空"
+            );
+        }
+
+        if (state.getTargetFile() == null) {
+            throw new RuntimeException(
+                    "Workflow 中的发票文件不能为空"
             );
         }
     }
 
     /*
-     ** 检查上传文件
+     ** OCR_PROCESSING
+     **        ↓
+     ** OCR_DONE
      */
-    private void validateUpload(MultipartFile file) {
-
-        if (file == null || file.isEmpty()) {
-            throw new RuntimeException("上传文件不能为空");
-        }
-    }
-
-    /*
-     ** Node 1：
-     ** 保存原始发票文件
-     */
-    private void saveInvoiceFile(
-            MultipartFile file,
-            AuditTaskState state) throws Exception {
-
-        String originalFilename = file.getOriginalFilename();
-
-        String suffix = getFileSuffix(originalFilename);
-
-        String datePath = LocalDate.now()
-                .format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-
-        String fileName = UUID.randomUUID() + suffix;
-
-        String baseDir =
-                System.getProperty("user.dir")
-                        + File.separator
-                        + "uploads"
-                        + File.separator
-                        + "invoices";
-
-        File targetDir = new File(baseDir, datePath);
-
-        if (!targetDir.exists()) {
-
-            boolean created = targetDir.mkdirs();
-
-            if (!created) {
-                throw new RuntimeException("创建上传目录失败");
-            }
-        }
-
-        File targetFile = new File(targetDir, fileName);
-
-        file.transferTo(targetFile);
-
-        state.setTargetFile(targetFile);
-
-        state.completeStep("FILE_SAVED");
-    }
-
-    /*
-     ** Node 2：
-     ** 创建 audit_task
-     */
-    private void createAuditTask(AuditTaskState state) {
-
-        String taskNo =
-                "TASK-" + System.currentTimeMillis();
-
-        AuditTask auditTask = new AuditTask();
-
-        auditTask.setTaskNo(taskNo);
-
-        auditTask.setUserId(null);
-
-        auditTask.setStatus(
-                AuditTaskStatus.UPLOADED
-        );
-
-        auditTask.setOriginalFilePath(
-                state.getTargetFile()
-                        .getAbsolutePath()
-        );
-
-        auditTask.setOcrRawText(null);
-
-        auditTask.setFinalDecision(null);
-
-        auditTask.setNeedHumanReview(false);
-
-        auditTask.setReportPath(null);
-
-        auditTaskMapper.insertAuditTask(auditTask);
-
-        state.setAuditTask(auditTask);
-
-        state.completeStep("TASK_CREATED");
-    }
-
-    /*
-     ** Node 3：
-     ** OCR → invoice_info
-     */
-    private void executeOcr(AuditTaskState state) {
+    private void executeOcr(
+            AuditTaskState state) {
 
         AuditTask auditTask =
                 state.getAuditTask();
@@ -3442,14 +4596,42 @@ public class InvoiceAuditWorkflowServiceImpl
             );
         }
 
-        invoiceInfoMapper
-                .insertInvoiceInfo(invoiceInfo);
+        int invoiceRows =
+                invoiceInfoMapper
+                        .insertInvoiceInfo(
+                                invoiceInfo
+                        );
 
-        auditTaskMapper.updateTaskAfterOcr(
-                auditTask.getId(),
-                AuditTaskStatus.OCR_DONE,
-                invoiceInfo.getRawJson()
-        );
+        if (invoiceRows != 1) {
+            throw new RuntimeException(
+                    "保存 OCR 发票信息失败"
+            );
+        }
+
+        int taskRows =
+                auditTaskMapper
+                        .updateTaskAfterOcr(
+                                auditTask.getId(),
+                                invoiceInfo.getRawJson()
+                        );
+
+        if (taskRows != 1) {
+            throw new RuntimeException(
+                    "保存 OCR 原始内容失败"
+            );
+        }
+
+        /*
+         ** 状态转换统一经过状态机。
+         **
+         ** transitionStatus 使用 REQUIRED，
+         ** 所以这里会加入当前 Core 主事务。
+         */
+        auditTaskLifecycleService
+                .transitionStatus(
+                        auditTask.getId(),
+                        AuditTaskStatus.OCR_DONE
+                );
 
         auditTask.setStatus(
                 AuditTaskStatus.OCR_DONE
@@ -3459,14 +4641,23 @@ public class InvoiceAuditWorkflowServiceImpl
                 invoiceInfo.getRawJson()
         );
 
-        state.setInvoiceInfo(invoiceInfo);
+        state.setInvoiceInfo(
+                invoiceInfo
+        );
 
-        state.completeStep("OCR_DONE");
+        state.completeStep(
+                "OCR_DONE"
+        );
     }
 
     /*
-     ** Node 4：
-     ** 执行审核规则
+     ** 执行规则审核。
+     **
+     ** 有风险：
+     ** OCR_DONE -> AUDIT_DONE
+     **
+     ** 无风险：
+     ** OCR_DONE -> COMPLETED
      */
     private void executeAuditRules(
             AuditTaskState state) {
@@ -3485,63 +4676,141 @@ public class InvoiceAuditWorkflowServiceImpl
             );
         }
 
-        auditTaskMapper.updateAuditResult(
-                auditTask.getId(),
-                AuditTaskStatus.AUDIT_DONE,
-                auditResult.getFinalDecision(),
-                auditResult.getNeedHumanReview()
-        );
+        boolean needHumanReview =
+                Boolean.TRUE.equals(
+                        auditResult
+                                .getNeedHumanReview()
+                );
+
+        /*
+         ** 决定自动审核后的真实任务状态。
+         */
+        String targetStatus =
+                needHumanReview
+                        ? AuditTaskStatus.AUDIT_DONE
+                        : AuditTaskStatus.COMPLETED;
+
+        int affectedRows =
+                auditTaskMapper
+                        .updateAuditResult(
+                                auditTask.getId(),
+                                auditResult
+                                        .getFinalDecision(),
+                                needHumanReview
+                        );
+
+        if (affectedRows != 1) {
+            throw new RuntimeException(
+                    "保存自动审核结果失败"
+            );
+        }
+
+        /*
+         ** 使用状态机完成：
+         **
+         ** OCR_DONE -> AUDIT_DONE
+         ** 或
+         ** OCR_DONE -> COMPLETED
+         */
+        auditTaskLifecycleService
+                .transitionStatus(
+                        auditTask.getId(),
+                        targetStatus
+                );
 
         auditTask.setStatus(
-                AuditTaskStatus.AUDIT_DONE
+                targetStatus
         );
 
         auditTask.setFinalDecision(
-                auditResult.getFinalDecision()
+                auditResult
+                        .getFinalDecision()
         );
 
         auditTask.setNeedHumanReview(
-                auditResult.getNeedHumanReview()
+                needHumanReview
         );
 
-        state.setAuditResult(auditResult);
+        state.setAuditResult(
+                auditResult
+        );
 
-        state.completeStep("AUDIT_DONE");
+        state.completeStep(
+                "RULE_AUDIT_DONE"
+        );
+
+        if (AuditTaskStatus.COMPLETED
+                .equals(targetStatus)) {
+
+            state.completeStep(
+                    "AUTO_COMPLETED"
+            );
+        }
     }
 
     /*
-     ** Node 5：
-     ** 生成审核报告
+     ** 生成审核报告。
+     **
+     ** 报告会使用 AuditTask 当前真实状态：
+     **
+     ** AUDIT_DONE
+     ** 或
+     ** COMPLETED
      */
     private void generateAuditReport(
             AuditTaskState state) {
 
         AuditReportResult auditReport =
-                auditReportService.generateReport(
-                        state.getAuditTask(),
-                        state.getInvoiceInfo(),
-                        state.getAuditResult()
-                );
+                auditReportService
+                        .generateReport(
+                                state.getAuditTask(),
+                                state.getInvoiceInfo(),
+                                state.getAuditResult()
+                        );
 
-        auditTaskMapper.updateReportPath(
-                state.getAuditTask().getId(),
-                auditReport.getReportPath()
-        );
+        if (auditReport == null
+                || auditReport
+                .getReportPath() == null
+                || auditReport
+                .getReportPath()
+                .trim()
+                .isEmpty()) {
+
+            throw new RuntimeException(
+                    "审核报告生成失败"
+            );
+        }
+
+        int affectedRows =
+                auditTaskMapper
+                        .updateReportPath(
+                                state.getAuditTask()
+                                        .getId(),
+                                auditReport
+                                        .getReportPath()
+                        );
+
+        if (affectedRows != 1) {
+            throw new RuntimeException(
+                    "保存审核报告路径失败"
+            );
+        }
 
         state.getAuditTask()
                 .setReportPath(
-                        auditReport.getReportPath()
+                        auditReport
+                                .getReportPath()
                 );
 
-        state.setAuditReport(auditReport);
+        state.setAuditReport(
+                auditReport
+        );
 
-        state.completeStep("REPORT_GENERATED");
+        state.completeStep(
+                "REPORT_GENERATED"
+        );
     }
 
-    /*
-     ** Node 6：
-     ** 返回前端 VO
-     */
     private UploadInvoiceResult buildResult(
             AuditTaskState state) {
 
@@ -3558,24 +4827,334 @@ public class InvoiceAuditWorkflowServiceImpl
                 state.getAuditReport()
         );
     }
+}
+
+============================================================
+FILE: src\main\java\invoice_agent_backend\workflow\impl\InvoiceAuditWorkflowServiceImpl.java
+============================================================
+
+package invoice_agent_backend.workflow.impl;
+
+import invoice_agent_backend.constant.AuditTaskStatus;
+import invoice_agent_backend.entity.AuditTask;
+import invoice_agent_backend.service.AuditTaskLifecycleService;
+import invoice_agent_backend.vo.UploadInvoiceResult;
+import invoice_agent_backend.workflow.InvoiceAuditWorkflowCoreService;
+import invoice_agent_backend.workflow.InvoiceAuditWorkflowService;
+import invoice_agent_backend.workflow.state.AuditTaskState;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
+
+/*
+ ** 发票审核外层 Orchestrator。
+ **
+ ** 注意：
+ ** 这个类不添加 @Transactional。
+ **
+ ** 它负责：
+ **
+ ** 1. 校验上传文件
+ ** 2. 保存本地文件
+ ** 3. 独立事务创建任务
+ ** 4. 独立事务提交 OCR_PROCESSING
+ ** 5. 调用 Core 主事务
+ ** 6. 捕获异常并独立提交 FAILED
+ */
+@Service
+public class InvoiceAuditWorkflowServiceImpl
+        implements InvoiceAuditWorkflowService {
+
+    private final AuditTaskLifecycleService
+            auditTaskLifecycleService;
+
+    private final InvoiceAuditWorkflowCoreService
+            workflowCoreService;
+
+    public InvoiceAuditWorkflowServiceImpl(
+            AuditTaskLifecycleService auditTaskLifecycleService,
+            InvoiceAuditWorkflowCoreService workflowCoreService) {
+
+        this.auditTaskLifecycleService =
+                auditTaskLifecycleService;
+
+        this.workflowCoreService =
+                workflowCoreService;
+    }
+
+    /*
+     ** 外层方法故意不添加 @Transactional。
+     */
+    @Override
+    public UploadInvoiceResult execute(
+            MultipartFile file) {
+
+        validateUpload(file);
+
+        AuditTaskState state =
+                new AuditTaskState();
+
+        AuditTask auditTask = null;
+
+        try {
+
+            /*
+             ** Node 1：
+             ** 保存上传文件。
+             **
+             ** 本地文件系统不受数据库事务控制。
+             */
+            saveInvoiceFile(
+                    file,
+                    state
+            );
+
+            /*
+             ** Node 2：
+             ** 使用 REQUIRES_NEW 创建任务。
+             **
+             ** 创建成功后立即提交 UPLOADED。
+             */
+            auditTask =
+                    auditTaskLifecycleService
+                            .createTask(
+                                    state.getTargetFile()
+                                            .getAbsolutePath()
+                            );
+
+            state.setAuditTask(
+                    auditTask
+            );
+
+            state.completeStep(
+                    "TASK_CREATED"
+            );
+
+            /*
+             ** Node 3：
+             ** 使用 REQUIRES_NEW 更新为 OCR_PROCESSING。
+             **
+             ** 这个事务会在真正调用百度 OCR 前提交。
+             */
+            auditTaskLifecycleService
+                    .markOcrProcessing(
+                            auditTask.getId()
+                    );
+
+            /*
+             ** 同步更新内存中的状态对象。
+             */
+            auditTask.setStatus(
+                    AuditTaskStatus.OCR_PROCESSING
+            );
+
+            state.completeStep(
+                    "OCR_PROCESSING"
+            );
+
+            /*
+             ** Node 4：
+             ** 进入 Core 主事务。
+             */
+            return workflowCoreService
+                    .execute(state);
+
+        } catch (Exception workflowException) {
+
+            /*
+             ** 只有任务确实创建成功以后，
+             ** 才有任务可以更新为 FAILED。
+             */
+            if (auditTask != null
+                    && auditTask.getId() != null) {
+
+                try {
+
+                    /*
+                     ** REQUIRES_NEW：
+                     **
+                     ** Core 主事务已经回滚，
+                     ** 这里重新开启独立事务记录 FAILED。
+                     */
+                    auditTaskLifecycleService
+                            .markFailed(
+                                    auditTask.getId()
+                            );
+
+                } catch (Exception failedStatusException) {
+
+                    /*
+                     ** 不覆盖最初的业务异常。
+                     **
+                     ** 将 FAILED 保存异常作为附加异常保留。
+                     */
+                    workflowException.addSuppressed(
+                            failedStatusException
+                    );
+                }
+            }
+
+            String taskMessage =
+                    auditTask == null
+                            || auditTask.getId() == null
+                            ? ""
+                            : "，任务ID："
+                            + auditTask.getId();
+
+            throw new RuntimeException(
+                    "发票审核流程执行失败"
+                            + taskMessage
+                            + "，原因："
+                            + workflowException
+                            .getMessage(),
+                    workflowException
+            );
+        }
+    }
+
+    private void validateUpload(
+            MultipartFile file) {
+
+        if (file == null
+                || file.isEmpty()) {
+
+            throw new RuntimeException(
+                    "上传文件不能为空"
+            );
+        }
+    }
+
+    /*
+     ** 保存原始发票文件。
+     **
+     ** 这一部分保留原来的实现。
+     */
+    private void saveInvoiceFile(
+            MultipartFile file,
+            AuditTaskState state)
+            throws Exception {
+
+        String originalFilename =
+                file.getOriginalFilename();
+
+        String suffix =
+                getFileSuffix(
+                        originalFilename
+                );
+
+        String datePath =
+                LocalDate.now()
+                        .format(
+                                DateTimeFormatter
+                                        .ofPattern(
+                                                "yyyyMMdd"
+                                        )
+                        );
+
+        String fileName =
+                UUID.randomUUID()
+                        + suffix;
+
+        String baseDir =
+                System.getProperty(
+                        "user.dir"
+                )
+                        + File.separator
+                        + "uploads"
+                        + File.separator
+                        + "invoices";
+
+        File targetDir =
+                new File(
+                        baseDir,
+                        datePath
+                );
+
+        if (!targetDir.exists()) {
+
+            boolean created =
+                    targetDir.mkdirs();
+
+            if (!created) {
+                throw new RuntimeException(
+                        "创建上传目录失败"
+                );
+            }
+        }
+
+        File targetFile =
+                new File(
+                        targetDir,
+                        fileName
+                );
+
+        file.transferTo(
+                targetFile
+        );
+
+        state.setTargetFile(
+                targetFile
+        );
+
+        state.completeStep(
+                "FILE_SAVED"
+        );
+    }
 
     private String getFileSuffix(
             String originalFilename) {
 
         if (originalFilename == null
-                || !originalFilename.contains(".")) {
+                || !originalFilename
+                .contains(".")) {
+
             return "";
         }
 
         return originalFilename.substring(
-                originalFilename.lastIndexOf(".")
+                originalFilename
+                        .lastIndexOf(".")
         );
     }
 }
 
 ============================================================
+FILE: src\main\java\invoice_agent_backend\workflow\InvoiceAuditWorkflowCoreService.java
+============================================================
+
+package invoice_agent_backend.workflow;
+
+import invoice_agent_backend.vo.UploadInvoiceResult;
+import invoice_agent_backend.workflow.state.AuditTaskState;
+
+/*
+ ** 发票审核核心业务事务。
+ **
+ ** 负责：
+ **
+ ** 1. OCR
+ ** 2. 保存 InvoiceInfo
+ ** 3. 执行审核规则
+ ** 4. 保存审核结论
+ ** 5. 生成审核报告
+ **
+ ** 这些操作位于同一个主事务中。
+ */
+public interface InvoiceAuditWorkflowCoreService {
+
+    UploadInvoiceResult execute(
+            AuditTaskState state
+    );
+}
+
+============================================================
 FILE: src\main\java\invoice_agent_backend\workflow\InvoiceAuditWorkflowService.java
 ============================================================
+
 package invoice_agent_backend.workflow;
 
 import invoice_agent_backend.vo.UploadInvoiceResult;
@@ -3595,6 +5174,7 @@ public interface InvoiceAuditWorkflowService {
 ============================================================
 FILE: src\main\java\invoice_agent_backend\workflow\state\AuditTaskState.java
 ============================================================
+
 package invoice_agent_backend.workflow.state;
 
 import invoice_agent_backend.entity.AuditTask;
@@ -3680,8 +5260,156 @@ public class AuditTaskState {
 }
 
 ============================================================
+FILE: src\main\java\invoice_agent_backend\workflow\state\AuditTaskStateMachine.java
+============================================================
+
+package invoice_agent_backend.workflow.state;
+
+import invoice_agent_backend.constant.AuditTaskStatus;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+import java.util.Set;
+
+/*
+ ** 审核任务状态机。
+ **
+ ** 这个类只负责一件事：
+ ** 判断某一次状态转换是否合法。
+ **
+ ** 它不直接操作数据库。
+ */
+@Component
+public class AuditTaskStateMachine {
+
+    /*
+     ** key：
+     ** 当前状态
+     **
+     ** value：
+     ** 当前状态允许进入的目标状态
+     */
+    private static final Map<String, Set<String>>
+            ALLOWED_TRANSITIONS =
+            Map.of(
+                    AuditTaskStatus.UPLOADED,
+                    Set.of(
+                            AuditTaskStatus.OCR_PROCESSING,
+                            AuditTaskStatus.FAILED
+                    ),
+
+                    AuditTaskStatus.OCR_PROCESSING,
+                    Set.of(
+                            AuditTaskStatus.OCR_DONE,
+                            AuditTaskStatus.FAILED
+                    ),
+
+                    AuditTaskStatus.OCR_DONE,
+                    Set.of(
+                            AuditTaskStatus.AUDIT_DONE,
+                            AuditTaskStatus.COMPLETED,
+                            AuditTaskStatus.FAILED
+                    ),
+
+                    AuditTaskStatus.AUDIT_DONE,
+                    Set.of(
+                            AuditTaskStatus.COMPLETED,
+                            AuditTaskStatus.FAILED
+                    ),
+
+                    AuditTaskStatus.COMPLETED,
+                    Set.of(),
+
+                    AuditTaskStatus.FAILED,
+                    Set.of()
+            );
+
+    /*
+     ** 检查状态转换是否合法。
+     **
+     ** 不合法时直接抛出异常，
+     ** 防止错误状态被写进数据库。
+     */
+    public void validateTransition(
+            String currentStatus,
+            String targetStatus) {
+
+        if (currentStatus == null
+                || currentStatus.trim().isEmpty()) {
+
+            throw new IllegalArgumentException(
+                    "当前任务状态不能为空"
+            );
+        }
+
+        if (targetStatus == null
+                || targetStatus.trim().isEmpty()) {
+
+            throw new IllegalArgumentException(
+                    "目标任务状态不能为空"
+            );
+        }
+
+        Set<String> allowedTargets =
+                ALLOWED_TRANSITIONS.get(
+                        currentStatus
+                );
+
+        if (allowedTargets == null) {
+            throw new IllegalStateException(
+                    "未知的任务状态：" + currentStatus
+            );
+        }
+
+        if (!allowedTargets.contains(targetStatus)) {
+            throw new IllegalStateException(
+                    "不允许的任务状态转换："
+                            + currentStatus
+                            + " -> "
+                            + targetStatus
+            );
+        }
+    }
+
+    /*
+     ** 不抛异常，只返回 true 或 false。
+     */
+    public boolean canTransition(
+            String currentStatus,
+            String targetStatus) {
+
+        if (currentStatus == null
+                || targetStatus == null) {
+            return false;
+        }
+
+        return ALLOWED_TRANSITIONS
+                .getOrDefault(
+                        currentStatus,
+                        Set.of()
+                )
+                .contains(targetStatus);
+    }
+
+    /*
+     ** 判断任务是否已经进入终态。
+     **
+     ** 终态不允许继续流转。
+     */
+    public boolean isTerminalStatus(
+            String status) {
+
+        return AuditTaskStatus.COMPLETED
+                .equals(status)
+                || AuditTaskStatus.FAILED
+                .equals(status);
+    }
+}
+
+============================================================
 FILE: src\main\resources\application.properties
 ============================================================
+
 spring.application.name=invoice-agent-backend
 
 server.port=8080
@@ -3689,7 +5417,7 @@ server.port=8080
 # MySQL
 spring.datasource.url=jdbc:mysql://localhost:3306/invoice_agent?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
 spring.datasource.username=root
-spring.datasource.password=123456
+spring.datasource.password=***REDACTED***
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
 # Redis
@@ -3704,9 +5432,21 @@ mybatis.type-aliases-package=invoice_agent_backend.entity
 spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=10MB
 
+# OCR Provider
+# mock  = use local mock OCR
+# baidu = use Baidu real invoice OCR
+ocr.provider=baidu
+
+# Baidu OCR
+# Credentials should be provided through environment variables.
+# Never commit real API keys into Git.
+ocr.baidu.api-key=${BAIDU_OCR_API_KEY:***REDACTED***}
+ocr.baidu.secret-key=${BAIDU_OCR_SECRET_KEY:***REDACTED***}
+
 ============================================================
 FILE: src\main\resources\mapper\AuditRuleHitMapper.xml
 ============================================================
+
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
@@ -3765,6 +5505,7 @@ FILE: src\main\resources\mapper\AuditRuleHitMapper.xml
 ============================================================
 FILE: src\main\resources\mapper\AuditTaskMapper.xml
 ============================================================
+
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
@@ -3827,23 +5568,62 @@ FILE: src\main\resources\mapper\AuditTaskMapper.xml
         WHERE id = #{id}
     </select>
 
-    <update id="updateTaskAfterOcr">
+    <!--
+    通用任务状态更新。
+
+    除了根据任务 ID 更新，
+    还要求数据库中的状态必须与 currentStatus 相同。
+
+    例如：
+    UPLOADED -> OCR_PROCESSING
+
+    如果数据库中的状态已经不是 UPLOADED，
+    SQL 更新行数就会是 0。
+-->
+    <update id="updateTaskStatus">
+
         UPDATE audit_task
+
         SET
-        status = #{status},
-        ocr_raw_text = #{ocrRawText},
+        status = #{targetStatus},
         updated_at = NOW()
+
         WHERE id = #{id}
+        AND status = #{currentStatus}
+
     </update>
 
-    <update id="updateAuditResult">
+    <!--
+        OCR 成功后保存 OCR 原始内容。
+        状态由 Lifecycle Service 单独更新。
+    -->
+    <update id="updateTaskAfterOcr">
+
         UPDATE audit_task
+
         SET
-        status = #{status},
+        ocr_raw_text = #{ocrRawText},
+        updated_at = NOW()
+
+        WHERE id = #{id}
+
+    </update>
+
+    <!--
+        保存自动审核结论。
+        状态由 Lifecycle Service 单独更新。
+    -->
+    <update id="updateAuditResult">
+
+        UPDATE audit_task
+
+        SET
         final_decision = #{finalDecision},
         need_human_review = #{needHumanReview},
         updated_at = NOW()
+
         WHERE id = #{id}
+
     </update>
 
     <update id="updateReportPath">
@@ -3910,15 +5690,15 @@ FILE: src\main\resources\mapper\AuditTaskMapper.xml
 
 
     <!--
-        人工审核完成后，
-        写入最终审核结果。
+        保存人工审核的最终结论。
+        AUDIT_DONE -> COMPLETED
+        由 Lifecycle Service 单独完成。
     -->
     <update id="updateHumanReviewResult">
 
         UPDATE audit_task
 
         SET
-        status = #{status},
         final_decision = #{finalDecision},
         need_human_review = #{needHumanReview},
         updated_at = NOW()
@@ -3932,6 +5712,7 @@ FILE: src\main\resources\mapper\AuditTaskMapper.xml
 ============================================================
 FILE: src\main\resources\mapper\HumanReviewRecordMapper.xml
 ============================================================
+
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
@@ -3993,6 +5774,7 @@ FILE: src\main\resources\mapper\HumanReviewRecordMapper.xml
 ============================================================
 FILE: src\main\resources\mapper\InvoiceInfoMapper.xml
 ============================================================
+
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
@@ -4075,6 +5857,7 @@ FILE: src\main\resources\mapper\InvoiceInfoMapper.xml
 ============================================================
 FILE: src\test\java\invoice_agent_backend\InvoiceAgentBackendApplicationTests.java
 ============================================================
+
 package invoice_agent_backend;
 
 import org.junit.jupiter.api.Test;
