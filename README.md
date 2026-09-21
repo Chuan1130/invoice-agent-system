@@ -31,7 +31,7 @@ Future Multi-Agent Graph
 | Spring AI integration | Completed v0.1 | Spring AI 1.1.8, compatible with Spring Boot 3.5.x |
 | Supervisor Agent | Completed v0.1 | Understands natural-language requests and selects Tools |
 | Business Tools | Completed v0.1 | 5 read-only Tools that reuse existing Services |
-| Tool Trace | Completed v0.1 | Each Agent request returns the Tool call trace |
+| Tool Trace | Implemented v0.2 | Server-generated requestId and ordered Tool summaries persisted in an independent transaction |
 | Multi-Agent Graph | Not implemented yet | Agents will be split in a later stage |
 | Frontend | Not implemented yet | The current focus remains backend Agent capabilities |
 
@@ -191,7 +191,8 @@ invoice_agent_backend/agent/
 │   └── InvoiceAuditAgentTools.java
 └── trace/
     ├── AgentToolTrace.java
-    └── AgentToolTraceContext.java
+    ├── AgentToolTraceContext.java
+    └── AgentToolTraceStore.java
 ```
 
 Also added:
@@ -235,7 +236,7 @@ sequenceDiagram
     T-->>S: Structured business summary
     S->>L: Tool Result
     L-->>S: Generate explanation
-    S-->>C: answer + toolTraces
+    S-->>C: requestId + answer + toolTraces
     C-->>U: ApiResponse
 ```
 
@@ -284,12 +285,13 @@ consider controlled Write Tools
 
 ## 8. Tool Trace
 
-Every Supervisor request returns its call trace.
+Every valid, enabled Supervisor request receives a server-generated UUID `requestId`. Successful responses return it alongside `answer` and `toolTraces`. Completed Tool calls are persisted when the synchronous request exits, including when a later model or Tool call fails.
 
 For example:
 
 ```json
 {
+  "requestId": "e2dd7693-7c32-48d0-8a97-e95bb2da8942",
   "answer": "Task 6 matched the amount-limit rule, so it requires human review.",
   "toolTraces": [
     {
@@ -302,19 +304,68 @@ For example:
 }
 ```
 
-Currently, Tool Trace exists only within a single HTTP request. It can be upgraded later into:
-
-```text
-In-memory trace
-   ↓
-requestId
-   ↓
-trace table
-   ↓
-Complete Agent execution history
-   ↓
-Frontend visualization of the execution chain
+```mermaid
+flowchart TD
+    A[Supervisor request and UUID] --> B[Read-only Tool callbacks]
+    B --> C[In-memory ordered summaries]
+    B --> D[Model or Tool failure]
+    C --> E[Independent Trace transaction]
+    D --> E
+    E --> F[Clear request context]
 ```
+
+### Database setup and inspection
+
+Apply `backend/invoice-agent-backend/src/main/resources/db/manual/001_agent_tool_trace.sql`
+to the existing MySQL application database before enabling the Supervisor. This is an
+additive, manual script; it does not change invoice tables and is not run automatically.
+The project still does not have Flyway/Liquibase migrations.
+
+`agent_tool_trace` stores `request_id`, `sequence_no` (starting at 1), `tool_name`,
+`input_summary`, `result_summary`, `success`, and `called_at`. A unique index on
+`(request_id, sequence_no)` preserves each request's call order. Existing summaries
+are limited to 500 characters plus the truncation suffix. Full prompts, model answers,
+and full Tool results are not added to this table.
+
+```sql
+SELECT sequence_no, tool_name, input_summary, result_summary, success, called_at
+FROM agent_tool_trace
+WHERE request_id = 'e2dd7693-7c32-48d0-8a97-e95bb2da8942'
+ORDER BY sequence_no;
+```
+
+`AgentToolTraceStore.save` uses `REQUIRES_NEW`: Trace rows commit independently of
+invoice business transactions, and a partial failed Trace batch rolls back together.
+A persistence failure fails an otherwise successful Supervisor request; if the model
+already failed, the original exception is preserved with the persistence failure
+suppressed. Failure logs include `requestId`; the existing error response format is
+unchanged. The request context is cleared in either case.
+
+This is Tool-call history, not complete request auditing: requests with no Tool calls
+have no rows, rejected/unknown tool names do not produce business Tool traces, and a
+process crash before final persistence can lose the in-memory calls. ThreadLocal is
+still for synchronous calls only. No new history HTTP endpoint is exposed while
+authentication and authorization remain unimplemented. Stored summaries may contain
+business data or existing error messages; access control, redaction, and retention
+remain follow-up work.
+
+### Isolated Agent tests
+
+From `backend/invoice-agent-backend`:
+
+```powershell
+.\mvnw.cmd "-Dtest=InvoiceAuditAgentToolsTest,SpringAiSupervisorAgentServiceTest,AgentToolTraceStoreTest" test
+```
+
+The scripted Mock ChatModel uses the real ChatClient registration and Spring AI
+ToolCallingManager to dispatch JSON arguments through actual Tool callbacks. Tests
+cover ordered calls, the five read-only tools, rejection of an unregistered write
+Tool, no-call answers, unique request IDs, model/Tool failures, persistence failures,
+and request cleanup. H2 in MySQL mode verifies the Mapper SQL, unique request/sequence
+constraint, atomic batches, and independent transaction commits. These tests require
+no LLM key, OCR service, or external database; H2 does not replace a real MySQL smoke test.
+The Agent tests workflow runs this focused suite for backend pull requests.
+
 
 ## 9. Agent Safety Boundary
 
@@ -348,7 +399,7 @@ A chatbot that can arbitrarily modify the database
 | Agent Controller | `SupervisorAgentController` | Agent natural-language entry point |
 | Supervisor | `SpringAiSupervisorAgentService` | Understand intent, select Tools, organize answers |
 | Agent Tool | `InvoiceAuditAgentTools` | Expose business Services as Tools |
-| Tool Trace | `AgentToolTraceContext` | Store Tool call traces for a single Agent request |
+| Tool Trace | `AgentToolTraceContext` / `AgentToolTraceStore` | Collect synchronous call summaries and persist them by requestId |
 | Application Service | `AuditTaskServiceImpl` | Query, details, human review, start Workflow |
 | Orchestrator | `InvoiceAuditWorkflowServiceImpl` | Files, tasks, Core, exception handling |
 | Core Workflow | `InvoiceAuditWorkflowCoreServiceImpl` | Main transaction for OCR, rules, decisions, and report |
@@ -530,8 +581,8 @@ Database state layer
 
 ## 16. Current Limitations and Technical Debt
 
-1. Agent Tool Trace is not persisted to the database yet.
-2. The Agent currently has no requestId / conversationId.
+1. Tool Trace is persisted at request exit; crash recovery and full request auditing are not implemented.
+2. The Agent has a requestId but no conversationId.
 3. The Agent currently has no conversational Memory.
 4. Controlled write Tools are not exposed yet.
 5. Authentication and Tool-level authorization are not implemented yet.
@@ -571,9 +622,9 @@ Controlled Write Tool
 
 Recommended development order:
 
-1. Add the `agent_tool_trace` table and persist Tool Trace.
-2. Generate a `requestId` for every Agent request.
-3. Add Supervisor automated tests and use a Mock ChatModel to verify Tool Calling.
+1. Implemented: `agent_tool_trace` table and independent Trace persistence (apply the manual SQL script).
+2. Implemented: generate a server-side `requestId` for each valid enabled Supervisor request.
+3. Added: Mock ChatModel tool-calling tests and Mapper/transaction tests. Run the focused suite above before merging.
 4. Add unified error wrapping and execution time to Tools.
 5. Add a controlled `humanReviewTool`, but require explicit confirmation.
 6. Then begin Multi-Agent Graph.
@@ -620,4 +671,4 @@ The project is no longer just an invoice CRUD system, but it is not yet a comple
 
 The accurate positioning is:
 
-> A state-driven intelligent invoice audit backend based on Spring Boot, MyBatis, MySQL, real Baidu OCR, and Spring AI. It has implemented a deterministic audit Workflow, reliable state machine, Human-in-the-loop, and Supervisor Agent + Read-only Business Tools v0.1, providing the foundation for future Tool Trace persistence, controlled write Tools, and Multi-Agent Graph.
+> A state-driven intelligent invoice audit backend based on Spring Boot, MyBatis, MySQL, real Baidu OCR, and Spring AI. It has implemented a deterministic audit Workflow, reliable state machine, Human-in-the-loop, and Supervisor Agent + Read-only Business Tools v0.1, with requestId-linked Tool Trace persistence, providing the foundation for future controlled write Tools and Multi-Agent Graph.

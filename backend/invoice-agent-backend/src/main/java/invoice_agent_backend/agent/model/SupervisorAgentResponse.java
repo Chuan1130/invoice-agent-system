@@ -12,6 +12,8 @@ import java.util.List;
  */
 public class SupervisorAgentResponse {
 
+    private String requestId;
+
     private String answer;
 
     private List<AgentToolTrace> toolTraces;
@@ -26,6 +28,10 @@ public class SupervisorAgentResponse {
         this.answer = answer;
         this.toolTraces = toolTraces;
     }
+
+    public String getRequestId() { return requestId; }
+
+    public void setRequestId(String requestId) { this.requestId = requestId; }
 
     public String getAnswer() {
         return answer;
@@ -44,3 +50,4 @@ public class SupervisorAgentResponse {
         this.toolTraces = toolTraces;
     }
 }
+
