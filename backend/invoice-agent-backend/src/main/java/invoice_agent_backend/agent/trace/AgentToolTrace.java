@@ -5,8 +5,7 @@ import java.time.LocalDateTime;
 /*
  ** 一次 Tool 调用记录。
  **
- ** 当前先放在接口返回里，方便开发阶段直接观察 Supervisor
- ** 到底调用了什么。后面可以继续落库或接入统一审计日志。
+ ** 同时用于接口返回与 requestId 关联的持久化摘要。
  */
 public class AgentToolTrace {
 
@@ -77,3 +76,4 @@ public class AgentToolTrace {
         this.calledAt = calledAt;
     }
 }
+

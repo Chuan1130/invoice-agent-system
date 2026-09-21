@@ -10,8 +10,8 @@ import java.util.List;
  ** 保存一次同步 Supervisor 请求里的 Tool 调用轨迹。
  **
  ** 当前 ChatClient 使用阻塞调用，所以先用 ThreadLocal 将一次请求
- ** 的轨迹隔离开。后面如果改成异步或流式调用，再把这里升级成
- ** requestId + 持久化 trace。
+ ** 的轨迹隔离开。Supervisor 结束时通过 requestId 独立落库。
+ ** 异步或流式调用仍需要显式传递上下文，不能直接复用 ThreadLocal。
  */
 @Component
 public class AgentToolTraceContext {
@@ -82,3 +82,4 @@ public class AgentToolTraceContext {
         ) + "...";
     }
 }
+

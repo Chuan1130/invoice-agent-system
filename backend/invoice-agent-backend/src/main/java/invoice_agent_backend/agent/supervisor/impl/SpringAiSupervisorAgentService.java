@@ -10,6 +10,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
+import invoice_agent_backend.agent.trace.AgentToolTraceStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  ** 第一版 Supervisor Agent。
@@ -47,6 +51,10 @@ public class SpringAiSupervisorAgentService
             【下一步】
             """;
 
+    private static final Logger log = LoggerFactory.getLogger(SpringAiSupervisorAgentService.class);
+
+    private final AgentToolTraceStore traceStore;
+
     private final ChatClient chatClient;
 
     private final AgentToolTraceContext traceContext;
@@ -54,7 +62,8 @@ public class SpringAiSupervisorAgentService
     public SpringAiSupervisorAgentService(
             ChatClient.Builder chatClientBuilder,
             InvoiceAuditAgentTools invoiceAuditAgentTools,
-            AgentToolTraceContext traceContext) {
+            AgentToolTraceContext traceContext,
+            AgentToolTraceStore traceStore) {
 
         this.chatClient =
                 chatClientBuilder
@@ -65,6 +74,7 @@ public class SpringAiSupervisorAgentService
                         .build();
 
         this.traceContext = traceContext;
+        this.traceStore = traceStore;
     }
 
     @Override
@@ -79,7 +89,9 @@ public class SpringAiSupervisorAgentService
             );
         }
 
+        String requestId = UUID.randomUUID().toString();
         traceContext.start();
+        Throwable failure = null;
 
         try {
             String answer =
@@ -92,13 +104,29 @@ public class SpringAiSupervisorAgentService
             List<AgentToolTrace> toolTraces =
                     traceContext.snapshot();
 
-            return new SupervisorAgentResponse(
-                    answer,
-                    toolTraces
-            );
+            SupervisorAgentResponse response = new SupervisorAgentResponse(answer, toolTraces);
+            response.setRequestId(requestId);
+            return response;
 
+        } catch (RuntimeException | Error e) {
+            failure = e;
+            log.warn("Supervisor failed; requestId={}", requestId);
+            throw e;
         } finally {
-            traceContext.clear();
+            try {
+                // Preserve completed calls even when a later model/tool call fails.
+                traceStore.save(requestId, traceContext.snapshot());
+            } catch (RuntimeException persistenceFailure) {
+                log.error("Tool trace persistence failed; requestId={}", requestId);
+                if (failure != null) {
+                    failure.addSuppressed(persistenceFailure);
+                } else {
+                    throw persistenceFailure;
+                }
+            } finally {
+                traceContext.clear();
+            }
         }
     }
 }
+
