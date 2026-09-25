@@ -1,0 +1,68 @@
+name: Backend CI
+
+on:
+  pull_request:
+    paths:
+      - "backend/invoice-agent-backend/**"
+      - "sql/**"
+      - ".github/workflows/backend-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/invoice-agent-backend/**"
+      - "sql/**"
+      - ".github/workflows/backend-ci.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: 123456
+          MYSQL_DATABASE: invoice_agent
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -p123456"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      AGENT_SUPERVISOR_ENABLED: "false"
+      SPRING_AI_MODEL_CHAT: "none"
+
+    defaults:
+      run:
+        working-directory: backend/invoice-agent-backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Make Maven wrapper executable
+        run: chmod +x mvnw
+
+      - name: Compile and test backend
+        run: ./mvnw -B clean test

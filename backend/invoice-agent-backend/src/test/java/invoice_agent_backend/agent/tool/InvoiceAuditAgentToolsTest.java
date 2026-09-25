@@ -2,6 +2,7 @@ package invoice_agent_backend.agent.tool;
 
 import invoice_agent_backend.agent.trace.AgentToolTraceContext;
 import invoice_agent_backend.entity.AuditTask;
+import invoice_agent_backend.mapper.AgentToolTraceMapper;
 import invoice_agent_backend.service.AuditTaskService;
 import invoice_agent_backend.vo.AuditTaskDetailResult;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class InvoiceAuditAgentToolsTest {
@@ -21,8 +24,11 @@ class InvoiceAuditAgentToolsTest {
         AuditTaskService auditTaskService =
                 mock(AuditTaskService.class);
 
+        AgentToolTraceMapper traceMapper =
+                mock(AgentToolTraceMapper.class);
+
         AgentToolTraceContext traceContext =
-                new AgentToolTraceContext();
+                new AgentToolTraceContext(traceMapper);
 
         InvoiceAuditAgentTools tools =
                 new InvoiceAuditAgentTools(
@@ -49,7 +55,7 @@ class InvoiceAuditAgentToolsTest {
         when(auditTaskService.getTaskDetail(6L))
                 .thenReturn(detail);
 
-        traceContext.start();
+        traceContext.start("AGT-test-request");
 
         String result =
                 tools.getTaskDetailTool(6L);
@@ -70,12 +76,23 @@ class InvoiceAuditAgentToolsTest {
         );
 
         assertEquals(
+                "AGT-test-request",
+                traceContext
+                        .snapshot()
+                        .get(0)
+                        .getRequestId()
+        );
+
+        assertEquals(
                 "getTaskDetailTool",
                 traceContext
                         .snapshot()
                         .get(0)
                         .getToolName()
         );
+
+        verify(traceMapper)
+                .insertAgentToolTrace(any());
 
         traceContext.clear();
     }
