@@ -94,4 +94,32 @@ class AgentRequestLogServiceTest {
                 result.getToolTraces().get(0).getToolName()
         );
     }
+
+    @Test
+    void shouldPersistFailedRequestStatus() {
+
+        AgentRequestLogMapper requestLogMapper =
+                mock(AgentRequestLogMapper.class);
+
+        AgentToolTraceMapper toolTraceMapper =
+                mock(AgentToolTraceMapper.class);
+
+        AgentRequestLogServiceImpl service =
+                new AgentRequestLogServiceImpl(
+                        requestLogMapper,
+                        toolTraceMapper
+                );
+
+        service.fail(
+                "AGT-test-failed",
+                "model timeout"
+        );
+
+        verify(requestLogMapper)
+                .updateFailed(
+                        eq("AGT-test-failed"),
+                        eq("model timeout"),
+                        any(LocalDateTime.class)
+                );
+    }
 }
