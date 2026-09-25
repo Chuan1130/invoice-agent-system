@@ -10,9 +10,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 /*
- ** 第一版 Supervisor Agent。
+ ** Supervisor Agent。
  **
  ** 模型负责理解问题、选择 Tool 和组织答案；
  ** 发票事实仍然来自现有 Service，状态迁移仍然由原 Workflow 管理。
@@ -79,7 +80,8 @@ public class SpringAiSupervisorAgentService
             );
         }
 
-        traceContext.start();
+        String requestId = newRequestId();
+        traceContext.start(requestId);
 
         try {
             String answer =
@@ -93,6 +95,7 @@ public class SpringAiSupervisorAgentService
                     traceContext.snapshot();
 
             return new SupervisorAgentResponse(
+                    requestId,
                     answer,
                     toolTraces
             );
@@ -100,5 +103,9 @@ public class SpringAiSupervisorAgentService
         } finally {
             traceContext.clear();
         }
+    }
+
+    private String newRequestId() {
+        return "AGT-" + UUID.randomUUID();
     }
 }

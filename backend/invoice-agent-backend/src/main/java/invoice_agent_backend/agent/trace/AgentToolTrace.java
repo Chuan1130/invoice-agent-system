@@ -5,10 +5,14 @@ import java.time.LocalDateTime;
 /*
  ** 一次 Tool 调用记录。
  **
- ** 当前先放在接口返回里，方便开发阶段直接观察 Supervisor
- ** 到底调用了什么。后面可以继续落库或接入统一审计日志。
+ ** requestId 用来把同一次 Supervisor 请求里的多次 Tool 调用串起来。
+ ** 这样后面即使一个请求调用多个 Tool，也能完整还原执行链。
  */
 public class AgentToolTrace {
+
+    private Long id;
+
+    private String requestId;
 
     private String toolName;
 
@@ -24,17 +28,35 @@ public class AgentToolTrace {
     }
 
     public AgentToolTrace(
+            String requestId,
             String toolName,
             String inputSummary,
             String resultSummary,
             Boolean success,
             LocalDateTime calledAt) {
 
+        this.requestId = requestId;
         this.toolName = toolName;
         this.inputSummary = inputSummary;
         this.resultSummary = resultSummary;
         this.success = success;
         this.calledAt = calledAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     public String getToolName() {

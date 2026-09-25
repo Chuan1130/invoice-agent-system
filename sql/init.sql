@@ -39,6 +39,15 @@ CREATE TABLE IF NOT EXISTS audit_rule_hit (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS human_review_record (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    task_id BIGINT NOT NULL,
+    decision VARCHAR(32) NOT NULL,
+    reviewer VARCHAR(128) NULL,
+    review_comment VARCHAR(1000) NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS audit_task_log (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     task_id BIGINT NOT NULL,
@@ -46,4 +55,15 @@ CREATE TABLE IF NOT EXISTS audit_task_log (
     step_status VARCHAR(32) NOT NULL,
     message VARCHAR(1000) NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS agent_tool_trace (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    request_id VARCHAR(64) NOT NULL,
+    tool_name VARCHAR(128) NOT NULL,
+    input_summary VARCHAR(1000) NULL,
+    result_summary VARCHAR(1000) NULL,
+    success TINYINT(1) NOT NULL,
+    called_at DATETIME(6) NOT NULL,
+    INDEX idx_agent_tool_trace_request_id (request_id)
 );
