@@ -57,6 +57,19 @@ CREATE TABLE IF NOT EXISTS audit_task_log (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS agent_request_log (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    request_id VARCHAR(64) NOT NULL UNIQUE,
+    user_message TEXT NOT NULL,
+    answer TEXT NULL,
+    status VARCHAR(32) NOT NULL,
+    error_message VARCHAR(1000) NULL,
+    started_at DATETIME(6) NOT NULL,
+    completed_at DATETIME(6) NULL,
+    INDEX idx_agent_request_log_status (status),
+    INDEX idx_agent_request_log_started_at (started_at)
+);
+
 CREATE TABLE IF NOT EXISTS agent_tool_trace (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     request_id VARCHAR(64) NOT NULL,
