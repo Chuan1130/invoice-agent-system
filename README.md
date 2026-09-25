@@ -56,6 +56,7 @@ Multi-Agent Graph
 | Agent request lifecycle | Completed v0.3 | `RUNNING -> COMPLETED / FAILED` persisted in `agent_request_log` |
 | Trace replay/query API | Completed v0.3 | Query one Agent request and all Tool calls by `requestId` |
 | Tool contract automated test | Completed v0.3 | Verifies the five `@Tool` definitions exposed to Spring AI |
+| Agent request lifecycle tests | Completed v0.3 | Covers completed and failed request persistence contracts |
 | Backend CI definition | Added | GitHub Actions compiles and tests backend on relevant PR/push events |
 | Real model-routing automated verification | Next | Verify different prompts cause the expected model-selected Tool calls |
 | Controlled write Tools | Not implemented | Requires confirmation, authorization, idempotency, audit boundaries |
@@ -848,6 +849,8 @@ verifies Spring AI Tool names / descriptions / input schemas
 AgentRequestLogServiceTest
         ↓
 verifies request lifecycle persistence contract
+        ↓
+verifies COMPLETED and FAILED update paths
         ↓
 verifies request + Tool Trace aggregation by requestId
 ```
