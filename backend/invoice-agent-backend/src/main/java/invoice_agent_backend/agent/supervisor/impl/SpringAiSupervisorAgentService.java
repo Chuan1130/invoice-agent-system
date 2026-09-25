@@ -3,6 +3,7 @@ package invoice_agent_backend.agent.supervisor.impl;
 import invoice_agent_backend.agent.model.SupervisorAgentResponse;
 import invoice_agent_backend.agent.supervisor.SupervisorAgentService;
 import invoice_agent_backend.agent.tool.InvoiceAuditAgentTools;
+import invoice_agent_backend.agent.trace.AgentRequestLogService;
 import invoice_agent_backend.agent.trace.AgentToolTrace;
 import invoice_agent_backend.agent.trace.AgentToolTraceContext;
 import org.springframework.ai.chat.client.ChatClient;
@@ -17,6 +18,9 @@ import java.util.UUID;
  **
  ** 模型负责理解问题、选择 Tool 和组织答案；
  ** 发票事实仍然来自现有 Service，状态迁移仍然由原 Workflow 管理。
+ **
+ ** 每次请求会生成 requestId，并记录整次 Agent 请求生命周期：
+ ** RUNNING -> COMPLETED / FAILED。
  */
 @Service
 @ConditionalOnProperty(
@@ -49,13 +53,14 @@ public class SpringAiSupervisorAgentService
             """;
 
     private final ChatClient chatClient;
-
     private final AgentToolTraceContext traceContext;
+    private final AgentRequestLogService requestLogService;
 
     public SpringAiSupervisorAgentService(
             ChatClient.Builder chatClientBuilder,
             InvoiceAuditAgentTools invoiceAuditAgentTools,
-            AgentToolTraceContext traceContext) {
+            AgentToolTraceContext traceContext,
+            AgentRequestLogService requestLogService) {
 
         this.chatClient =
                 chatClientBuilder
@@ -66,6 +71,7 @@ public class SpringAiSupervisorAgentService
                         .build();
 
         this.traceContext = traceContext;
+        this.requestLogService = requestLogService;
     }
 
     @Override
@@ -80,25 +86,45 @@ public class SpringAiSupervisorAgentService
             );
         }
 
+        String safeMessage = message.trim();
         String requestId = newRequestId();
+
         traceContext.start(requestId);
+        requestLogService.start(
+                requestId,
+                safeMessage
+        );
 
         try {
             String answer =
                     chatClient
                             .prompt()
-                            .user(message.trim())
+                            .user(safeMessage)
                             .call()
                             .content();
 
             List<AgentToolTrace> toolTraces =
                     traceContext.snapshot();
 
+            requestLogService.complete(
+                    requestId,
+                    answer
+            );
+
             return new SupervisorAgentResponse(
                     requestId,
                     answer,
                     toolTraces
             );
+
+        } catch (RuntimeException e) {
+
+            requestLogService.fail(
+                    requestId,
+                    e.getMessage()
+            );
+
+            throw e;
 
         } finally {
             traceContext.clear();
