@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="invoice_agent_backend.mapper.AgentRequestLogMapper">
+
+    <resultMap id="AgentRequestRecordResultMap"
+               type="invoice_agent_backend.agent.trace.AgentRequestRecord">
+        <id property="id" column="id"/>
+        <result property="requestId" column="request_id"/>
+        <result property="userMessage" column="user_message"/>
+        <result property="answer" column="answer"/>
+        <result property="status" column="status"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="startedAt" column="started_at"/>
+        <result property="completedAt" column="completed_at"/>
+    </resultMap>
+
+    <insert id="insertAgentRequest"
+            parameterType="invoice_agent_backend.agent.trace.AgentRequestRecord"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO agent_request_log (
+            request_id,
+            user_message,
+            status,
+            started_at
+        )
+        VALUES (
+            #{requestId},
+            #{userMessage},
+            #{status},
+            #{startedAt}
+        )
+    </insert>
+
+    <update id="updateCompleted">
+        UPDATE agent_request_log
+        SET status = 'COMPLETED',
+            answer = #{answer},
+            error_message = NULL,
+            completed_at = #{completedAt}
+        WHERE request_id = #{requestId}
+    </update>
+
+    <update id="updateFailed">
+        UPDATE agent_request_log
+        SET status = 'FAILED',
+            error_message = #{errorMessage},
+            completed_at = #{completedAt}
+        WHERE request_id = #{requestId}
+    </update>
+
+    <select id="selectByRequestId"
+            parameterType="string"
+            resultMap="AgentRequestRecordResultMap">
+        SELECT
+            id,
+            request_id,
+            user_message,
+            answer,
+            status,
+            error_message,
+            started_at,
+            completed_at
+        FROM agent_request_log
+        WHERE request_id = #{requestId}
+        LIMIT 1
+    </select>
+
+</mapper>
