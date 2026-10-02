@@ -65,4 +65,15 @@ jobs:
         run: chmod +x mvnw
 
       - name: Compile and test backend
-        run: ./mvnw -B clean test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./mvnw -B clean test 2>&1 | tee maven-test.log
+
+      - name: Upload Maven test log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-maven-test-log
+          path: backend/invoice-agent-backend/maven-test.log
+          if-no-files-found: warn
