@@ -1,5 +1,8 @@
 package invoice_agent_backend.agent.tool;
 
+import invoice_agent_backend.agent.action.AgentActionContext;
+import invoice_agent_backend.agent.action.AgentActionRequestRecord;
+import invoice_agent_backend.agent.action.AgentActionService;
 import invoice_agent_backend.agent.trace.AgentToolTraceContext;
 import invoice_agent_backend.common.PageResult;
 import invoice_agent_backend.entity.AuditRuleHit;
@@ -18,23 +21,28 @@ import java.util.List;
 /*
  ** 提供给 Supervisor Agent 的业务 Tool。
  **
- ** 第一版只开放只读能力。
- ** OCR、规则执行、状态迁移和人工审核仍然由原来的 Workflow 控制，
- ** 避免模型绕过状态机直接修改业务数据。
+ ** 查询 Tool 只读真实业务数据。
+ ** prepareHumanReviewTool 只创建待确认动作，不直接 APPROVE / REJECT。
+ ** 真正业务写操作仍然只能由用户确认后通过 AuditTaskService 执行。
  */
 @Component
 public class InvoiceAuditAgentTools {
 
     private final AuditTaskService auditTaskService;
-
     private final AgentToolTraceContext traceContext;
+    private final AgentActionService actionService;
+    private final AgentActionContext actionContext;
 
     public InvoiceAuditAgentTools(
             AuditTaskService auditTaskService,
-            AgentToolTraceContext traceContext) {
+            AgentToolTraceContext traceContext,
+            AgentActionService actionService,
+            AgentActionContext actionContext) {
 
         this.auditTaskService = auditTaskService;
         this.traceContext = traceContext;
+        this.actionService = actionService;
+        this.actionContext = actionContext;
     }
 
     @Tool(
@@ -233,6 +241,65 @@ public class InvoiceAuditAgentTools {
 
             traceContext.recordFailure(
                     "listTasksByStatusTool",
+                    input,
+                    e.getMessage()
+            );
+
+            throw e;
+        }
+    }
+
+    @Tool(
+            name = "prepareHumanReviewTool",
+            description = "只在用户明确要求对某个 AUDIT_DONE 且需要人工复核的任务进行 APPROVE 或 REJECT 时使用。此 Tool 只准备待确认动作，不会直接修改任务状态。真正执行必须由用户随后使用 confirmationToken 调用确认接口。"
+    )
+    public String prepareHumanReviewTool(
+            @ToolParam(description = "审核任务 ID")
+            Long taskId,
+            @ToolParam(description = "人工复核决定，只允许 APPROVE 或 REJECT")
+            String decision,
+            @ToolParam(description = "建议写入人工复核记录的备注，可为空")
+            String comment) {
+
+        String input =
+                "taskId="
+                        + taskId
+                        + ", decision="
+                        + valueOf(decision);
+
+        try {
+            AgentActionRequestRecord action =
+                    actionService.prepareHumanReview(
+                            actionContext.currentRequestId(),
+                            taskId,
+                            decision,
+                            comment
+                    );
+
+            actionContext.register(action);
+
+            traceContext.recordSuccess(
+                    "prepareHumanReviewTool",
+                    input,
+                    "actionPrepared=true, taskId="
+                            + taskId
+                            + ", decision="
+                            + action.getDecision()
+            );
+
+            return "人工复核动作已经准备完成，但尚未执行。"
+                    + " taskId="
+                    + taskId
+                    + ", decision="
+                    + action.getDecision()
+                    + ", status="
+                    + action.getStatus()
+                    + "。必须等待用户显式确认后才能改变业务状态。";
+
+        } catch (RuntimeException e) {
+
+            traceContext.recordFailure(
+                    "prepareHumanReviewTool",
                     input,
                     e.getMessage()
             );

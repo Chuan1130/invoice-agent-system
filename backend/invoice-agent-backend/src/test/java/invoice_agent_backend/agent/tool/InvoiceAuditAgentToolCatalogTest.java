@@ -1,5 +1,7 @@
 package invoice_agent_backend.agent.tool;
 
+import invoice_agent_backend.agent.action.AgentActionContext;
+import invoice_agent_backend.agent.action.AgentActionService;
 import invoice_agent_backend.agent.trace.AgentToolTraceContext;
 import invoice_agent_backend.mapper.AgentToolTraceMapper;
 import invoice_agent_backend.service.AuditTaskService;
@@ -18,7 +20,7 @@ import static org.mockito.Mockito.mock;
 class InvoiceAuditAgentToolCatalogTest {
 
     @Test
-    void shouldExposeExpectedReadOnlyToolContracts() {
+    void shouldExposeExpectedSafeToolContracts() {
 
         AuditTaskService auditTaskService =
                 mock(AuditTaskService.class);
@@ -26,10 +28,15 @@ class InvoiceAuditAgentToolCatalogTest {
         AgentToolTraceMapper traceMapper =
                 mock(AgentToolTraceMapper.class);
 
+        AgentActionService actionService =
+                mock(AgentActionService.class);
+
         InvoiceAuditAgentTools tools =
                 new InvoiceAuditAgentTools(
                         auditTaskService,
-                        new AgentToolTraceContext(traceMapper)
+                        new AgentToolTraceContext(traceMapper),
+                        actionService,
+                        new AgentActionContext()
                 );
 
         ToolCallback[] callbacks =
@@ -49,7 +56,8 @@ class InvoiceAuditAgentToolCatalogTest {
                         "getInvoiceInfoTool",
                         "getRuleHitsTool",
                         "getAuditReportTool",
-                        "listTasksByStatusTool"
+                        "listTasksByStatusTool",
+                        "prepareHumanReviewTool"
                 ),
                 toolNames
         );

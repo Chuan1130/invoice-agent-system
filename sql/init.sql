@@ -80,3 +80,23 @@ CREATE TABLE IF NOT EXISTS agent_tool_trace (
     called_at DATETIME(6) NOT NULL,
     INDEX idx_agent_tool_trace_request_id (request_id)
 );
+
+CREATE TABLE IF NOT EXISTS agent_action_request (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    action_token VARCHAR(80) NOT NULL UNIQUE,
+    dedupe_key VARCHAR(180) NOT NULL UNIQUE,
+    request_id VARCHAR(64) NOT NULL,
+    action_type VARCHAR(64) NOT NULL,
+    task_id BIGINT NOT NULL,
+    decision VARCHAR(32) NOT NULL,
+    proposed_comment VARCHAR(1000) NULL,
+    status VARCHAR(32) NOT NULL,
+    expires_at DATETIME(6) NOT NULL,
+    confirmed_by VARCHAR(128) NULL,
+    result_summary VARCHAR(1000) NULL,
+    created_at DATETIME(6) NOT NULL,
+    executed_at DATETIME(6) NULL,
+    INDEX idx_agent_action_request_request_id (request_id),
+    INDEX idx_agent_action_request_task_id (task_id),
+    INDEX idx_agent_action_request_status (status)
+);

@@ -1,5 +1,7 @@
 package invoice_agent_backend.agent.tool;
 
+import invoice_agent_backend.agent.action.AgentActionContext;
+import invoice_agent_backend.agent.action.AgentActionService;
 import invoice_agent_backend.agent.trace.AgentToolTraceContext;
 import invoice_agent_backend.entity.AuditTask;
 import invoice_agent_backend.mapper.AgentToolTraceMapper;
@@ -33,7 +35,9 @@ class InvoiceAuditAgentToolsTest {
         InvoiceAuditAgentTools tools =
                 new InvoiceAuditAgentTools(
                         auditTaskService,
-                        traceContext
+                        traceContext,
+                        mock(AgentActionService.class),
+                        new AgentActionContext()
                 );
 
         AuditTask task = new AuditTask();
