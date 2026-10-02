@@ -7,16 +7,16 @@ import java.util.List;
 /*
  ** Supervisor 最终返回给前端的结果。
  **
- ** requestId：本次 Agent 请求的唯一标识。
- ** answer：模型给出的审核解释或任务分析。
- ** toolTraces：本次请求实际调用过哪些业务 Tool。
+ ** answer 保留兼容旧前端；
+ ** structuredAnswer 是新的结构化模型输出；
+ ** pendingActions 由 Java Runtime 直接附加，不依赖模型复制 confirmationToken。
  */
 public class SupervisorAgentResponse {
 
     private String requestId;
-
     private String answer;
-
+    private SupervisorStructuredAnswer structuredAnswer;
+    private List<AgentPendingActionView> pendingActions;
     private List<AgentToolTrace> toolTraces;
 
     public SupervisorAgentResponse() {
@@ -27,8 +27,26 @@ public class SupervisorAgentResponse {
             String answer,
             List<AgentToolTrace> toolTraces) {
 
+        this(
+                requestId,
+                answer,
+                null,
+                List.of(),
+                toolTraces
+        );
+    }
+
+    public SupervisorAgentResponse(
+            String requestId,
+            String answer,
+            SupervisorStructuredAnswer structuredAnswer,
+            List<AgentPendingActionView> pendingActions,
+            List<AgentToolTrace> toolTraces) {
+
         this.requestId = requestId;
         this.answer = answer;
+        this.structuredAnswer = structuredAnswer;
+        this.pendingActions = pendingActions;
         this.toolTraces = toolTraces;
     }
 
@@ -46,6 +64,24 @@ public class SupervisorAgentResponse {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public SupervisorStructuredAnswer getStructuredAnswer() {
+        return structuredAnswer;
+    }
+
+    public void setStructuredAnswer(
+            SupervisorStructuredAnswer structuredAnswer) {
+        this.structuredAnswer = structuredAnswer;
+    }
+
+    public List<AgentPendingActionView> getPendingActions() {
+        return pendingActions;
+    }
+
+    public void setPendingActions(
+            List<AgentPendingActionView> pendingActions) {
+        this.pendingActions = pendingActions;
     }
 
     public List<AgentToolTrace> getToolTraces() {
