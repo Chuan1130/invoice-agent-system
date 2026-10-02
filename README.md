@@ -2,156 +2,213 @@
 
 An intelligent invoice audit backend built with Spring Boot, MyBatis, MySQL, Baidu VAT Invoice OCR, and Spring AI.
 
-The project has completed the traditional business foundation, real OCR, rule-based auditing, task state machine, transaction boundaries, and a Human-in-the-loop closed loop, and has now entered the Agent integration stage. The first Supervisor Agent has been integrated, and existing deterministic business capabilities have been wrapped as read-only Business Tools.
+The project deliberately separates **deterministic business execution** from **LLM orchestration**. OCR, audit rules, state transitions, transactions, report generation, and Human-in-the-loop remain inside the reliable Java Workflow. The Supervisor Agent is responsible for understanding natural-language requests, selecting read-only Business Tools, and explaining results based on real backend data.
+
+The current Agent stage has advanced from simple in-memory Tool Trace to a queryable request-level execution history.
+
+---
 
 ## 1. Current Stage
 
-As of 2026-09-15, the project has evolved from basic invoice CRUD into:
+As of 2026-09-25, the project has evolved through the following path:
 
 ```text
-State-driven audit backend
+Basic invoice CRUD
         ↓
-Reliable Workflow
+Real Baidu OCR
         ↓
-Supervisor Agent + Business Tools v0.1
+Deterministic audit rules
         ↓
-Future Multi-Agent Graph
+State-driven Workflow
+        ↓
+Transaction boundary refactor
+        ↓
+Human-in-the-loop closed loop
+        ↓
+Supervisor Agent + read-only Business Tools v0.1
+        ↓
+requestId + persistent Tool Trace v0.2
+        ↓
+Queryable Agent Request Lifecycle v0.3   ← CURRENT
+        ↓
+Supervisor model-routing verification
+        ↓
+Controlled write Tools
+        ↓
+Multi-Agent Graph
 ```
 
 | Module | Current Status | Description |
 |---|---:|---|
-| File upload and task creation | Completed | Files are stored by date, and audit tasks are created in the database |
-| Real Baidu OCR | Completed and verified | Parses real invoice fields and stores the raw JSON |
-| Automatic audit rules | Completed and verified | Required-field, amount-limit, and duplicate-invoice checks |
+| File upload and task creation | Completed | Stores original files and creates audit tasks |
+| Real Baidu OCR | Completed and verified | Parses invoice fields and stores raw OCR JSON |
+| Deterministic audit rules | Completed and verified | Required-field, amount-limit, duplicate-invoice checks |
 | Audit report | Completed | Generates UTF-8 TXT reports |
-| Task center API | Completed | Pagination, status filtering, details, rules, and report queries |
-| Human review | Completed | APPROVE / REJECT, saves review records, and regenerates the report |
-| State machine | Completed | OCR_PROCESSING, FAILED, terminal-state protection, and stale-state checks for concurrent updates |
-| Transaction boundaries | Completed | create / processing / failed use independent transactions |
-| Spring AI integration | Completed v0.1 | Spring AI 1.1.8, compatible with Spring Boot 3.5.x |
-| Supervisor Agent | Completed v0.1 | Understands natural-language requests and selects Tools |
-| Business Tools | Completed v0.1 | 5 read-only Tools that reuse existing Services |
-| Tool Trace | Completed v0.1 | Each Agent request returns the Tool call trace |
-| Multi-Agent Graph | Not implemented yet | Agents will be split in a later stage |
-| Frontend | Not implemented yet | The current focus remains backend Agent capabilities |
+| Task center API | Completed | Pagination, filtering, detail, invoice, rule, report queries |
+| Human review | Completed | APPROVE / REJECT, persists review record, regenerates final report |
+| Business state machine | Completed | Legal transitions, terminal states, stale-state protection |
+| Transaction boundaries | Completed | Independent task creation / processing / failure recovery |
+| Spring AI integration | Completed v0.1 | Spring AI 1.1.8 on Spring Boot 3.5.x |
+| Supervisor Agent | Completed v0.1 | Natural-language entry and Tool selection capability |
+| Read-only Business Tools | Completed v0.1 | Five Tools reuse existing `AuditTaskService` methods |
+| requestId | Completed v0.2 | Every enabled Supervisor request gets a unique `AGT-*` ID |
+| Tool Trace persistence | Completed v0.2 | Tool calls persist to `agent_tool_trace` |
+| Agent request lifecycle | Completed v0.3 | `RUNNING -> COMPLETED / FAILED` persisted in `agent_request_log` |
+| Trace replay/query API | Completed v0.3 | Query one Agent request and all Tool calls by `requestId` |
+| Tool contract automated test | Completed v0.3 | Verifies the five `@Tool` definitions exposed to Spring AI |
+| Agent request lifecycle tests | Completed v0.3 | Covers completed and failed request persistence contracts |
+| Backend CI definition | Added | GitHub Actions compiles and tests backend on relevant PR/push events |
+| Real model-routing automated verification | Next | Verify different prompts cause the expected model-selected Tool calls |
+| Controlled write Tools | Not implemented | Requires confirmation, authorization, idempotency, audit boundaries |
+| Multi-Agent Graph | Not implemented | Will be introduced only after single-Supervisor behavior is stable |
 
-## 2. How to Visualize the Whole System Now
+---
 
-You can think of the system as an invoice reimbursement audit center.
+## 2. How to Visualize the Whole System
+
+The system now has **three clearly separated layers**.
 
 ```mermaid
-flowchart LR
+flowchart TB
     U[User / Frontend]
 
-    subgraph Stable[Stable Business Main Flow]
-        API[REST API]
-        WF[Invoice Audit Workflow]
-        OCR[Baidu OCR]
-        RULE[Audit Rules]
-        SM[State Machine]
-        DB[(MySQL)]
-        REPORT[Audit Report]
-        HUMAN[Human Review]
+    subgraph L1[Layer 1 - Agent Orchestration]
+        AC[SupervisorAgentController]
+        SA[SpringAiSupervisorAgentService]
+        LLM[Chat Model]
+        TOOL[InvoiceAuditAgentTools]
     end
 
-    subgraph Agent[Agent Orchestration Layer]
-        S[Supervisor Agent]
-        T1[getTaskDetailTool]
-        T2[getInvoiceInfoTool]
-        T3[getRuleHitsTool]
-        T4[getAuditReportTool]
-        T5[listTasksByStatusTool]
-        TRACE[Tool Trace]
+    subgraph L2[Layer 2 - Deterministic Business Engine]
+        ATS[AuditTaskService]
+        WF[InvoiceAuditWorkflowService]
+        CORE[InvoiceAuditWorkflowCoreService]
+        LIFE[AuditTaskLifecycleService]
+        SM[AuditTaskStateMachine]
+        OCR[OcrService]
+        RULE[AuditRuleService]
+        REPORT[AuditReportService]
     end
 
-    U --> API
-    API --> WF
-    WF --> OCR
-    WF --> RULE
-    WF --> SM
-    WF --> DB
-    WF --> REPORT
-    HUMAN --> SM
+    subgraph L3[Layer 3 - Persistence and Observability]
+        BM[(Business Tables)]
+        AR[(agent_request_log)]
+        TT[(agent_tool_trace)]
+    end
 
-    U --> S
-    S --> T1
-    S --> T2
-    S --> T3
-    S --> T4
-    S --> T5
-    T1 --> DB
-    T2 --> DB
-    T3 --> DB
-    T4 --> REPORT
-    T5 --> DB
-    S --> TRACE
+    U --> AC
+    AC --> SA
+    SA --> LLM
+    LLM -->|selects read-only Tool| TOOL
+    TOOL --> ATS
+
+    ATS --> WF
+    WF --> CORE
+    CORE --> OCR
+    CORE --> RULE
+    CORE --> REPORT
+    CORE --> LIFE
+    LIFE --> SM
+    ATS --> BM
+    CORE --> BM
+
+    SA --> AR
+    TOOL --> TT
 ```
 
-Core principle:
+Mental model:
 
 ```text
-LLM is responsible for: understanding, selecting, explaining
-
-Workflow is responsible for: executing the real audit process
-State Machine is responsible for: restricting state transitions
-Service / Mapper are responsible for: real business logic and database operations
-
-LLM does not directly modify the database
-LLM does not bypass the state machine
-LLM does not secretly perform human review on behalf of the user
+Supervisor = dispatcher
+Business Tool = controlled phone extension
+Service = department that actually knows the business
+Workflow = production line
+State Machine = gatekeeper
+MySQL business tables = source of truth
+requestId = case number
+agent_request_log = case cover sheet
+agent_tool_trace = detailed call record
 ```
 
-## 3. Original Business Main Flow
+The Agent layer may **ask**, **select**, and **explain**.
 
-After a user uploads an invoice:
+The deterministic layer still decides how real business state changes.
+
+---
+
+## 3. Deterministic Invoice Audit Business Flow
+
+The original audit Workflow remains the business backbone even after the Agent layer is enabled.
 
 ```mermaid
 flowchart TD
-    A[Upload Invoice] --> B[Save Original File]
-    B --> C[Create Task UPLOADED]
-    C --> D[Enter OCR_PROCESSING]
-    D --> E[Baidu OCR]
+    A[POST invoice upload] --> B[Save original file]
+    B --> C[createTask()]
+    C --> C1[UPLOADED]
+    C1 --> D[markOcrProcessing()]
+    D --> D1[OCR_PROCESSING]
+    D1 --> E[OcrService OCR]
     E --> F[Save InvoiceInfo]
-    F --> G[Status OCR_DONE]
-    G --> H[Execute Audit Rules]
-    H --> I{Any Risk Rule Hit?}
-    I -->|No| J[APPROVED]
+    F --> G[markOcrDone()]
+    G --> G1[OCR_DONE]
+    G1 --> H[AuditRuleService.checkRules()]
+    H --> I{Any risk rule hit?}
+
+    I -->|No| J[finalDecision = APPROVED]
     J --> K[COMPLETED]
-    I -->|Yes| L[NEED_HUMAN_REVIEW]
+
+    I -->|Yes| L[finalDecision = NEED_HUMAN_REVIEW]
     L --> M[AUDIT_DONE]
-    M --> N{Human Review}
+    M --> N{Human review}
     N -->|APPROVE| O[APPROVED_BY_HUMAN]
     N -->|REJECT| P[REJECTED_BY_HUMAN]
     O --> Q[COMPLETED]
     P --> Q
-    E -->|Exception| R[Core Rollback]
-    H -->|Exception| R
-    R --> S[Write FAILED in Independent Transaction]
+
+    E -->|exception| X[Rollback Core transaction]
+    H -->|exception| X
+    X --> Y[markFailed() in independent transaction]
+    Y --> Z[FAILED]
 ```
 
-## 4. State Machine
+The key engineering rule is:
 
-The state machine has been completed, and valid state transitions are centrally controlled by `AuditTaskStateMachine`.
+```text
+LLM does not replace this Workflow.
+LLM does not directly update audit_task.
+LLM does not directly APPROVE or REJECT a reimbursement.
+```
+
+---
+
+## 4. Business State Machine
+
+Business task state is centrally restricted by `AuditTaskStateMachine`.
 
 ```mermaid
 stateDiagram-v2
     [*] --> UPLOADED
+
     UPLOADED --> OCR_PROCESSING
     UPLOADED --> FAILED
+
     OCR_PROCESSING --> OCR_DONE
     OCR_PROCESSING --> FAILED
-    OCR_DONE --> AUDIT_DONE: Risk detected
-    OCR_DONE --> COMPLETED: Automatically approved
+
+    OCR_DONE --> AUDIT_DONE: risk detected
+    OCR_DONE --> COMPLETED: automatically approved
     OCR_DONE --> FAILED
-    AUDIT_DONE --> COMPLETED: Human review
+
+    AUDIT_DONE --> COMPLETED: human review
     AUDIT_DONE --> FAILED
+
     COMPLETED --> [*]
     FAILED --> [*]
 ```
 
-`COMPLETED` and `FAILED` are terminal states.
+`COMPLETED` and `FAILED` are terminal business states.
 
-Database updates also check the old state:
+State updates also check the previous state at SQL level:
 
 ```sql
 UPDATE audit_task
@@ -161,265 +218,564 @@ WHERE id = #{id}
   AND status = #{currentStatus};
 ```
 
-This means:
+This means an old concurrent request cannot silently overwrite a newer state.
 
 ```text
-Request A sees AUDIT_DONE
-Request B changes it to COMPLETED first
-Request A then tries AUDIT_DONE -> COMPLETED
-                    ↓
-             SQL updates 0 rows
-                    ↓
-              Overwrite rejected
+Request A reads AUDIT_DONE
+        │
+Request B changes AUDIT_DONE -> COMPLETED
+        │
+Request A still tries AUDIT_DONE -> COMPLETED
+        ↓
+SQL WHERE status = AUDIT_DONE matches 0 rows
+        ↓
+Illegal stale overwrite is rejected
 ```
 
-## 5. What Agent v0.1 Added
+---
 
-New package structure:
+## 5. Agent Request State Machine
+
+Agent requests now have their **own lifecycle**, separate from invoice business status.
+
+```mermaid
+stateDiagram-v2
+    [*] --> RUNNING: requestLogService.start()
+
+    RUNNING --> COMPLETED: ChatClient returns final answer
+    RUNNING --> FAILED: Supervisor execution throws RuntimeException
+
+    COMPLETED --> [*]
+    FAILED --> [*]
+```
+
+This state machine describes **Agent execution**, not invoice approval state.
+
+The two state domains must not be confused:
 
 ```text
-invoice_agent_backend/agent/
-├── model/
-│   ├── SupervisorAgentRequest.java
-│   └── SupervisorAgentResponse.java
-├── supervisor/
-│   ├── SupervisorAgentService.java
-│   └── impl/
-│       ├── SpringAiSupervisorAgentService.java
-│       └── DisabledSupervisorAgentService.java
+Invoice business state
+UPLOADED / OCR_PROCESSING / OCR_DONE / AUDIT_DONE / COMPLETED / FAILED
+
+Agent request state
+RUNNING / COMPLETED / FAILED
+```
+
+Example:
+
+```text
+Invoice task #6 = AUDIT_DONE
+Agent request AGT-xxx = COMPLETED
+```
+
+This simply means the Agent successfully answered a question about an invoice that is still waiting for human review.
+
+---
+
+## 6. Agent Package Structure
+
+```text
+invoice_agent_backend/
+├── agent/
+│   ├── model/
+│   │   ├── SupervisorAgentRequest.java
+│   │   ├── SupervisorAgentResponse.java
+│   │   └── AgentRequestTraceResult.java
+│   │
+│   ├── supervisor/
+│   │   ├── SupervisorAgentService.java
+│   │   └── impl/
+│   │       ├── SpringAiSupervisorAgentService.java
+│   │       └── DisabledSupervisorAgentService.java
+│   │
+│   ├── tool/
+│   │   └── InvoiceAuditAgentTools.java
+│   │
+│   └── trace/
+│       ├── AgentToolTrace.java
+│       ├── AgentToolTraceContext.java
+│       ├── AgentRequestRecord.java
+│       ├── AgentRequestLogService.java
+│       └── impl/
+│           └── AgentRequestLogServiceImpl.java
+│
+├── controller/
+│   └── SupervisorAgentController.java
+│
+└── mapper/
+    ├── AgentToolTraceMapper.java
+    └── AgentRequestLogMapper.java
+```
+
+MyBatis XML:
+
+```text
+src/main/resources/mapper/
+├── AgentToolTraceMapper.xml
+└── AgentRequestLogMapper.xml
+```
+
+Tests:
+
+```text
+src/test/java/invoice_agent_backend/agent/
 ├── tool/
-│   └── InvoiceAuditAgentTools.java
+│   ├── InvoiceAuditAgentToolsTest.java
+│   └── InvoiceAuditAgentToolCatalogTest.java
 └── trace/
-    ├── AgentToolTrace.java
-    └── AgentToolTraceContext.java
+    └── AgentRequestLogServiceTest.java
 ```
 
-Also added:
+---
 
-```text
-SupervisorAgentController
-POST /api/agent/supervisor
-```
+## 7. Supervisor Request: Code-Level Runtime Flow
 
-## 6. Supervisor Agent Runtime Microscopic Flow
-
-Suppose the user asks:
+Suppose the user sends:
 
 ```text
 Why does task 6 require human review?
 ```
 
-At runtime, the model does not guess the answer itself. Instead:
+The runtime chain is:
 
 ```mermaid
 sequenceDiagram
     participant U as User
     participant C as SupervisorAgentController
-    participant S as Supervisor Agent
+    participant S as SpringAiSupervisorAgentService
+    participant RL as AgentRequestLogService
+    participant CC as ChatClient
     participant L as LLM
-    participant T as getTaskDetailTool / getRuleHitsTool
+    participant T as InvoiceAuditAgentTools
     participant BS as AuditTaskService
-    participant DB as MySQL
-    participant TR as Tool Trace
+    participant DB as Business MySQL
+    participant TC as AgentToolTraceContext
+    participant TM as AgentToolTraceMapper
+    participant RM as AgentRequestLogMapper
 
-    U->>C: Why does task 6 require human review?
-    C->>S: ask(message)
-    S->>L: system prompt + user message + tool definitions
-    L-->>S: Need to query task 6
-    S->>T: tool(taskId=6)
+    U->>C: POST /api/agent/supervisor
+    C->>S: askSupervisor() -> ask(message)
+
+    S->>S: newRequestId()
+    S->>TC: start(requestId)
+    S->>RL: start(requestId, message)
+    RL->>RM: INSERT status=RUNNING
+
+    S->>CC: prompt().user(message).call()
+    CC->>L: system prompt + user message + Tool schemas
+
+    L-->>CC: request Tool call
+    CC->>T: getTaskDetailTool(taskId=6)
     T->>BS: getTaskDetail(6)
-    BS->>DB: Query task / invoice / rule hit / review
-    DB-->>BS: Real database result
+    BS->>DB: SELECT task/invoice/rules/review
+    DB-->>BS: real business facts
     BS-->>T: AuditTaskDetailResult
-    T->>TR: Record toolName / input / result / success
-    T-->>S: Structured business summary
-    S->>L: Tool Result
-    L-->>S: Generate explanation
-    S-->>C: answer + toolTraces
-    C-->>U: ApiResponse
+
+    T->>TC: recordSuccess(...)
+    TC->>TM: insertAgentToolTrace()
+    TM-->>DB: INSERT agent_tool_trace
+
+    T-->>CC: compact Tool result
+    CC->>L: Tool result
+    L-->>CC: final natural-language answer
+    CC-->>S: content()
+
+    S->>TC: snapshot()
+    S->>RL: complete(requestId, answer)
+    RL->>RM: UPDATE status=COMPLETED
+
+    S-->>C: SupervisorAgentResponse
+    C-->>U: requestId + answer + toolTraces
 ```
 
-You can think of this layer as:
+The most important method chain is:
 
 ```text
-LLM = dispatcher
-Tool = phone
-Service = business department that actually does the work
-MySQL = records room
-Tool Trace = call log
+SupervisorAgentController.askSupervisor()
+        ↓
+SpringAiSupervisorAgentService.ask()
+        ↓
+newRequestId()
+        ↓
+AgentToolTraceContext.start(requestId)
+        ↓
+AgentRequestLogService.start(requestId, message)
+        ↓
+ChatClient.prompt().user(...).call().content()
+        ↓
+InvoiceAuditAgentTools.<selectedTool>()
+        ↓
+AuditTaskService.<businessMethod>()
+        ↓
+Mapper / MySQL
+        ↓
+AgentToolTraceContext.recordSuccess() / recordFailure()
+        ↓
+AgentToolTraceMapper.insertAgentToolTrace()
+        ↓
+AgentRequestLogService.complete() / fail()
+        ↓
+SupervisorAgentResponse
 ```
 
-## 7. Current Business Tools
+---
 
-The first version exposes only read-only capabilities, intentionally preventing the LLM from directly executing dangerous write operations.
+## 8. Failure Interaction Flow
 
-| Tool | Purpose | Real Data Source |
+If the LLM request or Tool chain fails, business data must not be silently changed.
+
+```mermaid
+sequenceDiagram
+    participant S as Supervisor
+    participant RL as RequestLogService
+    participant L as LLM / Tool chain
+    participant TC as TraceContext
+
+    S->>RL: start(requestId, message)
+    RL-->>S: RUNNING recorded
+
+    S->>L: execute
+    L-->>S: throws RuntimeException
+
+    S->>RL: fail(requestId, errorMessage)
+    RL-->>S: FAILED recorded
+
+    S->>TC: clear()
+    S-->>S: rethrow exception
+```
+
+Observability persistence is intentionally **best-effort**.
+
+If `agent_request_log` or `agent_tool_trace` temporarily fails to write:
+
+```text
+Trace persistence failure
+        ↓
+log.warn(...)
+        ↓
+Do NOT convert a valid read-only business query into a business failure
+```
+
+This prevents the monitoring layer from becoming a new single point of failure for the invoice system.
+
+---
+
+## 9. Current Business Tools
+
+The Supervisor currently receives five read-only Tools.
+
+| Tool | Main Purpose | Existing Backend Method |
 |---|---|---|
-| `getTaskDetailTool` | Query complete task summary | `AuditTaskService.getTaskDetail()` |
-| `getInvoiceInfoTool` | Query invoice fields | `AuditTaskService.getInvoiceInfoByTaskId()` |
-| `getRuleHitsTool` | Query matched rules | `AuditTaskService.getRuleHitsByTaskId()` |
-| `getAuditReportTool` | Read audit report | `AuditTaskService.getReportByTaskId()` |
-| `listTasksByStatusTool` | Query recent tasks | `AuditTaskService.getTaskPage()` |
+| `getTaskDetailTool` | Full task summary | `AuditTaskService.getTaskDetail(taskId)` |
+| `getInvoiceInfoTool` | Invoice fields | `AuditTaskService.getInvoiceInfoByTaskId(taskId)` |
+| `getRuleHitsTool` | Explain risk rule hits | `AuditTaskService.getRuleHitsByTaskId(taskId)` |
+| `getAuditReportTool` | Read generated report | `AuditTaskService.getReportByTaskId(taskId)` |
+| `listTasksByStatusTool` | Query recent tasks by status | `AuditTaskService.getTaskPage(status, 1, 20)` |
 
-Why the first version does not directly expose:
-
-```text
-humanReviewTool
-changeStatusTool
-rerunOcrTool
-```
-
-Once write operations are handed to the model, the risk escalates from “the explanation is wrong” to “the real business state is modified incorrectly.”
-
-So the current strategy is:
+Tool execution example:
 
 ```text
-Phase D v0.1
-Supervisor + Read-only Tools
-
-Phase D v0.2
-After permission control, confirmation, idempotency, and auditing
-consider controlled Write Tools
+getRuleHitsTool(6)
+        ↓
+inputSummary = taskId=6
+        ↓
+AuditTaskService.getRuleHitsByTaskId(6)
+        ↓
+AuditRuleHitMapper.selectRuleHitsByTaskId(6)
+        ↓
+real audit_rule_hit rows
+        ↓
+buildRuleHitSummary(...)
+        ↓
+recordSuccess(
+    "getRuleHitsTool",
+    "taskId=6",
+    "ruleHitCount=..."
+)
 ```
 
-## 8. Tool Trace
+The Tool returns a compact business summary to the model instead of dumping raw database objects or OCR JSON.
 
-Every Supervisor request returns its call trace.
+---
 
-For example:
+## 10. Tool Contract Verification
+
+`InvoiceAuditAgentToolCatalogTest` converts `InvoiceAuditAgentTools` into Spring AI `ToolCallback` definitions using:
+
+```java
+ToolCallbacks.from(tools)
+```
+
+The test verifies that Spring AI can discover exactly these five names:
+
+```text
+getTaskDetailTool
+getInvoiceInfoTool
+getRuleHitsTool
+getAuditReportTool
+listTasksByStatusTool
+```
+
+It also verifies that every Tool has:
+
+```text
+non-empty description
++
+non-empty input schema
+```
+
+Why this matters:
+
+```text
+Java method exists
+    ≠
+LLM can see a valid Tool contract
+```
+
+The model receives the generated Tool name, description, and JSON input schema. If these contracts are wrong, Tool Calling can fail even when the Java business method itself is correct.
+
+This test verifies the **Tool contract layer**.
+
+It does **not yet prove** that a real model will always select the intended Tool for every natural-language prompt. That is the next integration-verification step.
+
+---
+
+## 11. requestId and Trace Persistence
+
+Each enabled Supervisor request receives:
+
+```text
+AGT-<UUID>
+```
+
+Example:
+
+```text
+AGT-f5f1260d-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+One requestId may own multiple Tool calls:
+
+```text
+AGT-001
+│
+├── getTaskDetailTool(taskId=6)
+│
+├── getRuleHitsTool(taskId=6)
+│
+└── final Supervisor answer
+```
+
+This creates a real execution chain instead of isolated log lines.
+
+---
+
+## 12. Querying a Previous Agent Execution
+
+New API:
+
+```text
+GET /api/agent/requests/{requestId}
+```
+
+Code path:
+
+```mermaid
+sequenceDiagram
+    participant U as User / Frontend
+    participant C as SupervisorAgentController
+    participant S as AgentRequestLogServiceImpl
+    participant RM as AgentRequestLogMapper
+    participant TM as AgentToolTraceMapper
+    participant DB as MySQL
+
+    U->>C: GET /api/agent/requests/AGT-xxx
+    C->>S: getRequestTrace(requestId)
+
+    S->>RM: selectByRequestId(requestId)
+    RM->>DB: SELECT agent_request_log
+    DB-->>RM: request record
+
+    S->>TM: selectByRequestId(requestId)
+    TM->>DB: SELECT agent_tool_trace ORDER BY id
+    DB-->>TM: ordered Tool calls
+
+    S-->>C: AgentRequestTraceResult
+    C-->>U: request + toolTraces
+```
+
+Conceptually the response is:
 
 ```json
 {
-  "answer": "Task 6 matched the amount-limit rule, so it requires human review.",
+  "request": {
+    "requestId": "AGT-...",
+    "userMessage": "Why does task 6 require human review?",
+    "answer": "...",
+    "status": "COMPLETED",
+    "startedAt": "...",
+    "completedAt": "..."
+  },
   "toolTraces": [
     {
+      "requestId": "AGT-...",
       "toolName": "getTaskDetailTool",
       "inputSummary": "taskId=6",
-      "resultSummary": "taskId=6, status=AUDIT_DONE, finalDecision=NEED_HUMAN_REVIEW",
-      "success": true
+      "resultSummary": "taskId=6, status=AUDIT_DONE, ...",
+      "success": true,
+      "calledAt": "..."
     }
   ]
 }
 ```
 
-Currently, Tool Trace exists only within a single HTTP request. It can be upgraded later into:
+This becomes the backend foundation for a future frontend execution timeline.
+
+---
+
+## 13. Agent Safety Boundary
+
+The current Agent can:
 
 ```text
-In-memory trace
-   ↓
-requestId
-   ↓
-trace table
-   ↓
-Complete Agent execution history
-   ↓
-Frontend visualization of the execution chain
+understand a question
+select a read-only Tool
+query real business data
+explain deterministic results
+record its own execution trail
 ```
 
-## 9. Agent Safety Boundary
-
-The first Supervisor version explicitly restricts the system prompt:
-
-1. Do not fabricate tasks, invoices, rules, or audit conclusions.
-2. Specific database facts must be obtained by calling a Tool.
-3. All current Tools are read-only.
-4. Do not claim that a state has been modified.
-5. Do not bypass the state machine.
-6. Do not perform human APPROVE / REJECT on behalf of the user.
-7. The final business state is determined by deterministic data returned by Tools.
-
-Therefore, the current Agent is:
+It cannot directly:
 
 ```text
-An intelligent orchestration layer above the business system
+APPROVE an invoice
+REJECT an invoice
+change audit_task.status
+rerun OCR
+execute arbitrary SQL
+bypass AuditTaskStateMachine
 ```
 
-rather than:
+The current permission boundary is therefore:
 
-```text
-A chatbot that can arbitrarily modify the database
+```mermaid
+flowchart LR
+    L[LLM]
+    T[Read-only Tool]
+    S[Existing Service]
+    DB[(Business Data)]
+
+    L -->|allowed| T
+    T -->|allowed| S
+    S --> DB
+
+    L -. blocked .-> DB
+    L -. blocked .-> SM[State mutation]
+    L -. blocked .-> HR[Human APPROVE / REJECT]
 ```
 
-## 10. Code Layers
+This limits early Agent mistakes to the explanation/orchestration layer instead of allowing them to corrupt reimbursement state.
 
-| Layer | Main Class | Responsibility |
-|---|---|---|
-| Controller | `InvoiceController` | Original audit REST API |
-| Agent Controller | `SupervisorAgentController` | Agent natural-language entry point |
-| Supervisor | `SpringAiSupervisorAgentService` | Understand intent, select Tools, organize answers |
-| Agent Tool | `InvoiceAuditAgentTools` | Expose business Services as Tools |
-| Tool Trace | `AgentToolTraceContext` | Store Tool call traces for a single Agent request |
-| Application Service | `AuditTaskServiceImpl` | Query, details, human review, start Workflow |
-| Orchestrator | `InvoiceAuditWorkflowServiceImpl` | Files, tasks, Core, exception handling |
-| Core Workflow | `InvoiceAuditWorkflowCoreServiceImpl` | Main transaction for OCR, rules, decisions, and report |
-| Lifecycle | `AuditTaskLifecycleServiceImpl` | State transitions and independent FAILED transaction |
-| State Machine | `AuditTaskStateMachine` | Valid state transitions |
-| OCR Adapter | `BaiduOcrServiceImpl` / `MockOcrServiceImpl` | OCR isolation layer |
-| Rule Service | `AuditRuleServiceImpl` | Deterministic audit rules |
-| Report Service | `AuditReportServiceImpl` | Report generation and reading |
-| Persistence | Mapper + XML | MyBatis persistence |
+---
 
-## 11. Current Audit Rules
+## 14. Persistence Model
 
-### 11.1 Required Field Validation
+```mermaid
+erDiagram
+    AUDIT_TASK ||--o| INVOICE_INFO : contains
+    AUDIT_TASK ||--o{ AUDIT_RULE_HIT : produces
+    AUDIT_TASK ||--o{ HUMAN_REVIEW_RECORD : receives
 
-`RULE_REQUIRED_FIELD`
+    AGENT_REQUEST_LOG ||--o{ AGENT_TOOL_TRACE : groups_by_request_id
 
-Checks: invoice number, buyer name, seller name.
+    AUDIT_TASK {
+        bigint id PK
+        varchar task_no
+        varchar status
+        varchar final_decision
+        boolean need_human_review
+        varchar report_path
+    }
 
-### 11.2 Amount Limit Validation
+    INVOICE_INFO {
+        bigint id PK
+        bigint task_id
+        varchar invoice_no
+        decimal amount
+        decimal tax_amount
+        varchar buyer_name
+        varchar seller_name
+    }
 
-`RULE_AMOUNT_LIMIT`
+    AUDIT_RULE_HIT {
+        bigint id PK
+        bigint task_id
+        varchar rule_code
+        varchar rule_name
+        varchar rule_message
+    }
 
-Current threshold:
+    HUMAN_REVIEW_RECORD {
+        bigint id PK
+        bigint task_id
+        varchar decision
+        varchar reviewer
+        varchar review_comment
+    }
 
-```text
-50000.00 yuan
+    AGENT_REQUEST_LOG {
+        bigint id PK
+        varchar request_id UK
+        text user_message
+        text answer
+        varchar status
+        varchar error_message
+        datetime started_at
+        datetime completed_at
+    }
+
+    AGENT_TOOL_TRACE {
+        bigint id PK
+        varchar request_id
+        varchar tool_name
+        varchar input_summary
+        varchar result_summary
+        boolean success
+        datetime called_at
+    }
 ```
 
-### 11.3 Duplicate Invoice Validation
+`agent_request_log` and `agent_tool_trace` are logically linked by `request_id`.
 
-`RULE_DUPLICATE_INVOICE`
+A hard foreign key is intentionally not required at this stage because Trace persistence is best-effort: observability problems should not make a valid business read fail.
 
-Queries historical records by `invoice_no` and excludes the current task.
+---
 
-## 12. Tech Stack
-
-- Java 17
-- Spring Boot 3.5.16
-- Spring MVC
-- Spring Transaction
-- MyBatis 3.0.5
-- MySQL
-- Maven Wrapper
-- Baidu VAT Invoice OCR
-- Spring AI 1.1.8
-- OpenAI-compatible Chat Model API
-- Redis dependency and connection configuration
-
-## 13. API
+## 15. API Surface
 
 ### Original Business API
 
 | Method | Path | Purpose |
 |---|---|---|
 | GET | `/health` | Health check |
-| POST | `/api/invoices/upload` | Upload invoice and execute the complete audit |
+| POST | `/api/invoices/upload` | Upload invoice and execute full audit Workflow |
 | GET | `/api/invoices/tasks` | Query tasks with pagination |
-| GET | `/api/invoices/tasks/{id}` | Query task |
-| GET | `/api/invoices/tasks/{id}/invoice-info` | Query OCR result |
+| GET | `/api/invoices/tasks/{id}` | Query one task |
+| GET | `/api/invoices/tasks/{id}/invoice-info` | Query parsed invoice fields |
 | GET | `/api/invoices/tasks/{id}/rule-hits` | Query matched rules |
 | GET | `/api/invoices/tasks/{id}/report` | Query audit report |
-| GET | `/api/invoices/tasks/{id}/detail` | Query complete task details |
+| GET | `/api/invoices/tasks/{id}/detail` | Query aggregated task detail |
 | POST | `/api/invoices/tasks/{id}/human-review` | Human APPROVE / REJECT |
 
 ### Agent API
+
+Start a Supervisor request:
 
 ```text
 POST /api/agent/supervisor
 ```
 
-Request example:
+Request:
 
 ```json
 {
@@ -427,38 +783,41 @@ Request example:
 }
 ```
 
-You can also ask:
+Response includes:
 
 ```text
-What is the amount of task 6?
-Which rules did task 6 match?
-What does the audit report for task 6 say?
-Which FAILED tasks were created recently?
-Which recent tasks require human review?
+requestId
+answer
+toolTraces
 ```
 
-## 14. Local Run
+Replay/query a previous Agent request:
 
-### 14.1 Original Business Backend
-
-The Agent is disabled by default, so the original business Workflow is not affected even without an LLM Key.
-
-```powershell
-.\mvnw.cmd clean compile
-.\mvnw.cmd test
-.\mvnw.cmd spring-boot:run
+```text
+GET /api/agent/requests/{requestId}
 ```
 
-### 14.2 Enable Baidu OCR
+---
 
-```powershell
-$env:BAIDU_OCR_API_KEY="Your API Key"
-$env:BAIDU_OCR_SECRET_KEY="Your Secret Key"
+## 16. Spring AI Configuration
+
+The project currently uses:
+
+```text
+Java 17
+Spring Boot 3.5.16
+Spring AI 1.1.8
+OpenAI-compatible Chat Model API
 ```
 
-### 14.3 Enable Supervisor Agent
+The Agent is disabled by default:
 
-The first version uses an OpenAI-compatible API configuration by default.
+```properties
+agent.supervisor.enabled=${AGENT_SUPERVISOR_ENABLED:false}
+spring.ai.model.chat=${SPRING_AI_MODEL_CHAT:none}
+```
+
+Therefore the deterministic invoice backend can still start without an LLM key.
 
 DeepSeek example:
 
@@ -467,157 +826,218 @@ $env:AGENT_SUPERVISOR_ENABLED="true"
 $env:SPRING_AI_MODEL_CHAT="openai"
 $env:LLM_API_KEY="Your model API Key"
 $env:LLM_BASE_URL="https://api.deepseek.com"
-$env:LLM_MODEL="deepseek-chat"
+$env:LLM_MODEL="deepseek-flash"
 ```
 
-Then start:
+No real API key should be committed to Git.
 
-```powershell
-.\mvnw.cmd spring-boot:run
-```
+---
 
-If the Agent is not enabled, a request to `/api/agent/supervisor` returns a clear configuration message instead of affecting the entire application startup.
+## 17. Automated Verification and CI
 
-## 15. Current Agent Code Design Focus
-
-### 15.1 Why the Original Workflow Is Not Replaced
-
-The existing Workflow is already responsible for:
+Current Agent tests include:
 
 ```text
-Upload
- ↓
-OCR
- ↓
-Rules
- ↓
-State Machine
- ↓
-Report
- ↓
-Human Review
+InvoiceAuditAgentToolsTest
+        ↓
+verifies business Tool output + Tool Trace recording
+
+InvoiceAuditAgentToolCatalogTest
+        ↓
+verifies Spring AI Tool names / descriptions / input schemas
+
+AgentRequestLogServiceTest
+        ↓
+verifies request lifecycle persistence contract
+        ↓
+verifies COMPLETED and FAILED update paths
+        ↓
+verifies request + Tool Trace aggregation by requestId
 ```
 
-The Agent should reuse it rather than rewrite another version.
+A GitHub Actions workflow has also been added:
 
-The correct evolution path is:
+```text
+.github/workflows/backend-ci.yml
+```
+
+Trigger scope:
+
+```text
+Pull Request touching backend/sql/CI
+        ↓
+Java 17
+        ↓
+MySQL 8.4 service
+Redis 7 service
+        ↓
+./mvnw -B clean test
+```
+
+The Agent is explicitly disabled during CI:
+
+```text
+AGENT_SUPERVISOR_ENABLED=false
+SPRING_AI_MODEL_CHAT=none
+```
+
+This means normal compile/unit tests do not consume an LLM API key.
+
+The CI definition is now in the repository; a successful workflow run still needs to be observed before claiming CI execution has been fully verified.
+
+---
+
+## 18. Why the Agent Does Not Replace the Existing Workflow
+
+A rule engine and an Agent solve different problems.
+
+```text
+Deterministic Java code
+Best for:
+- amount thresholds
+- duplicate checks
+- required fields
+- state transitions
+- transaction guarantees
+- approval boundaries
+
+LLM / Agent
+Best for:
+- natural-language intent
+- dynamic Tool selection
+- explanation
+- summarization
+- future policy interpretation
+- future multi-step orchestration
+```
+
+So the architecture is intentionally:
 
 ```text
 Reliable business capabilities
-      ↓
-Tool wrapping
-      ↓
-Supervisor orchestration
-      ↓
-Multi-Agent Graph
+        ↓
+Expose safe Tools
+        ↓
+Supervisor orchestrates Tools
+        ↓
+Persist execution evidence
+        ↓
+Verify behavior
+        ↓
+Only then introduce more autonomy
 ```
 
-### 15.2 Why Read-only Tools Come First
+---
 
-This ensures that even if the first Agent version gives an inaccurate answer, it cannot directly contaminate the real business state.
+## 19. What Is Still Missing Before Multi-Agent
 
-The risk is limited to:
+The project should not immediately create:
 
 ```text
-Answer layer
+OcrAgent.java
+PolicyAgent.java
+RiskAgent.java
+ReportAgent.java
 ```
 
-instead of spreading to:
+The single Supervisor should first become fully reliable.
+
+Recommended order from the current point:
 
 ```text
-Database state layer
+CURRENT
+Queryable request lifecycle + persistent Tool Trace
+        ↓
+1. Observe first green CI run
+        ↓
+2. Add model-routing integration test
+   prompt -> expected Tool call
+        ↓
+3. Add Tool execution duration / richer metrics
+        ↓
+4. Add authentication and Tool-level authorization
+        ↓
+5. Add one controlled write Tool
+   explicit confirmation + idempotency + audit
+        ↓
+6. Add retry / timeout / failure recovery policies
+        ↓
+7. Introduce Graph State
+        ↓
+8. Split selected responsibilities into Multi-Agent nodes
 ```
 
-## 16. Current Limitations and Technical Debt
+---
 
-1. Agent Tool Trace is not persisted to the database yet.
-2. The Agent currently has no requestId / conversationId.
-3. The Agent currently has no conversational Memory.
-4. Controlled write Tools are not exposed yet.
-5. Authentication and Tool-level authorization are not implemented yet.
-6. Automated business tests still need to be expanded.
-7. Database Migration still needs to be completed.
-8. Reports are still local TXT files.
-9. File-system operations cannot automatically roll back with database transactions.
-10. Redis is not yet used for Agent State / Lock / Memory.
+## 20. Future Multi-Agent Graph
 
-## 17. Next Agent Development Roadmap
-
-Do not immediately split OCR Agent, Policy Agent, and Risk Agent at the current stage.
-
-The next step should continue stabilizing the single Supervisor.
-
-### Phase D v0.2: Supervisor Stabilization
-
-```text
-Now
-Supervisor
-  ↓
-Read-only Tools
-  ↓
-Service
-
-Next
-Supervisor
-  ↓
-Tool Registry
-  ↓
-Trace Persistence
-  ↓
-Conversation / Request Context
-  ↓
-Controlled Write Tool
-```
-
-Recommended development order:
-
-1. Add the `agent_tool_trace` table and persist Tool Trace.
-2. Generate a `requestId` for every Agent request.
-3. Add Supervisor automated tests and use a Mock ChatModel to verify Tool Calling.
-4. Add unified error wrapping and execution time to Tools.
-5. Add a controlled `humanReviewTool`, but require explicit confirmation.
-6. Then begin Multi-Agent Graph.
-
-## 18. Future Multi-Agent Graph
-
-After the single Supervisor becomes stable, evolve further:
+Only after the Supervisor + Tool layer is stable should the system evolve toward:
 
 ```mermaid
 flowchart TD
+    U[User]
     S[Supervisor Agent]
-    S --> O[OCR Agent]
-    S --> P[Policy Agent]
-    S --> D[Data Agent]
-    S --> R[Risk Agent]
-    S --> G[Report Agent]
 
-    O --> STATE[Shared Graph State]
+    O[OCR Agent]
+    P[Policy Agent]
+    D[Data Agent]
+    R[Risk Agent]
+    G[Report Agent]
+
+    STATE[Shared Graph State]
+    H{Human Review Required?}
+    HUMAN[Human-in-the-loop]
+    DONE[Completed]
+
+    U --> S
+
+    S --> O
+    S --> P
+    S --> D
+
+    O --> STATE
     P --> STATE
     D --> STATE
+
+    STATE --> R
     R --> STATE
+    STATE --> G
     G --> STATE
 
-    STATE --> H{Human Review Required?}
-    H -->|No| DONE[Completed]
-    H -->|Yes| HUMAN[Human-in-the-loop]
+    STATE --> H
+    H -->|No| DONE
+    H -->|Yes| HUMAN
+    HUMAN --> DONE
 ```
 
-The future focus is not “adding a few more classes,” but:
+At that point the real engineering focus is not the number of Agent classes. It is:
 
-- Conditional edges;
-- Dynamic routing;
-- Retry;
-- State recovery;
-- Agent Trace;
-- Human-in-the-loop;
-- Tool permissions;
-- Graph State;
-- Frontend execution-chain visualization.
+- conditional routing;
+- shared Graph State;
+- retry and timeout;
+- state recovery;
+- Tool permission boundaries;
+- Human-in-the-loop interrupts;
+- request-level traceability;
+- deterministic business invariants;
+- frontend execution-chain visualization.
 
-## 19. Current Project Positioning
+---
 
-The project is no longer just an invoice CRUD system, but it is not yet a complete Multi-Agent product either.
+## 21. Current Project Positioning
 
-The accurate positioning is:
+The accurate project description today is:
 
-> A state-driven intelligent invoice audit backend based on Spring Boot, MyBatis, MySQL, real Baidu OCR, and Spring AI. It has implemented a deterministic audit Workflow, reliable state machine, Human-in-the-loop, and Supervisor Agent + Read-only Business Tools v0.1, providing the foundation for future Tool Trace persistence, controlled write Tools, and Multi-Agent Graph.
+> A state-driven intelligent invoice reimbursement audit backend built with Spring Boot, MyBatis, MySQL, real Baidu OCR, and Spring AI. It combines a deterministic audit Workflow and state machine with a read-only Supervisor Agent, Business Tool Calling, request-level lifecycle persistence, and queryable Tool Trace, while keeping real approval and state mutation behind explicit deterministic boundaries.
+
+In short:
+
+```text
+Not just CRUD
+        ↓
+Not an LLM wrapper
+        ↓
+Not yet a complete Multi-Agent product
+        ↓
+A reliable backend + observable Agent orchestration foundation
+```

@@ -7,10 +7,13 @@ import java.util.List;
 /*
  ** Supervisor 最终返回给前端的结果。
  **
+ ** requestId：本次 Agent 请求的唯一标识。
  ** answer：模型给出的审核解释或任务分析。
  ** toolTraces：本次请求实际调用过哪些业务 Tool。
  */
 public class SupervisorAgentResponse {
+
+    private String requestId;
 
     private String answer;
 
@@ -20,11 +23,21 @@ public class SupervisorAgentResponse {
     }
 
     public SupervisorAgentResponse(
+            String requestId,
             String answer,
             List<AgentToolTrace> toolTraces) {
 
+        this.requestId = requestId;
         this.answer = answer;
         this.toolTraces = toolTraces;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     public String getAnswer() {

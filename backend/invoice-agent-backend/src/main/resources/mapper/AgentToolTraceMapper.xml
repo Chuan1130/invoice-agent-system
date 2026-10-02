@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="invoice_agent_backend.mapper.AgentToolTraceMapper">
+
+    <resultMap id="AgentToolTraceResultMap"
+               type="invoice_agent_backend.agent.trace.AgentToolTrace">
+        <id property="id" column="id"/>
+        <result property="requestId" column="request_id"/>
+        <result property="toolName" column="tool_name"/>
+        <result property="inputSummary" column="input_summary"/>
+        <result property="resultSummary" column="result_summary"/>
+        <result property="success" column="success"/>
+        <result property="calledAt" column="called_at"/>
+    </resultMap>
+
+    <insert id="insertAgentToolTrace"
+            parameterType="invoice_agent_backend.agent.trace.AgentToolTrace"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO agent_tool_trace (
+            request_id,
+            tool_name,
+            input_summary,
+            result_summary,
+            success,
+            called_at
+        )
+        VALUES (
+            #{requestId},
+            #{toolName},
+            #{inputSummary},
+            #{resultSummary},
+            #{success},
+            #{calledAt}
+        )
+    </insert>
+
+    <select id="selectByRequestId"
+            parameterType="string"
+            resultMap="AgentToolTraceResultMap">
+        SELECT
+            id,
+            request_id,
+            tool_name,
+            input_summary,
+            result_summary,
+            success,
+            called_at
+        FROM agent_tool_trace
+        WHERE request_id = #{requestId}
+        ORDER BY id ASC
+    </select>
+
+</mapper>
