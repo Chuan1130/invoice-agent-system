@@ -24,3 +24,5 @@ application-dev-local.yml
 logs/
 temp/
 upload-temp/
+uploads/
+audit-reports/
