@@ -14,6 +14,44 @@ Workflow + State Machine + Transaction remain authoritative
 
 The project has now entered **Agent Runtime v1.0**: the Supervisor can return typed structured output and can prepare a controlled business action, but any real APPROVE / REJECT still requires a separate explicit user confirmation.
 
+## Repository Role
+
+This public repository is the stable **technical showcase** for the invoice audit engine and Agent Runtime.
+
+It is intentionally kept focused on:
+
+- deterministic invoice audit Workflow
+- state machine and transaction boundaries
+- real OCR integration
+- Human-in-the-loop
+- Spring AI Supervisor
+- Business Tool Calling
+- request / Tool Trace observability
+- confirmation-gated Agent actions
+- regression tests and architecture documentation
+
+Commercial SaaS work is separated from this repository. Product features such as tenant isolation, authentication, batch processing, configurable rule management, exception-first dashboards, export workflows, billing, and customer integrations belong to a separate private product repository.
+
+The public repository should only receive focused bug fixes, test improvements, documentation updates, and technical-showcase improvements after this runtime baseline is frozen.
+
+```text
+PUBLIC: invoice-agent-system
+        ↓
+Stable Agent Runtime technical showcase
+        ↓
+Freeze product scope
+        ├── keep architecture / tests / demo quality
+        └── avoid commercial feature creep
+
+PRIVATE PRODUCT TRACK
+        ↓
+invoice-preaudit-saas
+        ↓
+SaaS product foundation
+        ↓
+MVP validation
+```
+
 ---
 
 ## 1. Current Stage
@@ -37,9 +75,11 @@ requestId + persistent Tool Trace v0.2
         ↓
 Queryable Agent Request Lifecycle v0.3
         ↓
-Structured Output + confirmation-gated action runtime v1.0   ← CURRENT
+Structured Output + confirmation-gated action runtime v1.0   ← PUBLIC BASELINE
         ↓
-Graph State / Multi-Agent
+Public technical showcase frozen
+        ↓
+Commercial SaaS development continues on a separate private track
 ```
 
 | Module | Status | What it means |
@@ -64,7 +104,7 @@ Graph State / Multi-Agent
 | Backend CI | Verified | Java 17 + MySQL + Redis + `mvnw clean test` |
 | Live provider routing verification | Not claimed yet | Requires a real model key at runtime |
 | Authentication / real user identity | Not implemented yet | `confirmedBy` is still request data |
-| Multi-Agent Graph | Not implemented yet | Next major stage |
+| Multi-Agent Graph | Not implemented | Not a Phase 0 / commercial MVP priority |
 
 ---
 
